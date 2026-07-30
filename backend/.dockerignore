@@ -1,0 +1,45 @@
+# Docker 构建上下文忽略文件 - 减小构建上下文体积
+# 排除不需要发送到 Docker daemon 的文件
+
+# Maven 构建产物（只保留 target/*.jar）
+target/classes
+target/test-classes
+target/maven-archiver
+target/maven-status
+target/generated-sources
+target/generated-test-sources
+target/surefire-reports
+target/site
+target/*.war
+target/*.original
+
+# IDE 配置文件
+.idea
+*.iml
+*.ipr
+*.iws
+.vscode
+.settings
+.project
+.classpath
+.factorypath
+
+# 日志文件
+logs
+*.log
+
+# Git
+.git
+.gitignore
+
+# 文档
+*.md
+*.txt
+docs
+
+# 临时文件
+tmp
+temp
+*.tmp
+*.bak
+*.swp

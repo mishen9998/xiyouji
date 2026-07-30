@@ -1,0 +1,90 @@
+# ========================================
+# 西游记 - 云服务器精简部署版
+# 适用于 2核2G 宝塔面板服务器
+# 只保留核心容器：MySQL + Redis + 单实例App + Nginx
+# 关闭 Prometheus/Grafana/Zipkin/第二实例以节省内存
+# ========================================
+services:
+  # ====== MySQL 数据库 ======
+  mysql:
+    image: mysql:8.0
+    container_name: xiyouji-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-xiyouji2026}
+      MYSQL_DATABASE: xiyouji
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - xiyouji-net
+
+  # ====== Redis 缓存 & 会话存储 ======
+  redis:
+    image: redis:7-alpine
+    container_name: xiyouji-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - xiyouji-net
+
+  # ====== Spring Boot 应用实例 ======
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: xiyouji-app
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/xiyouji?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-xiyouji2026}
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - ENFORCE_JWT=true
+      - JWT_SECRET=${JWT_SECRET:-xiyouji-production-secret-key-change-me-256bits}
+      - CORS_ORIGINS=http://114.132.55.119,http://localhost,http://localhost:8080,http://127.0.0.1
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - xiyouji-net
+
+# ====== 数据卷 ======
+volumes:
+  mysql_data:
+  redis_data:
+
+# ====== 网络 ======
+networks:
+  xiyouji-net:
+    driver: bridge

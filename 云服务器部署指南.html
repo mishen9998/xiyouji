@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>西游记云服务器部署指南 - 腾讯云宝塔面板</title>
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1726;
+    --surface-2: #252134;
+    --border: #3a3548;
+    --text: #e0dce8;
+    --text-muted: #9a94a8;
+    --brand: #c89b3c;
+    --brand-light: #f0d878;
+    --accent: #4a90d9;
+    --danger: #e74c3c;
+    --success: #2ecc71;
+    --warning: #f39c12;
+    --code-bg: #161420;
+    --radius: 8px;
+    --radius-card: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 0;
+  }
+  .header {
+    background: linear-gradient(135deg, #1a1726 0%, #0f0e17 100%);
+    border-bottom: 2px solid var(--brand);
+    padding: 40px 20px;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 28px;
+    color: var(--brand-light);
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+  }
+  .header p {
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+  .header .server-info {
+    margin-top: 16px;
+    display: inline-block;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 20px;
+    font-size: 13px;
+    color: var(--accent);
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px 20px;
+  }
+  .phase {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .phase-header {
+    background: var(--surface-2);
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .phase-num {
+    width: 36px;
+    height: 36px;
+    background: var(--brand);
+    color: var(--bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .phase-title {
+    font-size: 18px;
+    color: var(--brand-light);
+    font-weight: 600;
+  }
+  .phase-body {
+    padding: 24px;
+  }
+  .step {
+    margin-bottom: 20px;
+    padding-left: 20px;
+    border-left: 3px solid var(--border);
+    position: relative;
+  }
+  .step:last-child { margin-bottom: 0; }
+  .step::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 8px;
+    width: 9px;
+    height: 9px;
+    background: var(--brand);
+    border-radius: 50%;
+  }
+  .step-title {
+    font-size: 15px;
+    color: var(--text);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .step-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin: 8px 0;
+    overflow-x: auto;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #a9b1d6;
+  }
+  .code-block .comment { color: #5c6370; }
+  .code-block .keyword { color: #c678dd; }
+  .code-block .string { color: #98c379; }
+  .code-block .number { color: #d19a66; }
+  .code-block .cmd { color: var(--accent); }
+  .code-block .prompt { color: var(--success); }
+  .warn {
+    background: rgba(243, 156, 18, 0.1);
+    border: 1px solid var(--warning);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    margin: 10px 0;
+    font-size: 13px;
+    color: var(--warning);
+  }
+  .warn::before { content: '⚠️ 注意: '; font-weight: bold; }
+  .danger {
+    background: rgba(231, 76, 60, 0.1);
+    border: 1px solid var(--danger);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    margin: 10px 0;
+    font-size: 13px;
+    color: var(--danger);
+  }
+  .danger::before { content: '🚫 警告: '; font-weight: bold; }
+  .tip {
+    background: rgba(46, 204, 113, 0.1);
+    border: 1px solid var(--success);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    margin: 10px 0;
+    font-size: 13px;
+    color: var(--success);
+  }
+  .tip::before { content: '💡 提示: '; font-weight: bold; }
+  .file-list {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin: 8px 0;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  .file-list .dir { color: var(--accent); font-weight: bold; }
+  .file-list .file { color: var(--text); }
+  .file-list .size { color: var(--text-muted); font-size: 11px; }
+  .result-box {
+    background: rgba(46, 204, 113, 0.08);
+    border: 1px solid var(--success);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin: 10px 0;
+    font-size: 13px;
+  }
+  .result-box .label { color: var(--success); font-weight: bold; }
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  .toc h3 {
+    color: var(--brand-light);
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+  .toc ul {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .toc li {
+    font-size: 14px;
+  }
+  .toc a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .toc a:hover { color: var(--brand-light); }
+  .toc .phase-tag {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background: var(--surface-2);
+    border-radius: 50%;
+    text-align: center;
+    line-height: 24px;
+    font-size: 12px;
+    color: var(--brand);
+    margin-right: 8px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .summary-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    text-align: center;
+  }
+  .summary-card .icon { font-size: 24px; margin-bottom: 6px; }
+  .summary-card .value { font-size: 18px; color: var(--brand-light); font-weight: bold; }
+  .summary-card .label { font-size: 12px; color: var(--text-muted); }
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-muted);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+    margin-top: 20px;
+  }
+  @media (max-width: 768px) {
+    .toc ul { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: 1fr; }
+    .header h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>西游记云服务器部署指南</h1>
+  <p>腾讯云宝塔Linux面板 · Docker容器化部署 · 完整操作手册</p>
+  <div class="server-info">🖥️ 服务器IP: 114.132.55.119 · 系统: Linux · 面板: 宝塔</div>
+</div>
+
+<div class="container">
+
+  <!-- 目录 -->
+  <div class="toc">
+    <h3>📑 操作目录</h3>
+    <ul>
+      <li><span class="phase-tag">1</span><a href="#phase1">本地准备：验证与配置</a></li>
+      <li><span class="phase-tag">2</span><a href="#phase2">服务器准备：安装Docker</a></li>
+      <li><span class="phase-tag">3</span><a href="#phase3">开放端口：防火墙配置</a></li>
+      <li><span class="phase-tag">4</span><a href="#phase4">上传文件：部署包传输</a></li>
+      <li><span class="phase-tag">5</span><a href="#phase5">执行部署：一键启动</a></li>
+      <li><span class="phase-tag">6</span><a href="#phase6">验证访问：测试游戏</a></li>
+      <li><span class="phase-tag">7</span><a href="#phase7">日常运维：日志与更新</a></li>
+      <li><span class="phase-tag">8</span><a href="#phase8">故障排查：常见问题</a></li>
+    </ul>
+  </div>
+
+  <!-- 部署概览 -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-num">📋</div>
+      <div class="phase-title">部署概览</div>
+    </div>
+    <div class="phase-body">
+      <p style="margin-bottom: 12px;">本指南将引导你把西游记Roguelike卡牌游戏部署到腾讯云服务器，通过Docker容器化方式运行，手机和电脑均可通过浏览器访问。</p>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="icon">🐳</div>
+          <div class="value">3 个容器</div>
+          <div class="label">MySQL + Redis + App</div>
+        </div>
+        <div class="summary-card">
+          <div class="icon">📦</div>
+          <div class="value">~155 MB</div>
+          <div class="label">部署包大小</div>
+        </div>
+        <div class="summary-card">
+          <div class="icon">⏱️</div>
+          <div class="value">5-10 分钟</div>
+          <div class="label">预计部署时间</div>
+        </div>
+      </div>
+      <div class="file-list">
+<span class="dir">西行部署包/</span>
+├── <span class="file">docker-compose-cloud.yml</span>   <span class="size"># Docker编排配置</span>
+├── <span class="file">.env.cloud</span>                 <span class="size"># 环境变量（密码/密钥）</span>
+├── <span class="file">deploy-cloud.sh</span>            <span class="size"># 一键部署脚本</span>
+└── <span class="dir">backend/</span>
+    ├── <span class="file">Dockerfile</span>             <span class="size"># 应用镜像构建文件</span>
+    ├── <span class="file">.dockerignore</span>          <span class="size"># 构建忽略列表</span>
+    └── <span class="dir">target/</span>
+        └── <span class="file">xiyouji-roguelike-1.0.0.jar</span> <span class="size"># 163MB 应用包</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 阶段1: 本地准备 -->
+  <div class="phase" id="phase1">
+    <div class="phase-header">
+      <div class="phase-num">1</div>
+      <div class="phase-title">本地准备：验证与配置</div>
+    </div>
+    <div class="phase-body">
+      <p style="margin-bottom: 16px; color: var(--text-muted);">在本地电脑完成以下准备工作，确保部署文件完整且安全配置到位。</p>
+
+      <div class="step">
+        <div class="step-title">1.1 确认部署包已生成</div>
+        <div class="step-desc">部署包位于桌面"西游记"文件夹中：</div>
+        <div class="code-block"><span class="prompt">📁</span> C:\Users\20126\Desktop\西游记\西行部署包.zip  <span class="comment">(约155MB)</span></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">1.2 修改环境变量密码（重要！）</div>
+        <div class="step-desc">解压zip后，用记事本打开 <code style="color:var(--brand-light)">.env.cloud</code> 文件，修改默认密码：</div>
+        <div class="code-block"><span class="comment"># 修改前（默认值，不安全）</span>
+DB_PASSWORD=xiyouji2026
+JWT_SECRET=xiyouji-prod-secret-2026-change-this-256bits-key
+
+<span class="comment"># 修改后（你的强密码，示例）</span>
+DB_PASSWORD=MyStr0ng@Pass2026!
+JWT_SECRET=a8f3k2j9s5d1q7w4e6r8t3y6u9i2o5p8a1s4d7f0g3h6j9k2l5</div>
+        <div class="warn">数据库密码建议12位以上，包含大小写字母、数字和特殊符号。JWT密钥建议32位以上随机字符串。</div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">1.3 重新压缩为zip</div>
+        <div class="step-desc">修改完密码后，将所有文件重新压缩为zip包，准备上传。</div>
+        <div class="tip">如果你不想修改密码（仅测试用），可以直接使用原始zip包上传，但生产环境强烈建议修改！</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 阶段2: 服务器准备 -->
+  <div class="phase" id="phase2">
+    <div class="phase-header">
+      <div class="phase-num">2</div>
+      <div class="phase-title">服务器准备：安装Docker</div>
+    </div>
+    <div class="phase-body">
+      <p style="margin-bottom: 16px; color: var(--text-muted);">登录腾讯云宝塔面板，安装Docker运行环境。</p>
+
+      <div class="step">
+        <div class="step-title">2.1 登录宝塔面板</div>
+        <div class="step-desc">在浏览器中访问你的宝塔面板地址（通常是 http://114.132.55.119:8888），输入账号密码登录。</div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">2.2 安装Docker管理器</div>
+        <div class="step-desc">在宝塔面板左侧菜单操作：</div>
+        <div class="code-block"><span class="prompt">👉</span> 左侧菜单点击「软件商店」
+<span class="prompt">👉</span> 搜索栏输入「Docker」
+<span class="prompt">👉</span> 找到「Docker管理器」点击「安装」
+<span class="prompt">👉</span> 等待安装完成（约1-2分钟）</div>
+        <div class="tip">如果搜索不到Docker管理器，也可以在终端中手动安装：<br><code>curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun</code></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">2.3 验证Docker安装</div>
+        <div class="step-desc">在宝塔面板左侧点击「终端」，执行以下命令验证：</div>
+        <div class="code-block"><span class="prompt">[root@localhost ~]#</span> <span class="cmd">docker --version</span>
+Docker version 24.0.x, build xxxxxx
+
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">docker compose version</span>
+Docker Compose version v2.x.x</div>
+        <div class="warn">如果 <code>docker compose</code> 命令不存在，说明Compose插件未安装，执行：<br><code>yum install docker-compose-plugin -y</code></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">2.4 配置Docker镜像加速（推荐）</div>
+        <div class="step-desc">国内服务器拉取Docker镜像较慢，配置阿里云加速器：</div>
+        <div class="code-block"><span class="prompt">[root@localhost ~]#</span> <span class="cmd">mkdir -p /etc/docker</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">cat > /etc/docker/daemon.json << 'EOF'</span>
+{
+  "registry-mirrors": [
+    "https://your-id.mirror.aliyuncs.com",
+    "https://docker.mirrors.ustc.edu.cn"
+  ]
+}
+EOF
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">systemctl daemon-reload</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">systemctl restart docker</span></div>
+        <div class="tip">阿里云加速器地址需要到阿里云容器镜像服务控制台获取你专属的加速地址。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 阶段3: 开放端口 -->
+  <div class="phase" id="phase3">
+    <div class="phase-header">
+      <div class="phase-num">3</div>
+      <div class="phase-title">开放端口：防火墙配置</div>
+    </div>
+    <div class="phase-body">
+      <p style="margin-bottom: 16px; color: var(--text-muted);">需要在两个层面开放端口：腾讯云安全组 + 宝塔防火墙。</p>
+
+      <div class="step">
+        <div class="step-title">3.1 腾讯云安全组放行端口</div>
+        <div class="step-desc">登录腾讯云控制台，配置安全组规则：</div>
+        <div class="code-block"><span class="prompt">👉</span> 登录 https://console.cloud.tencent.com/
+<span class="prompt">👉</span> 进入「云服务器」→「安全组」
+<span class="prompt">👉</span> 找到你的服务器绑定的安全组，点击「编辑规则」
+<span class="prompt">👉</span> 添加入站规则：
+
+  <span class="keyword">端口</span>     <span class="keyword">协议</span>    <span class="keyword">来源</span>          <span class="keyword">策略</span>
+  8080      TCP      0.0.0.0/0     允许    <span class="comment"># 游戏访问端口（必须）</span>
+  8888      TCP      0.0.0.0/0     允许    <span class="comment"># 宝塔面板（如已开放则跳过）</span>
+  22        TCP      0.0.0.0/0     允许    <span class="comment"># SSH连接（如已开放则跳过）</span></div>
+        <div class="danger">3307（MySQL）和6379（Redis）端口不要对外开放！它们仅在Docker内部网络通信，对外暴露有安全风险。</div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">3.2 宝塔面板防火墙放行</div>
+        <div class="step-desc">在宝塔面板中也需放行8080端口：</div>
+        <div class="code-block"><span class="prompt">👉</span> 宝塔面板左侧 →「安全」
+<span class="prompt">👉</span> 放行端口输入「8080」→ 点击「放行」
+<span class="prompt">👉</span> 确认状态显示「已放行」</div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">3.3 验证端口连通性</div>
+        <div class="step-desc">在本地电脑浏览器中访问以下地址测试端口是否畅通：</div>
+        <div class="code-block"><span class="prompt">🌐</span> http://114.132.55.119:8080
+
+<span class="comment"># 如果显示502/503/连接超时，说明端口未放行或Docker未启动</span>
+<span class="comment"># 如果显示404/空白页，说明端口畅通但应用未部署（正常，后续步骤会解决）</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 阶段4: 上传文件 -->
+  <div class="phase" id="phase4">
+    <div class="phase-header">
+      <div class="phase-num">4</div>
+      <div class="phase-title">上传文件：部署包传输</div>
+    </div>
+    <div class="phase-body">
+      <p style="margin-bottom: 16px; color: var(--text-muted);">将155MB的部署包上传到服务器，提供两种方式。</p>
+
+      <div class="step">
+        <div class="step-title">方式A：宝塔面板上传（推荐，简单）</div>
+        <div class="step-desc">通过宝塔面板的文件管理器上传：</div>
+        <div class="code-block"><span class="prompt">👉</span> 宝塔面板左侧 →「文件」
+<span class="prompt">👉</span> 进入根目录 <code>/</code> 或 <code>/www/wwwroot/</code>
+<span class="prompt">👉</span> 新建文件夹 <code>xiyouji</code> 并进入
+<span class="prompt">👉</span> 点击右上角「上传」按钮
+<span class="prompt">👉</span> 选择本地的 <code>西行部署包.zip</code> 上传
+<span class="prompt">👉</span> 等待上传完成（约155MB，视网速5-15分钟）</div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">方式B：SCP命令行上传（快速）</div>
+        <div class="step-desc">如果你熟悉命令行，可以用scp直接传输：</div>
+        <div class="code-block"><span class="prompt"># 在本地电脑 PowerShell 中执行</span>
+<span class="cmd">scp</span> C:\Users\20126\Desktop\西游记\西行部署包.zip root@114.132.55.119:/root/</div>
+        <div class="tip">如果SSH使用非默认端口（如22222），加 -P 参数：<code>scp -P 22222 ...</code></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">4.3 解压部署包</div>
+        <div class="step-desc">在宝塔终端中执行：</div>
+        <div class="code-block"><span class="comment"># 创建部署目录</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">mkdir -p /www/wwwroot/xiyouji</span>
+
+<span class="comment"># 如果用宝塔面板上传到了 xiyouji 目录，则直接在此目录操作</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">cd /www/wwwroot/xiyouji</span>
+
+<span class="comment"># 解压</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">unzip 西行部署包.zip</span>
+
+<span class="comment"># 验证文件结构</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">ls -la</span>
+<span class="keyword">total</span> <span class="number">4</span>
+drwxr-xr-x  backend/
+-rw-r--r--  .env.cloud
+-rw-r--r--  deploy-cloud.sh
+-rw-r--r--  docker-compose-cloud.yml
+
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">ls -lh backend/target/</span>
+-rw-r--r--  xiyouji-roguelike-1.0.0.jar  <span class="number">157M</span></div>
+        <div class="warn">如果 <code>unzip</code> 命令不存在，安装：<code>yum install unzip -y</code></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">4.4 修改脚本权限</div>
+        <div class="code-block"><span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">chmod +x deploy-cloud.sh</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 阶段5: 执行部署 -->
+  <div class="phase" id="phase5">
+    <div class="phase-header">
+      <div class="phase-num">5</div>
+      <div class="phase-title">执行部署：一键启动</div>
+    </div>
+    <div class="phase-body">
+      <p style="margin-bottom: 16px; color: var(--text-muted);">运行部署脚本，Docker将自动拉取镜像、构建应用、启动所有服务。</p>
+
+      <div class="step">
+        <div class="step-title">5.1 执行一键部署脚本</div>
+        <div class="step-desc">在部署目录下执行：</div>
+        <div class="code-block"><span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">bash deploy-cloud.sh</span>
+
+============================================
+  西游记云服务器部署脚本
+============================================
+
+[1/6] 检查环境... OK
+  Docker: Docker version 24.0.x
+  Compose: Docker Compose version v2.x.x
+
+[2/6] 检查 JAR 文件... OK (157M)
+
+[3/6] 加载环境变量... OK
+
+[4/6] 停止旧容器...
+
+[5/6] 构建并启动容器（首次约3-5分钟）...
+  <span class="comment"># 这里会拉取 MySQL、Redis 镜像，构建应用镜像</span>
+  <span class="comment"># 首次拉取镜像约需要 3-8 分钟（取决于网速）</span>
+
+[6/6] 等待应用启动...
+  <span class="comment"># 脚本会循环检测健康状态，最多等待90秒</span>
+  ......<span class="comment">(等待中)</span>
+
+============================================
+  部署成功！
+============================================
+
+  访问地址: http://114.132.55.119:8080
+  健康检查: http://114.132.55.119:8080/actuator/health</div>
+        <div class="tip">首次部署需要拉取MySQL(~500MB)和Redis(~30MB)镜像，加上构建应用镜像，总共需要5-10分钟。后续重启只需几秒。</div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">5.2 如果脚本失败 - 手动分步执行</div>
+        <div class="step-desc">如果一键脚本失败，可以手动分步操作：</div>
+        <div class="code-block"><span class="comment"># 步骤1: 手动构建应用镜像</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">docker compose -f docker-compose-cloud.yml build</span>
+
+<span class="comment"># 步骤2: 启动 MySQL 和 Redis</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">docker compose -f docker-compose-cloud.yml up -d mysql redis</span>
+
+<span class="comment"># 步骤3: 等待数据库就绪（约15秒）</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">sleep 15</span>
+
+<span class="comment"># 步骤4: 启动应用</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">docker compose -f docker-compose-cloud.yml up -d app</span>
+
+<span class="comment"># 步骤5: 查看启动日志</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">docker compose -f docker-compose-cloud.yml logs -f app</span></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">5.3 检查容器运行状态</div>
+        <div class="code-block"><span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">docker compose -f docker-compose-cloud.yml ps</span>
+
+NAME               IMAGE                    STATUS                   PORTS
+xiyouji-mysql      mysql:8.0                Up 2 minutes (healthy)   0.0.0.0:3307->3306/tcp
+xiyouji-redis      redis:7-alpine           Up 2 minutes (healthy)   0.0.0.0:6379->6379/tcp
+xiyouji-app        xiyouji-backend-app      Up 1 minute (healthy)    0.0.0.0:8080->8080/tcp</div>
+        <div class="warn">三个容器的状态都应显示 "Up" 和 "(healthy)"。如果显示 "unhealthy" 或 "Restarting"，请查看日志排查。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 阶段6: 验证访问 -->
+  <div class="phase" id="phase6">
+    <div class="phase-header">
+      <div class="phase-num">6</div>
+      <div class="phase-title">验证访问：测试游戏</div>
+    </div>
+    <div class="phase-body">
+
+      <div class="step">
+        <div class="step-title">6.1 健康检查</div>
+        <div class="step-desc">在浏览器中访问健康检查接口：</div>
+        <div class="code-block"><span class="prompt">🌐</span> http://114.132.55.119:8080/actuator/health
+
+<span class="comment"># 返回内容应为：</span>
+{"status":"UP"}</div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">6.2 访问游戏</div>
+        <div class="step-desc">在浏览器中打开游戏页面：</div>
+        <div class="code-block"><span class="prompt">🌐</span> http://114.132.55.119:8080/
+
+<span class="comment"># 电脑浏览器：直接访问</span>
+<span class="comment"># 手机浏览器：确保手机能上网，在浏览器输入上述地址</span></div>
+        <div class="result-box">
+          <span class="label">✅ 部署成功标志：</span><br>
+          • 页面显示游戏加载动画<br>
+          • 加载完成后显示登录界面<br>
+          • 可以注册/登录账号<br>
+          • 可以选择角色开始游戏
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">6.3 手机访问测试</div>
+        <div class="step-desc">用手机浏览器（Safari/Chrome）访问：</div>
+        <div class="code-block"><span class="prompt">📱</span> 手机浏览器输入：http://114.132.55.119:8080</div>
+        <div class="tip">手机和任何能上网的设备都可以访问，只要能访问到 114.132.55.119:8080 即可。建议收藏到书签方便下次打开。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 阶段7: 日常运维 -->
+  <div class="phase" id="phase7">
+    <div class="phase-header">
+      <div class="phase-num">7</div>
+      <div class="phase-title">日常运维：日志与更新</div>
+    </div>
+    <div class="phase-body">
+
+      <div class="step">
+        <div class="step-title">7.1 查看实时日志</div>
+        <div class="code-block"><span class="comment"># 查看所有容器日志</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">docker compose -f docker-compose-cloud.yml logs -f</span>
+
+<span class="comment"># 只看应用日志</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">docker compose -f docker-compose-cloud.yml logs -f app</span>
+
+<span class="comment"># 查看最近100行日志</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">docker compose -f docker-compose-cloud.yml logs --tail=100 app</span></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">7.2 重启服务</div>
+        <div class="code-block"><span class="comment"># 重启所有服务</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">docker compose -f docker-compose-cloud.yml restart</span>
+
+<span class="comment"># 只重启应用（不影响数据库）</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">docker compose -f docker-compose-cloud.yml restart app</span>
+
+<span class="comment"># 停止所有服务</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">docker compose -f docker-compose-cloud.yml down</span>
+
+<span class="comment"># 启动所有服务</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">docker compose -f docker-compose-cloud.yml up -d</span></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">7.3 更新游戏版本（一键脚本方式 - 推荐）</div>
+        <div class="step-desc">当你修改了代码需要更新时，只需三步：本地构建 → 上传JAR → 服务器执行更新脚本。</div>
+        <div class="result-box">
+          <span class="label">📌 更新流程概览：</span><br>
+          <strong>本地</strong>（双击 build-update.ps1）→ 自动构建前端+后端 → 生成 <code>西行更新包.zip</code>（约160MB）<br>
+          <strong>上传</strong>（宝塔面板）→ 上传zip到服务器 → 解压覆盖<br>
+          <strong>服务器</strong>（执行 update-cloud.sh）→ 只重建App镜像 → 重启应用
+        </div>
+        <div class="code-block"><span class="comment"># ===== 第一步：本地一键构建 =====</span>
+<span class="comment"># 在本地电脑 PowerShell 中执行</span>
+<span class="prompt">C:\></span> <span class="cmd">powershell -ExecutionPolicy Bypass -File C:\Users\20126\Desktop\西游记\build-update.ps1</span>
+
+<span class="comment"># 脚本会自动完成：</span>
+<span class="comment">#   1. 构建前端 (vite build)</span>
+<span class="comment">#   2. 复制前端资源到后端 static 目录</span>
+<span class="comment">#   3. 构建后端JAR (mvn clean package)</span>
+<span class="comment">#   4. 打包成 西行更新包.zip（仅含JAR + update-cloud.sh）</span>
+<span class="comment"># 输出: C:\Users\20126\Desktop\西游记\西行更新包.zip</span>
+
+<span class="comment"># ===== 第二步：上传到服务器 =====</span>
+<span class="comment"># 宝塔面板上传 西行更新包.zip 到 /www/wwwroot/xiyouji/</span>
+<span class="comment"># 终端解压覆盖旧文件：</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">cd /www/wwwroot/xiyouji</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">unzip -o 西行更新包.zip</span>
+<span class="comment"># -o 参数表示覆盖已有文件，不提示</span>
+
+<span class="comment"># ===== 第三步：服务器执行更新 =====</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">bash update-cloud.sh</span>
+
+<span class="comment"># 脚本会自动：</span>
+<span class="comment">#   1. 检查新JAR文件</span>
+<span class="comment">#   2. 重新构建 app 镜像（不影响 MySQL/Redis）</span>
+<span class="comment">#   3. 重启 app 容器</span>
+<span class="comment">#   4. 等待健康检查通过</span></div>
+        <div class="tip">增量更新只重建应用镜像，不重新拉取MySQL/Redis镜像，整个过程约2-3分钟。数据库数据不会丢失。</div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">7.3.1 只改了前端代码的快速更新</div>
+        <div class="step-desc">如果只改了Vue前端代码（UI、样式等），更新流程一样，因为前端资源已打包进JAR中。</div>
+        <div class="code-block"><span class="comment"># 同样执行 build-update.ps1 即可</span>
+<span class="comment"># 脚本会自动检测并重新构建前端 → 打包进JAR</span>
+<span class="prompt">C:\></span> <span class="cmd">powershell -ExecutionPolicy Bypass -File C:\Users\20126\Desktop\西游记\build-update.ps1</span></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">7.3.2 只改了配置文件的更新</div>
+        <div class="step-desc">如果只改了 .env.cloud 或 docker-compose-cloud.yml，不需要重新构建JAR：</div>
+        <div class="code-block"><span class="comment"># 1. 上传新的配置文件到服务器</span>
+<span class="comment"># 2. 重启所有容器使配置生效</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">docker compose -f docker-compose-cloud.yml down</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">docker compose -f docker-compose-cloud.yml up -d</span></div>
+        <div class="warn">down 不会删除数据卷，用户数据安全。但 app 容器会短暂停机（约30秒-1分钟）。</div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">7.4 设置开机自启</div>
+        <div class="step-desc">Docker容器已配置 <code>restart: unless-stopped</code>，服务器重启后会自动恢复。但需确保Docker服务本身开机自启：</div>
+        <div class="code-block"><span class="prompt">[root@localhost ~]#</span> <span class="cmd">systemctl enable docker</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">systemctl status docker</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 阶段8: 故障排查 -->
+  <div class="phase" id="phase8">
+    <div class="phase-header">
+      <div class="phase-num">8</div>
+      <div class="phase-title">故障排查：常见问题</div>
+    </div>
+    <div class="phase-body">
+
+      <div class="step">
+        <div class="step-title">问题1：访问 http://114.132.55.119:8080 超时</div>
+        <div class="code-block"><span class="comment"># 检查1：腾讯云安全组是否放行8080端口</span>
+<span class="comment"># 检查2：宝塔防火墙是否放行8080端口</span>
+<span class="comment"># 检查3：容器是否正常运行</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">docker compose -f /www/wwwroot/xiyouji/docker-compose-cloud.yml ps</span>
+<span class="comment"># 检查4：端口是否被监听</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">netstat -tlnp | grep 8080</span></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">问题2：应用容器一直 Restarting</div>
+        <div class="code-block"><span class="comment"># 查看应用日志找原因</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">docker compose -f docker-compose-cloud.yml logs app</span>
+
+<span class="comment"># 常见原因：</span>
+<span class="comment"># 1. 数据库未就绪 → 等待15秒后重试</span>
+<span class="comment"># 2. JPA validate失败 → 检查数据库schema是否匹配</span>
+<span class="comment"># 3. 内存不足 → 检查服务器可用内存</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">free -h</span></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">问题3：内存不足（OOM）</div>
+        <div class="step-desc">2核2G服务器内存紧张，可优化配置：</div>
+        <div class="code-block"><span class="comment"># 查看内存使用</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">free -h</span>
+              total   used   free  available
+Mem:          1.8G    1.5G   300M    200M
+
+<span class="comment"># 添加Swap交换分区（如未配置）</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">fallocate -l 2G /swapfile</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">chmod 600 /swapfile</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">mkswap /swapfile</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">swapon /swapfile</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">echo '/swapfile swap swap defaults 0 0' >> /etc/fstab</span></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">问题4：数据库连接失败</div>
+        <div class="code-block"><span class="comment"># 检查MySQL容器是否正常</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">docker compose -f docker-compose-cloud.yml logs mysql</span>
+
+<span class="comment"># 手动测试数据库连接</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">docker exec -it xiyouji-mysql mysql -uroot -p</span>
+<span class="comment"># 输入 .env.cloud 中设置的 DB_PASSWORD</span></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">问题5：Docker拉取镜像超时</div>
+        <div class="code-block"><span class="comment"># 配置镜像加速器（见阶段2.4）</span>
+<span class="comment"># 或手动拉取镜像</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">docker pull mysql:8.0</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">docker pull redis:7-alpine</span>
+
+<span class="comment"># 拉取完成后再执行部署</span>
+<span class="prompt">[root@localhost ~]#</span> <span class="cmd">docker compose -f docker-compose-cloud.yml up -d --build</span></div>
+      </div>
+
+      <div class="step">
+        <div class="step-title">问题6：需要完全重置</div>
+        <div class="code-block"><span class="comment"># 停止并删除所有容器和数据卷（⚠️ 会丢失数据！）</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">docker compose -f docker-compose-cloud.yml down -v</span>
+
+<span class="comment"># 重新部署</span>
+<span class="prompt">[root@localhost xiyouji]#</span> <span class="cmd">bash deploy-cloud.sh</span></div>
+        <div class="danger">down -v 会删除数据库数据卷，所有用户数据将丢失！仅用于完全重置场景。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 快速命令速查 -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-num">⚡</div>
+      <div class="phase-title">命令速查表</div>
+    </div>
+    <div class="phase-body">
+      <div class="file-list">
+<span class="comment"># ===== 常用命令 =====</span>
+<span class="cmd">bash deploy-cloud.sh</span>                                    <span class="size"># 一键部署</span>
+<span class="cmd">docker compose -f docker-compose-cloud.yml ps</span>             <span class="size"># 查看状态</span>
+<span class="cmd">docker compose -f docker-compose-cloud.yml logs -f app</span>    <span class="size"># 实时日志</span>
+<span class="cmd">docker compose -f docker-compose-cloud.yml restart app</span>    <span class="size"># 重启应用</span>
+<span class="cmd">docker compose -f docker-compose-cloud.yml down</span>           <span class="size"># 停止服务</span>
+<span class="cmd">docker compose -f docker-compose-cloud.yml up -d</span>         <span class="size"># 启动服务</span>
+<span class="cmd">docker compose -f docker-compose-cloud.yml up -d --build app</span> <span class="size"># 更新应用</span>
+<span class="cmd">docker compose -f docker-compose-cloud.yml down -v</span>        <span class="size"># 停止并删数据（慎用）</span>
+<span class="cmd">docker stats</span>                                              <span class="size"># 查看资源占用</span>
+<span class="cmd">free -h</span>                                                   <span class="size"># 查看内存</span>
+<span class="cmd">df -h</span>                                                    <span class="size"># 查看磁盘</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>西游记Roguelike卡牌游戏 · 云服务器部署指南</p>
+  <p style="margin-top: 6px;">服务器: 114.132.55.119 · 部署方式: Docker Compose · 生成日期: 2026-07-26</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+# ========================================
+# Grafana Dashboard 自动配置
+# 启动时自动加载 JSON 仪表盘
+# ========================================
+apiVersion: 1
+
+providers:
+  - name: 'Xiyouji Dashboards'
+    orgId: 1
+    folder: 'Xiyouji'
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 30
+    options:
+      path: /var/lib/grafana/dashboards

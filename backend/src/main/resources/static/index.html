@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0f0e17">
+  <title>西游记：西行之路 — Roguelike卡牌游戏</title>
+  <style>
+    /* ====== 服务器启动加载动画 ====== */
+    #server-loading {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, #0f0e17 0%, #1a1726 50%, #0f0e17 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      transition: opacity 0.5s ease;
+    }
+    #server-loading.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .loading-title {
+      font-size: 48px;
+      font-weight: bold;
+      background: linear-gradient(135deg, #f2a900, #e8453a, #4b3fe3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 8px;
+      margin-bottom: 8px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .loading-subtitle {
+      font-size: 14px;
+      color: #8b87a3;
+      letter-spacing: 3px;
+      margin-bottom: 40px;
+      font-style: italic;
+    }
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      position: relative;
+      margin-bottom: 24px;
+    }
+    .loading-spinner div {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 3px solid transparent;
+      border-radius: 50%;
+      animation: spin 1.5s linear infinite;
+    }
+    .loading-spinner div:nth-child(1) {
+      border-top-color: #f2a900;
+      animation-duration: 1s;
+    }
+    .loading-spinner div:nth-child(2) {
+      border-right-color: #e8453a;
+      animation-duration: 1.5s;
+      animation-direction: reverse;
+    }
+    .loading-spinner div:nth-child(3) {
+      border-bottom-color: #4b3fe3;
+      animation-duration: 2s;
+    }
+    .loading-text {
+      font-size: 14px;
+      color: #8b87a3;
+      letter-spacing: 2px;
+    }
+    .loading-dots::after {
+      content: '';
+      animation: dots 1.5s steps(4, end) infinite;
+    }
+    .loading-error {
+      color: #e8453a;
+      font-size: 14px;
+      margin-top: 16px;
+      display: none;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    @keyframes dots {
+      0% { content: ''; }
+      25% { content: '.'; }
+      50% { content: '..'; }
+      75% { content: '...'; }
+    }
+  </style>
+  <script type="module" crossorigin src="/js/index.js"></script>
+  <link rel="stylesheet" crossorigin href="/css/index.css">
+</head>
+<body>
+  <div id="app"></div>
+  <div id="server-loading">
+    <div class="loading-title">西行之路</div>
+    <div class="loading-subtitle">Journey to the West · Roguelike</div>
+    <div class="loading-spinner">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <div class="loading-text">正在连接游戏服务器<span class="loading-dots"></span></div>
+    <div class="loading-error" id="loading-error">服务器启动失败，请检查启动脚本是否正常运行</div>
+  </div>
+  <script>
+    // 服务器连接检测：每秒轮询 /actuator/health，成功后隐藏加载动画
+    (function() {
+      var loading = document.getElementById('server-loading');
+      var errorEl = document.getElementById('loading-error');
+      var attempts = 0;
+      var maxAttempts = 60;
+
+      function checkServer() {
+        attempts++;
+        fetch('/actuator/health', { cache: 'no-cache' })
+          .then(function(res) {
+            if (res.ok) {
+              loading.classList.add('hide');
+              setTimeout(function() { loading.style.display = 'none'; }, 600);
+            } else {
+              retry();
+            }
+          })
+          .catch(function() { retry(); });
+      }
+
+      function retry() {
+        if (attempts >= maxAttempts) {
+          errorEl.style.display = 'block';
+          return;
+        }
+        setTimeout(checkServer, 1000);
+      }
+
+      setTimeout(checkServer, 500);
+    })();
+  </script>
+</body>
+</html>

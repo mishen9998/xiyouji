@@ -1,0 +1,40 @@
+# ========================================
+# Prometheus 配置文件
+# 抓取 Spring Boot Actuator 暴露的指标
+# ========================================
+global:
+  scrape_interval: 15s          # 每15秒抓取一次
+  evaluation_interval: 15s      # 每15秒评估一次告警规则
+
+# 告警规则文件（可选）
+# rule_files:
+#   - "alert_rules.yml"
+
+# 抓取目标
+scrape_configs:
+  # 抓取 Spring Boot 实例1 指标
+  - job_name: 'xiyouji-app-1'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['app-1:8081']
+        labels:
+          application: 'xiyouji-roguelike'
+          instance: 'instance-1'
+          env: 'docker'
+
+  # 抓取 Spring Boot 实例2 指标
+  - job_name: 'xiyouji-app-2'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['app-2:8082']
+        labels:
+          application: 'xiyouji-roguelike'
+          instance: 'instance-2'
+          env: 'docker'
+
+  # 抓取 Prometheus 自身指标
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

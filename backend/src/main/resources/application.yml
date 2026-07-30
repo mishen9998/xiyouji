@@ -1,0 +1,73 @@
+# 默认使用dev环境
+spring:
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/xiyouji?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: ${DB_PASSWORD:123456}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 3000ms
+  session:
+    store-type: none
+  flyway:
+    enabled: false
+  mvc:
+    throw-exception-if-no-handler-found: true
+
+server:
+  port: 8080
+
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET:xiyouji-secret-key-for-jwt-token-generation-must-be-at-least-256-bits-long}
+  expiration: 86400000  # 24小时（毫秒）
+
+# Redis会话存储开关（设为true启用Redis，false使用内存HashMap）
+app:
+  redis:
+    session-enabled: true
+  # 安全配置：是否强制JWT认证（true=生产模式，游戏API需认证；false=开发模式兼容）
+  security:
+    enforce-jwt: ${ENFORCE_JWT:false}
+  # CORS 跨域白名单（WebConfig 读取此配置）
+  # 默认包含 Vite dev server (5173) 和后端端口
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:8080,http://localhost:8081,http://localhost:8082,http://localhost:80,http://127.0.0.1:5173,http://127.0.0.1:8080,http://127.0.0.1:80,http://10.134.175.215:5173,http://10.134.175.215:8080}
+
+logging:
+  level:
+    com.xiyouji: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: xiyouji-roguelike
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs

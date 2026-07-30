@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  西游记Roguelike 结构化日志配置
+  - 开发环境（profile: dev / standalone）：控制台彩色输出，带 traceId
+  - 生产环境（profile: prod）：JSON 格式输出到控制台和文件，按天滚动，保留30天
+  - 日志模式包含：traceId、时间戳、线程名、logger名、级别、消息
+-->
+<configuration>
+
+    <!-- ========================================
+         开发环境（dev / standalone / distributed）
+         控制台彩色输出，日志含 traceId
+         distributed profile 用于 Docker 容器化部署
+         ======================================== -->
+    <springProfile name="dev, standalone, distributed">
+
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>
+                    %d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [%thread] [%X{traceId:-}] %cyan(%logger{36}) - %msg%n
+                </pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- ========================================
+         生产环境（prod）
+         JSON 格式输出到控制台 + 文件，按天滚动，保留30天
+         ======================================== -->
+    <springProfile name="prod">
+
+        <!-- JSON 控制台输出（含 traceId、时间戳、线程名、logger名、级别、消息） -->
+        <appender name="CONSOLE_JSON" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <!-- 将 MDC 中的 traceId 纳入 JSON 字段 -->
+                <includeMdcKeyName>traceId</includeMdcKeyName>
+                <!-- 包含时间戳、级别、线程、logger、消息等标准字段 -->
+                <customFields>{"application":"xiyouji-roguelike"}</customFields>
+            </encoder>
+        </appender>
+
+        <!-- JSON 文件输出，按天滚动，保留30天 -->
+        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>logs/xiyouji.log</file>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <includeMdcKeyName>traceId</includeMdcKeyName>
+                <customFields>{"application":"xiyouji-roguelike"}</customFields>
+            </encoder>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!-- 按天滚动归档 -->
+                <fileNamePattern>logs/xiyouji.%d{yyyy-MM-dd}.log</fileNamePattern>
+                <!-- 保留30天历史日志 -->
+                <maxHistory>30</maxHistory>
+                <!-- 归档文件总大小上限 -->
+                <totalSizeCap>10GB</totalSizeCap>
+            </rollingPolicy>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE_JSON"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+
+</configuration>

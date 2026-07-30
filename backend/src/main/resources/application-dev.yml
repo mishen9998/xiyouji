@@ -1,0 +1,37 @@
+# ========================================
+# 西游记Roguelike卡牌游戏 - 开发环境配置
+# ========================================
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/xiyouji?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:123456}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  flyway:
+    enabled: false
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+server:
+  port: 8080
+logging:
+  level:
+    com.xiyouji: DEBUG
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+jwt:
+  secret: ${JWT_SECRET:xiyouji-secret-key-for-jwt-token-generation-must-be-at-least-256-bits-long}
+  expiration: ${JWT_EXPIRATION:86400000}
+app:
+  redis:
+    session-enabled: true

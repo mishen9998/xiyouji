@@ -1,0 +1,190 @@
+/* ====== 西游记 Roguelike - 全局样式 ====== */
+:root {
+  --bg-dark: #0f0e17;
+  --bg-panel: #1a1825;
+  --bg-card: #2d2a3a;
+  --text-primary: #fffffe;
+  --text-secondary: #a7a9be;
+  --text-muted: #6b6d7c;
+  --gold: #f2a900;
+  --gold-dark: #b87d00;
+  --red: #e85d75;
+  --red-dark: #b84558;
+  --blue: #4fc3f7;
+  --green: #66bb6a;
+  --purple: #bb86fc;
+  --orange: #ff9800;
+  --attack-color: #e85d75;
+  --skill-color: #4fc3f7;
+  --defense-color: #66bb6a;
+  --power-color: #bb86fc;
+  --status-color: #ff9800;
+  --card-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  --font-display: 'SimSun', 'STSong', 'Noto Serif CJK SC', serif;
+  --font-body: 'Microsoft YaHei', 'PingFang SC', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  overflow: hidden;
+  height: 100vh;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#app {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+}
+
+/* ====== 通用按钮 ====== */
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: #1a1a2e;
+  border: none;
+  padding: 14px 48px;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-display);
+  letter-spacing: 4px;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(242,169,0,0.4);
+}
+
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-small {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 6px 14px;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-small:hover { background: #3a3650; color: var(--text-primary); }
+
+/* ====== 通用动画 ====== */
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(242,169,0,0.1); }
+  50% { box-shadow: 0 0 12px rgba(242,169,0,0.25); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 12px rgba(242,169,0,0.3); }
+  50% { box-shadow: 0 0 24px rgba(242,169,0,0.5); }
+}
+
+/* ====== Modal 通用 ====== */
+.modal-overlay {
+  display: flex;
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-box {
+  background: var(--bg-panel);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 30px;
+  min-width: 400px;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  text-align: center;
+}
+
+.modal-box.large { max-width: 700px; }
+
+.modal-box h3 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  margin-bottom: 16px;
+}
+
+.modal-box p {
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+/* ====== 卡牌网格 ====== */
+.card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+/* ====== 迷你卡牌 ====== */
+.card-mini {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 12px;
+  width: 140px;
+  text-align: center;
+  font-size: 12px;
+  cursor: default;
+  transition: all 0.2s ease;
+}
+
+.card-mini .card-mini-art {
+  width: 100%;
+  height: 90px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.card-mini .card-emoji { font-size: 24px; display: block; }
+.card-mini .card-name { font-weight: bold; color: var(--text-primary); margin: 4px 0; }
+.card-mini .card-cost { color: var(--gold); font-size: 11px; }
+
+/* ====== 响应式 ====== */
+@media (max-width: 768px) {
+  .modal-box { min-width: 300px; padding: 20px; }
+  .card-mini { width: 110px; padding: 8px; }
+}
+
+@media (max-width: 600px) {
+  .modal-box { min-width: 260px; max-width: 92vw; padding: 16px; }
+  .modal-box h3 { font-size: 18px; }
+  .modal-box p { font-size: 13px; }
+  .card-mini { width: 90px; padding: 6px; }
+}
+
+/* ====== 触摸优化 ====== */
+@media (hover: none) and (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+  button {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+}

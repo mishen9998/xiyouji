@@ -1,0 +1,64 @@
+# ========================================
+# 西游记Roguelike卡牌游戏 - 独立运行配置
+# 无需 MySQL / Redis，使用 H2 内存数据库 + 内存会话
+# ========================================
+spring:
+  datasource:
+    url: jdbc:h2:mem:xiyouji;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: false
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 3000ms
+  session:
+    store-type: none
+  flyway:
+    enabled: false
+
+server:
+  port: 8080
+
+# JWT配置
+jwt:
+  secret: xiyouji-secret-key-for-jwt-token-generation-must-be-at-least-256-bits-long
+  expiration: 86400000
+
+# Redis会话存储开关（false=使用内存HashMap，无需Redis服务）
+app:
+  redis:
+    session-enabled: false
+
+logging:
+  level:
+    com.xiyouji: INFO
+    org.hibernate: WARN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs

@@ -1,0 +1,8 @@
+# 实例1 - 端口 8081
+# 使用方式: --spring.profiles.active=instance1,distributed
+server:
+  port: 8081
+
+# 实例标识
+instance:
+  id: instance-1

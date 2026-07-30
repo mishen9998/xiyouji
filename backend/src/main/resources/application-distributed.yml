@@ -1,0 +1,79 @@
+# ========================================
+# 分布式集群 Profile - 多实例共享配置
+# 所有实例共用此基础配置，instance1/instance2 覆盖端口
+# ========================================
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/xiyouji?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:123456}
+    # HikariCP 连接池调优
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 1200000
+      pool-name: XiYouJiHikariPool
+  jpa:
+    hibernate:
+      ddl-auto: update  # 生产环境应使用 validate/none, 学习项目用 update 自动同步表结构
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: false
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 2
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET:xiyouji-secret-key-for-jwt-token-generation-must-be-at-least-256-bits-long}
+  expiration: 86400000
+
+# Redis会话存储 - 分布式模式下必须启用
+app:
+  redis:
+    session-enabled: true
+
+# 日志 - 含实例ID便于追踪
+logging:
+  level:
+    com.xiyouji: INFO
+  pattern:
+    console: "%d{HH:mm:ss} [%thread] [${INSTANCE_ID:default}] %-5level %logger{36} - %msg%n"
+
+# Actuator 监控 - 暴露给 Prometheus + Zipkin 链路追踪
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,bindings
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: xiyouji-roguelike
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+  # 分布式链路追踪 - 100% 采样率（学习用；生产环境建议 0.1）
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_ENDPOINT:http://zipkin:9411/api/v2/spans}

@@ -1,0 +1,8 @@
+# 实例2 - 端口 8082
+# 使用方式: --spring.profiles.active=instance2,distributed
+server:
+  port: 8082
+
+# 实例标识
+instance:
+  id: instance-2
