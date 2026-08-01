@@ -5,21 +5,6 @@
       <h3>{{ title }}</h3>
       <p v-html="message"></p>
 
-      <!-- 商店卡牌购买列表 -->
-      <div v-if="eventType === 'shop' && shopCards.length" class="event-actions">
-        <button
-          v-for="(card, i) in shopCards"
-          :key="i"
-          class="btn-small shop-card-btn"
-          :disabled="boughtIndices.has(i) || currentGold < 50"
-          :class="{ bought: boughtIndices.has(i) }"
-          @click="buyCard(card, i)"
-        >
-          {{ card.emoji || '' }} {{ card.name }} 🪙50
-          <span v-if="boughtIndices.has(i)"> ✓</span>
-        </button>
-      </div>
-
       <!-- 篝火升级卡牌列表 -->
       <div v-if="eventType === 'bonfire'" class="bonfire-content">
         <p v-if="bonfireUpgradesLeft > 0">🔥 剩余升级次数: {{ bonfireUpgradesLeft }} 张</p>
@@ -43,8 +28,8 @@
             v-for="relic in emperorChoices"
             :key="relic.name"
             class="emperor-relic-card"
-            :class="{ chosen: chosenRelicName === relic.name }"
-            @click="chooseEmperorRelic(relic)"
+            :class="{ chosen: chosenRelicName === relic.name, selected: selectedRelicName === relic.name && !chosenRelicName }"
+            @click="onSelectEmperorRelic(relic)"
           >
             <img
               v-if="emperorRelicImgUrl(relic.name)"
@@ -72,8 +57,16 @@
         <div class="treasure-relic-desc">{{ treasureRelic.description }}</div>
       </div>
 
-      <!-- 主按钮 -->
-      <button class="btn-primary" @click="onContinue">{{ continueText }}</button>
+      <!-- 主按钮：皇帝场景需先选再确认 -->
+      <button
+        v-if="eventType === 'emperor' && emperorChoices.length && !chosenRelicName"
+        class="btn-primary"
+        :disabled="!selectedRelicName"
+        @click="confirmEmperorRelic"
+      >
+        {{ selectedRelicName ? '确认选择' : '请先选择宝物' }}
+      </button>
+      <button v-else class="btn-primary" @click="onContinue">{{ continueText }}</button>
     </div>
   </div>
 </template>
@@ -95,12 +88,10 @@ const ui = useUiStore()
 const title = ref('')
 const message = ref('')
 const continueText = ref('继续')
-const shopCards = ref<Card[]>([])
-const boughtIndices = ref<Set<number>>(new Set())
-const currentGold = ref(0)
 const deckCards = ref<Card[]>([])
 const emperorChoices = ref<Relic[]>([])
 const chosenRelicName = ref<string>('')
+const selectedRelicName = ref<string>('')
 const treasureRelic = ref<Relic | null>(null)
 
 const bonfireUpgradesLeft = computed(() => store.bonfireUpgradesLeft)
@@ -119,10 +110,9 @@ watch(
 )
 
 async function handleEvent(et: string) {
-  boughtIndices.value = new Set()
-  shopCards.value = []
   emperorChoices.value = []
   chosenRelicName.value = ''
+  selectedRelicName.value = ''
   treasureRelic.value = null
 
   switch (et) {
@@ -135,17 +125,6 @@ async function handleEvent(et: string) {
       title.value = '📦 宝箱'
       message.value = '你发现了一个宝箱！'
       continueText.value = '打开宝箱'
-      break
-    case 'shop':
-      title.value = '🏪 商店'
-      message.value = '一位商人在这里摆摊…'
-      continueText.value = '离开商店'
-      currentGold.value = store.player?.gold ?? 0
-      const shopData = await store.handleEvent('browse')
-      if (shopData?.shopCards) {
-        shopCards.value = shopData.shopCards
-        message.value = '选择要购买的卡牌（50金币/张）· 当前金币: ' + currentGold.value
-      }
       break
     case 'bonfire':
       title.value = '🔥 篝火'
@@ -188,8 +167,17 @@ async function handleEvent(et: string) {
   }
 }
 
-async function chooseEmperorRelic(relic: Relic) {
+// 点击宝物只高亮选中，不立即锁定
+function onSelectEmperorRelic(relic: Relic) {
   if (chosenRelicName.value) return
+  selectedRelicName.value = relic.name
+}
+
+// 确认选择：此时才调用后端锁定宝物
+async function confirmEmperorRelic() {
+  if (chosenRelicName.value || !selectedRelicName.value) return
+  const relic = emperorChoices.value.find(r => r.name === selectedRelicName.value)
+  if (!relic) return
   const data = await store.handleEvent('choose', { relicName: relic.name })
   if (data?.relic) {
     chosenRelicName.value = relic.name
@@ -218,25 +206,6 @@ async function onContinue() {
   }
   // 关闭并刷新
   emit('close')
-  await store.refreshState()
-}
-
-async function buyCard(card: Card, index: number) {
-  if (currentGold.value < 50) {
-    ui.showToast('🪙 金币不足，无法购买')
-    return
-  }
-  const data = await store.handleEvent('buy', { cardId: card.id, price: 50 })
-  if (data?.bought) {
-    boughtIndices.value = new Set([...boughtIndices.value, index])
-    if (data.player) {
-      currentGold.value = data.player.gold
-    }
-    message.value = '选择要购买的卡牌（50金币/张）· 当前金币: ' + currentGold.value
-    ui.showToast('✅ 购买成功：' + card.name)
-  } else {
-    ui.showToast('🪙 金币不足，购买失败')
-  }
   await store.refreshState()
 }
 
@@ -271,23 +240,6 @@ function onClose() {
 
 .modal-large p {
   font-size: 17px;
-}
-
-.event-actions {
-  margin-bottom: 16px;
-}
-
-.shop-card-btn {
-  margin: 5px;
-  display: inline-block;
-}
-
-.shop-card-btn:disabled {
-  opacity: 0.5;
-}
-
-.shop-card-btn.bought {
-  opacity: 0.6;
 }
 
 .bonfire-content {
@@ -336,6 +288,13 @@ function onClose() {
   background: rgba(74, 222, 128, 0.1);
   box-shadow: 0 0 24px rgba(74, 222, 128, 0.4);
   pointer-events: none;
+}
+
+.emperor-relic-card.selected {
+  border-color: var(--gold);
+  background: rgba(242, 169, 0, 0.12);
+  box-shadow: 0 0 20px rgba(242, 169, 0, 0.35);
+  transform: translateY(-4px);
 }
 
 .emperor-relic-img {

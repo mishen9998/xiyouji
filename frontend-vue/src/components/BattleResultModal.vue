@@ -9,6 +9,9 @@
       <p class="result-message" v-if="isVictory">{{ messageText }}</p>
       <p class="result-message" v-else>{{ defeatMessage }}</p>
 
+      <!-- 宝物击杀效果提示 -->
+      <p class="on-kill-msg" v-if="isVictory && onKillMsg">⚡ {{ onKillMsg }}</p>
+
       <!-- 胜利: 卡牌奖励 -->
       <div class="reward-cards-section" v-if="isVictory && cardRewards.length">
         <p class="reward-hint">
@@ -44,13 +47,33 @@
         <span class="relic-text">🎁 获得宝物: {{ relicReward.name }}</span>
       </div>
 
-      <button
-        class="btn-primary continue-btn"
-        :disabled="continuing"
-        @click="onContinue"
-      >
-        {{ continuing ? '处理中...' : '继续' }}
-      </button>
+      <!-- 按钮区：卡牌奖励需先选再确认；无奖励时直接继续 -->
+      <div class="btn-row">
+        <button
+          v-if="isVictory && cardRewards.length && !rewardChosen"
+          class="btn-primary confirm-btn"
+          :disabled="selectedRewardIndex < 0 || confirming"
+          @click="onConfirmReward"
+        >
+          {{ confirming ? '确认中...' : '确认选择' }}
+        </button>
+        <button
+          v-if="isVictory && cardRewards.length && !rewardChosen"
+          class="btn-secondary skip-btn"
+          :disabled="confirming"
+          @click="onSkipReward"
+        >
+          跳过
+        </button>
+        <button
+          v-if="!isVictory || !cardRewards.length || rewardChosen"
+          class="btn-primary continue-btn"
+          :disabled="continuing"
+          @click="onContinue"
+        >
+          {{ continuing ? '处理中...' : '继续' }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -81,12 +104,14 @@ const { nextLayer, chooseCardReward } = gameStore
 const rewardChosen = ref(false)
 const selectedRewardIndex = ref(-1)
 const continuing = ref(false)
+const confirming = ref(false)
 
 const isVictory = computed(() => battleInfo.value?.victory ?? false)
 const isBossNode = computed(() => currentNode.value?.type === 'BOSS')
 
 const cardRewards = computed<Card[]>(() => rewards.value?.cardRewards ?? [])
 const relicReward = computed(() => rewards.value?.relicReward ?? null)
+const onKillMsg = computed(() => rewards.value?.onKillMsg ?? '')
 
 const titleText = computed(() => {
   if (isVictory.value) {
@@ -112,23 +137,39 @@ watch(
       rewardChosen.value = false
       selectedRewardIndex.value = -1
       continuing.value = false
+      confirming.value = false
     }
   }
 )
 
-async function onSelectReward(index: number) {
+// 点击卡牌只高亮选中，不立即锁定
+function onSelectReward(index: number) {
   if (rewardChosen.value) return
-  const card = cardRewards.value[index]
-  if (!card) return
   selectedRewardIndex.value = index
-  rewardChosen.value = true
+}
+
+// 确认选择：此时才调用后端锁定卡牌
+async function onConfirmReward() {
+  if (confirming.value || selectedRewardIndex.value < 0) return
+  confirming.value = true
+  const card = cardRewards.value[selectedRewardIndex.value]
   try {
-    await chooseCardReward(index)
+    await chooseCardReward(selectedRewardIndex.value)
+    rewardChosen.value = true
     showToast(`✅ 已加入牌组: ${card.name}`)
   } catch (e) {
     console.error('Choose card reward failed:', e)
     showToast('选择卡牌失败')
+  } finally {
+    confirming.value = false
   }
+}
+
+// 跳过卡牌奖励
+function onSkipReward() {
+  rewardChosen.value = true
+  selectedRewardIndex.value = -1
+  showToast('已跳过卡牌奖励')
 }
 
 async function onContinue() {
@@ -194,6 +235,17 @@ async function onContinue() {
   color: var(--text-secondary);
   font-size: 17px;
   margin-bottom: 22px;
+}
+
+.on-kill-msg {
+  color: var(--green);
+  font-size: 15px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  padding: 6px 14px;
+  background: rgba(102, 187, 106, 0.12);
+  border-radius: 8px;
+  border: 1px solid rgba(102, 187, 106, 0.3);
 }
 
 .reward-cards-section {
@@ -300,6 +352,35 @@ async function onContinue() {
   margin-top: 8px;
   font-size: 16px;
   padding: 10px 24px;
+}
+
+.btn-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.confirm-btn {
+  font-size: 16px;
+  padding: 10px 24px;
+}
+
+.skip-btn {
+  font-size: 14px;
+  padding: 10px 20px;
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.skip-btn:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--text-primary);
 }
 
 /* ====== 响应式：小屏自适应 ====== */

@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 战斗服务 - 管理战斗流程
@@ -62,6 +63,8 @@ public class BattleService {
         // 初始化玩家战斗状态 — HP继承上一场战斗的剩余值
         GameCharacter player = session.getPlayer();
         player.initBattle();
+        // ★ 修复：每场战斗开始时将 maxEnergy 重置为基础值，防止宝物加成跨战斗累加
+        player.setMaxEnergy(GameConstants.MAX_ENERGY);
         player.setEnergy(player.getMaxEnergy());
 
         // ===== 遗物效果：硬编码的老宝物（应用到 battle.getEnemy() 而非 enemy 原始对象） =====
@@ -71,9 +74,10 @@ public class BattleService {
         if (player.getRelics().stream().anyMatch(r -> GameConstants.RELIC_JINGUZHOU.equals(r.getName()))) {
             player.setStrength(player.getStrength() + 2);
         }
-        // 遗物效果：定海神针
+        // 遗物效果：定海神针 — ★ 修复：同时更新当前能量，与 effect 字段解析逻辑一致
         if (player.getRelics().stream().anyMatch(r -> GameConstants.RELIC_DINGHAI.equals(r.getName()))) {
             player.setMaxEnergy(player.getMaxEnergy() + 1);
+            player.setEnergy(player.getEnergy() + 1);
         }
         // 遗物效果：人参果
         if (player.getRelics().stream().anyMatch(r -> GameConstants.RELIC_RENSHENGUO.equals(r.getName()))) {
@@ -333,7 +337,7 @@ public class BattleService {
 
             // 宝物掉落：RELIC_DROP_RATE概率掉落遗物（Boss必掉）
             boolean dropRelic = battle.getEnemy().isBoss()
-                    || new Random().nextDouble() < GameConstants.RELIC_DROP_RATE;
+                    || ThreadLocalRandom.current().nextDouble() < GameConstants.RELIC_DROP_RATE;
             if (dropRelic) {
                 Relic relic = gameService.getRandomRelic(sessionId);
                 if (relic != null) {
@@ -445,6 +449,7 @@ public class BattleService {
         playerInfo.put("hand", hand);
         playerInfo.put("drawPileSize", player.getDrawPile().size());
         playerInfo.put("discardPileSize", player.getDiscardPile().size());
+        playerInfo.put("exhaustPileSize", player.getExhaustPile().size());
 
         // Buffs — 包含永久buff(力量/敏捷)和临时buff(带回合数)
         List<Map<String, Object>> playerBuffs = new ArrayList<>();
@@ -482,7 +487,7 @@ public class BattleService {
         enemyInfo.put("strength", battle.getEnemy().getStrength());
         enemyInfo.put("emoji", battle.getEnemy().getEmoji());
         enemyInfo.put("intent", battle.getEnemy().getIntent().name());
-        enemyInfo.put("intentValue", battle.getEnemy().getIntentValue());
+        enemyInfo.put("intentValue", battle.getEnemy().getActualIntentValue());
         enemyInfo.put("isBoss", battle.getEnemy().isBoss());
 
         // 敌人Buffs — 包含永久buff和临时buff

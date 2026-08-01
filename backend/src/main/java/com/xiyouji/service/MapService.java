@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 地图服务 - 负责地图生成和移动逻辑
@@ -42,7 +43,8 @@ public class MapService {
      */
     public List<MapNode> generateLayer(int layer) {
         List<MapNode> nodes = new ArrayList<>();
-        Random rand = new Random();
+        // 使用 ThreadLocalRandom 替代每次 new Random()
+        ThreadLocalRandom rand = ThreadLocalRandom.current();
         int nameIdx = (layer - 1) * GameConstants.ROWS_PER_LAYER;
 
         // 按行生成节点
@@ -147,7 +149,8 @@ public class MapService {
             enemies = enemyRepo.findByIsBoss(isBoss);
         }
         if (!enemies.isEmpty()) {
-            Random rand = new Random();
+            // 使用 ThreadLocalRandom 替代每次 new Random()
+            ThreadLocalRandom rand = ThreadLocalRandom.current();
             Enemy e = enemies.get(rand.nextInt(enemies.size()));
             node.setEnemyId(String.valueOf(e.getId()));
         }

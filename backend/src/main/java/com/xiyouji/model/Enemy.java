@@ -113,10 +113,19 @@ public class Enemy {
         this.block += (amount + dex);
     }
 
-    /** 计算攻击力（考虑力量和虚弱） */
+    /** 计算基础攻击力（仅考虑力量，不含虚弱 — 虚弱在攻击时实时计算） */
     public int calculateAttackDamage() {
-        int dmg = attack + strength;
-        if (buffs.containsKey(BuffType.WEAK) && buffs.get(BuffType.WEAK) > 0) {
+        return Math.max(0, attack + strength);
+    }
+
+    /**
+     * 获取实际意图数值（攻击意图时实时应用当前虚弱效果）
+     * 玩家本回合施加的虚弱应立即影响敌人本回合的攻击伤害
+     */
+    public int getActualIntentValue() {
+        int dmg = intentValue;
+        if (intent == EnemyIntent.ATTACK
+                && buffs.containsKey(BuffType.WEAK) && buffs.get(BuffType.WEAK) > 0) {
             dmg = (int)(dmg * 0.75);
         }
         return Math.max(0, dmg);

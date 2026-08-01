@@ -33,8 +33,8 @@
         </template>
       </div>
       <div class="top-actions">
-        <button class="btn-small" @click="deckModalVisible = true">📋 牌组</button>
-        <button class="btn-small" @click="relicsModalVisible = true">💎 宝物</button>
+        <button class="btn-small" @click="router.push('/deck')">📋 牌组</button>
+        <button class="btn-small" @click="router.push('/relics')">💎 宝物</button>
         <button class="btn-small" @click="goHome">🏠 主菜单</button>
       </div>
     </div>
@@ -103,12 +103,6 @@
       :event-type="currentEventType"
       @close="onEventClose"
     />
-
-    <!-- 牌组弹窗 -->
-    <DeckModal v-model:visible="deckModalVisible" mode="deck" />
-
-    <!-- 宝物弹窗 -->
-    <RelicsModal v-model:visible="relicsModalVisible" />
   </div>
 </template>
 
@@ -122,8 +116,6 @@ import type { MapNode } from '@/types'
 import HpBar from '@/components/HpBar.vue'
 import MapNodeComponent from '@/components/MapNodeComponent.vue'
 import EventModal from '@/components/EventModal.vue'
-import DeckModal from '@/components/DeckModal.vue'
-import RelicsModal from '@/components/RelicsModal.vue'
 
 const router = useRouter()
 const store = useGameStore()
@@ -137,8 +129,6 @@ const MAP_WIDTH = 600
 // 本地状态
 const eventModalVisible = ref(false)
 const currentEventType = ref('')
-const deckModalVisible = ref(false)
-const relicsModalVisible = ref(false)
 const scrollWrapper = ref<HTMLElement | null>(null)
 
 // 计算属性
@@ -206,9 +196,16 @@ const wrapperStyle = computed(() => ({
 // 交互逻辑
 async function onMoveNode(node: MapNode) {
   try {
+    // 当前商店节点可重复进入，无需再次调用 moveToNode
+    if (currentNode.value?.id === node.id && node.type === 'SHOP') {
+      router.push('/shop')
+      return
+    }
     const eventType = await store.moveToNode(node.id)
     if (eventType === 'battle' || eventType === 'boss_battle') {
       router.push('/battle')
+    } else if (eventType === 'shop') {
+      router.push('/shop')
     } else {
       currentEventType.value = eventType
       eventModalVisible.value = true
@@ -253,6 +250,9 @@ onMounted(async () => {
       router.replace('/')
       return
     }
+  } else {
+    // 已有 sessionId：从战斗/商店返回时刷新地图状态，确保节点可访问性正确
+    await store.refreshState()
   }
   scrollToBottom()
 })

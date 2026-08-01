@@ -35,6 +35,9 @@
 
     <!-- 类型标签 -->
     <div class="card-type" :style="{ color: typeColor }">{{ typeLabel }}</div>
+
+    <!-- 消耗标签 -->
+    <div v-if="card.exhaust" class="card-exhaust">🔥 消耗</div>
   </div>
 </template>
 
@@ -202,6 +205,20 @@ function handleClick() {
   font-size: 10px;
   font-weight: bold;
   opacity: 0.8;
+}
+
+/* 消耗标签 */
+.card-exhaust {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  font-size: 9px;
+  font-weight: bold;
+  color: var(--red);
+  background: rgba(232, 93, 117, 0.2);
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(232, 93, 117, 0.4);
 }
 
 /* 可打出 + hover */

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>西游记卡牌宝物总览</title>
+<style>
+:root {
+  --bg-dark: #1a1a2e;
+  --bg-panel: #16213e;
+  --bg-card: #0f3460;
+  --text-primary: #e8e8e8;
+  --text-muted: #8899aa;
+  --gold: #f2a900;
+  --green: #4caf50;
+  --blue: #4fc3f7;
+  --purple: #ab47bc;
+  --red: #ef5350;
+  --legendary: #ff6f00;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  font-family: 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+  padding: 20px;
+}
+h1 { color: var(--gold); text-align: center; margin-bottom: 8px; font-size: 28px; letter-spacing: 4px; }
+.subtitle { text-align: center; color: var(--text-muted); margin-bottom: 24px; font-size: 14px; }
+.stats-bar {
+  display: flex; justify-content: center; gap: 32px; margin-bottom: 24px; flex-wrap: wrap;
+}
+.stat-item { text-align: center; }
+.stat-num { font-size: 32px; font-weight: bold; color: var(--gold); }
+.stat-label { font-size: 13px; color: var(--text-muted); }
+.tab-bar { display: flex; justify-content: center; gap: 4px; margin-bottom: 20px; }
+.tab-btn {
+  padding: 10px 32px; border: none; border-radius: 8px 8px 0 0;
+  background: var(--bg-panel); color: var(--text-muted);
+  cursor: pointer; font-size: 16px; font-family: inherit;
+  transition: all 0.2s;
+}
+.tab-btn.active { background: var(--bg-card); color: var(--gold); border-top: 3px solid var(--gold); }
+.filter-bar {
+  display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.filter-btn {
+  padding: 6px 18px; border: 1px solid rgba(255,255,255,0.15); border-radius: 20px;
+  background: transparent; color: var(--text-muted); cursor: pointer;
+  font-size: 13px; font-family: inherit; transition: all 0.2s;
+}
+.filter-btn.active { background: var(--gold); color: #1a1a2e; border-color: var(--gold); font-weight: bold; }
+.filter-btn:hover:not(.active) { border-color: var(--gold); color: var(--gold); }
+.search-box {
+  display: block; margin: 0 auto 16px; padding: 8px 16px; width: 100%; max-width: 400px;
+  background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+  color: var(--text-primary); font-size: 14px; font-family: inherit;
+}
+.search-box::placeholder { color: var(--text-muted); }
+.search-box:focus { outline: none; border-color: var(--gold); }
+.table-container { overflow-x: auto; border-radius: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th {
+  background: var(--bg-panel); padding: 12px 16px; text-align: left;
+  color: var(--gold); font-weight: bold; white-space: nowrap;
+  border-bottom: 2px solid rgba(242,169,0,0.3); position: sticky; top: 0;
+}
+td { padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+tr:hover { background: rgba(242,169,0,0.05); }
+.char-cell { font-weight: bold; white-space: nowrap; }
+.char-swk { color: var(--gold); }
+.char-zbj { color: var(--green); }
+.char-ss { color: var(--blue); }
+.char-blm { color: var(--purple); }
+.char-tsz { color: var(--red); }
+.char-gen { color: var(--text-muted); }
+.rarity-basic { color: #aaa; }
+.rarity-common { color: #b0b0b0; }
+.rarity-uncommon { color: var(--blue); }
+.rarity-rare { color: var(--gold); }
+.rarity-legendary { color: var(--legendary); font-weight: bold; }
+.rarity-curse { color: var(--red); }
+.type-attack { color: #ff7043; }
+.type-skill { color: var(--blue); }
+.type-defense { color: var(--green); }
+.type-power { color: var(--purple); }
+.type-status { color: var(--text-muted); }
+.tier-common { color: #b0b0b0; }
+.tier-uncommon { color: var(--blue); }
+.tier-rare { color: var(--gold); }
+.tier-boss { color: var(--legendary); font-weight: bold; }
+.tier-special { color: #e040fb; }
+.section-header {
+  margin-top: 24px; margin-bottom: 8px; font-size: 18px; color: var(--gold);
+  border-left: 4px solid var(--gold); padding-left: 12px;
+}
+.cost-cell { text-align: center; font-weight: bold; }
+.cost-0 { color: var(--green); }
+.cost-1 { color: #aaa; }
+.cost-2 { color: var(--blue); }
+.cost-3 { color: var(--red); }
+.hidden { display: none; }
+.content-section { display: none; }
+.content-section.active { display: block; }
+.emoji-cell { font-size: 20px; text-align: center; }
+</style>
+</head>
+<body>
+
+<h1>🃏 西游记卡牌宝物总览</h1>
+<p class="subtitle">卡牌总数 200 张 · 宝物总数 60 个</p>
+
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-num">200</div><div class="stat-label">卡牌总数</div></div>
+  <div class="stat-item"><div class="stat-num">60</div><div class="stat-label">宝物总数</div></div>
+  <div class="stat-item"><div class="stat-num">5</div><div class="stat-label">角色职业</div></div>
+  <div class="stat-item"><div class="stat-num">6</div><div class="stat-label">分类（含通用）</div></div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('cards')">🃏 卡牌总览（200张）</button>
+  <button class="tab-btn" onclick="switchTab('relics')">💎 宝物总览（60个）</button>
+</div>
+
+<!-- ====== 卡牌总览 ====== -->
+<div id="cards-section" class="content-section active">
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all" onclick="filterCards('all')">全部</button>
+    <button class="filter-btn" data-filter="孙悟空" onclick="filterCards('孙悟空')" style="border-color:rgba(242,169,0,0.3)">🐵 孙悟空</button>
+    <button class="filter-btn" data-filter="猪八戒" onclick="filterCards('猪八戒')" style="border-color:rgba(76,175,80,0.3)">🐷 猪八戒</button>
+    <button class="filter-btn" data-filter="沙僧" onclick="filterCards('沙僧')" style="border-color:rgba(79,195,247,0.3)">🟤 沙僧</button>
+    <button class="filter-btn" data-filter="白龙马" onclick="filterCards('白龙马')" style="border-color:rgba(171,71,188,0.3)">🐴 白龙马</button>
+    <button class="filter-btn" data-filter="唐三藏" onclick="filterCards('唐三藏')" style="border-color:rgba(239,83,80,0.3)">🧘 唐三藏</button>
+    <button class="filter-btn" data-filter="通用" onclick="filterCards('通用')">⚔️ 通用</button>
+  </div>
+  <input type="text" class="search-box" id="cardSearch" placeholder="搜索卡牌名称或效果..." oninput="searchCards()">
+  <div class="table-container">
+    <table id="cardTable">
+      <thead>
+        <tr>
+          <th>角色</th>
+          <th>卡牌名称</th>
+          <th>稀有度</th>
+          <th>类型</th>
+          <th>费用</th>
+          <th>卡牌效果</th>
+        </tr>
+      </thead>
+      <tbody id="cardBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ====== 宝物总览 ====== -->
+<div id="relics-section" class="content-section">
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all" onclick="filterRelics('all')">全部</button>
+    <button class="filter-btn" data-filter="孙悟空" onclick="filterRelics('孙悟空')" style="border-color:rgba(242,169,0,0.3)">🐵 孙悟空</button>
+    <button class="filter-btn" data-filter="猪八戒" onclick="filterRelics('猪八戒')" style="border-color:rgba(76,175,80,0.3)">🐷 猪八戒</button>
+    <button class="filter-btn" data-filter="沙僧" onclick="filterRelics('沙僧')" style="border-color:rgba(79,195,247,0.3)">🟤 沙僧</button>
+    <button class="filter-btn" data-filter="白龙马" onclick="filterRelics('白龙马')" style="border-color:rgba(171,71,188,0.3)">🐴 白龙马</button>
+    <button class="filter-btn" data-filter="唐三藏" onclick="filterRelics('唐三藏')" style="border-color:rgba(239,83,80,0.3)">🧘 唐三藏</button>
+    <button class="filter-btn" data-filter="通用" onclick="filterRelics('通用')">⚔️ 通用</button>
+  </div>
+  <input type="text" class="search-box" id="relicSearch" placeholder="搜索宝物名称或效果..." oninput="searchRelics()">
+  <div class="table-container">
+    <table id="relicTable">
+      <thead>
+        <tr>
+          <th>角色</th>
+          <th>宝物名称</th>
+          <th>等级</th>
+          <th>宝物效果</th>
+        </tr>
+      </thead>
+      <tbody id="relicBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// ====== 卡牌数据（200张） ======
+const cards = [
+  // --- 通用（60张） ---
+  {c:'通用',n:'挥棒',r:'BASIC',t:'ATTACK',cost:1,e:'造成6点伤害。'},
+  {c:'通用',n:'格挡',r:'BASIC',t:'DEFENSE',cost:1,e:'获得5点格挡。'},
+  {c:'通用',n:'蓄力',r:'BASIC',t:'SKILL',cost:1,e:'获得2点力量。'},
+  {c:'通用',n:'闪避',r:'BASIC',t:'DEFENSE',cost:1,e:'获得6点格挡。'},
+  {c:'通用',n:'重击',r:'COMMON',t:'ATTACK',cost:2,e:'造成10点伤害。'},
+  {c:'通用',n:'铁壁',r:'COMMON',t:'DEFENSE',cost:2,e:'获得8点格挡。'},
+  {c:'通用',n:'突刺',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成7点伤害。抽1张牌。'},
+  {c:'通用',n:'冥想',r:'UNCOMMON',t:'SKILL',cost:1,e:'获得2点敏捷。回复3点生命值。'},
+  {c:'通用',n:'金钟罩',r:'RARE',t:'DEFENSE',cost:2,e:'获得15点格挡。消耗。'},
+  {c:'通用',n:'天雷破',r:'RARE',t:'ATTACK',cost:3,e:'造成20点伤害。施加1层易伤。'},
+  {c:'通用',n:'致命一击',r:'RARE',t:'ATTACK',cost:2,e:'造成5点伤害。对易伤目标造成三倍伤害。'},
+  {c:'通用',n:'仙丹',r:'RARE',t:'SKILL',cost:1,e:'回复10点生命值。获得2点力量。消耗。'},
+  {c:'通用',n:'毒镖',r:'COMMON',t:'ATTACK',cost:1,e:'造成3点伤害。施加3层中毒。'},
+  {c:'通用',n:'横扫千军',r:'UNCOMMON',t:'ATTACK',cost:2,e:'造成8点伤害。攻击所有敌人。'},
+  {c:'通用',n:'旋风斩',r:'COMMON',t:'ATTACK',cost:1,e:'造成7点伤害。抽1张牌。'},
+  {c:'通用',n:'铁布衫',r:'COMMON',t:'DEFENSE',cost:1,e:'获得6点格挡。回复3点生命值。'},
+  {c:'通用',n:'飞镖',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成2点伤害。施加2层中毒。抽1张牌。'},
+  {c:'通用',n:'回春术',r:'UNCOMMON',t:'SKILL',cost:2,e:'回复8点生命值。抽2张牌。'},
+  {c:'通用',n:'狂暴',r:'RARE',t:'POWER',cost:1,e:'获得3点力量。失去2点生命值。消耗。'},
+  {c:'通用',n:'天罡阵',r:'RARE',t:'DEFENSE',cost:2,e:'获得12点格挡。施加1层虚弱。'},
+  {c:'通用',n:'怒目金刚',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成9点伤害。施加1层虚弱。'},
+  {c:'通用',n:'金刚经',r:'COMMON',t:'DEFENSE',cost:1,e:'获得7点格挡。抽1张牌。'},
+  {c:'通用',n:'迷魂术',r:'UNCOMMON',t:'SKILL',cost:1,e:'施加2层易伤。抽1张牌。'},
+  {c:'通用',n:'破甲击',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成5点伤害。对有格挡的敌人伤害翻倍。'},
+  {c:'通用',n:'烈焰掌',r:'COMMON',t:'ATTACK',cost:1,e:'造成8点伤害。'},
+  {c:'通用',n:'铜皮铁骨',r:'COMMON',t:'DEFENSE',cost:1,e:'获得9点格挡。回复2点生命值。'},
+  {c:'通用',n:'毒雾弥漫',r:'UNCOMMON',t:'SKILL',cost:1,e:'施加3层中毒。抽1张牌。'},
+  {c:'通用',n:'蓄势待发',r:'RARE',t:'POWER',cost:1,e:'获得1点力量。下回合多抽2张牌。'},
+  {c:'通用',n:'万剑诀',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成9点伤害。抽1张牌。'},
+  {c:'通用',n:'固本培元',r:'UNCOMMON',t:'SKILL',cost:1,e:'回复6点生命值。获得1点敏捷。'},
+  {c:'通用',n:'金刚降魔杵',r:'UNCOMMON',t:'ATTACK',cost:2,e:'造成12点伤害。施加1层易伤。'},
+  {c:'通用',n:'四象阵法',r:'RARE',t:'DEFENSE',cost:2,e:'获得14点格挡。施加1层虚弱。'},
+  {c:'通用',n:'以退为进',r:'UNCOMMON',t:'SKILL',cost:1,e:'获得5点格挡。获得1点力量。抽1张牌。'},
+  {c:'通用',n:'破绽百出',r:'COMMON',t:'ATTACK',cost:1,e:'造成4点伤害。施加2层易伤。'},
+  {c:'通用',n:'雷霆万钧',r:'RARE',t:'ATTACK',cost:2,e:'造成16点伤害。消耗。'},
+  {c:'通用',n:'回光返照',r:'RARE',t:'SKILL',cost:1,e:'回复10点生命值。消耗。'},
+  {c:'通用',n:'破釜沉舟',r:'UNCOMMON',t:'ATTACK',cost:2,e:'造成14点伤害。失去2点生命值。'},
+  {c:'通用',n:'守心如一',r:'COMMON',t:'DEFENSE',cost:1,e:'获得7点格挡。获得1点敏捷。'},
+  {c:'通用',n:'毒蛇吐信',r:'COMMON',t:'ATTACK',cost:1,e:'造成5点伤害。施加2层中毒。'},
+  {c:'通用',n:'两仪微尘阵',r:'RARE',t:'DEFENSE',cost:2,e:'获得16点格挡。消耗。'},
+  {c:'通用',n:'雷劫',r:'RARE',t:'ATTACK',cost:2,e:'造成16点伤害。消耗。'},
+  {c:'通用',n:'涅槃',r:'RARE',t:'SKILL',cost:1,e:'回复15点生命值。消耗。'},
+  {c:'通用',n:'天网恢恢',r:'UNCOMMON',t:'SKILL',cost:1,e:'施加2层易伤和2层虚弱。'},
+  {c:'通用',n:'金光咒',r:'COMMON',t:'DEFENSE',cost:1,e:'获得6点格挡。抽1张牌。'},
+  {c:'通用',n:'万象归一',r:'RARE',t:'POWER',cost:2,e:'获得2点力量。获得1点敏捷。'},
+  {c:'通用',n:'斩妖除魔',r:'COMMON',t:'ATTACK',cost:1,e:'造成7点伤害。'},
+  {c:'通用',n:'灵光护盾',r:'COMMON',t:'DEFENSE',cost:1,e:'获得8点格挡。'},
+  {c:'通用',n:'蚀骨毒雾',r:'UNCOMMON',t:'SKILL',cost:1,e:'施加4层中毒。'},
+  {c:'通用',n:'天道轮回',r:'RARE',t:'SKILL',cost:2,e:'回复12点生命值。抽2张牌。'},
+  {c:'通用',n:'神兵天降',r:'UNCOMMON',t:'ATTACK',cost:2,e:'造成14点伤害。'},
+  {c:'通用',n:'金刚不坏·改',r:'RARE',t:'DEFENSE',cost:2,e:'获得18点格挡。'},
+  {c:'通用',n:'破魔一击',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成6点伤害。施加1层易伤。'},
+  {c:'通用',n:'避邪符',r:'COMMON',t:'SKILL',cost:0,e:'施加1层虚弱。抽1张牌。'},
+  {c:'通用',n:'斗转星移',r:'RARE',t:'SKILL',cost:1,e:'获得5点格挡。获得1点力量。获得1点敏捷。消耗。'},
+  {c:'通用',n:'噬魂爪',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成5点伤害。施加3层中毒。'},
+  {c:'通用',n:'药石之言',r:'COMMON',t:'SKILL',cost:1,e:'回复5点生命值。抽1张牌。'},
+  {c:'通用',n:'铁血战意',r:'UNCOMMON',t:'POWER',cost:1,e:'获得1点力量。获得5点格挡。'},
+  {c:'通用',n:'幻影分身',r:'UNCOMMON',t:'SKILL',cost:1,e:'抽3张牌。消耗。'},
+  {c:'通用',n:'惊雷一击',r:'COMMON',t:'ATTACK',cost:1,e:'造成9点伤害。'},
+  {c:'通用',n:'玄铁盾',r:'COMMON',t:'DEFENSE',cost:1,e:'获得7点格挡。回复2点生命值。'},
+
+  // --- 孙悟空（30张） ---
+  {c:'孙悟空',n:'金箍棒法',r:'COMMON',t:'ATTACK',cost:1,e:'造成8点伤害。对易伤目标伤害翻倍。'},
+  {c:'孙悟空',n:'七十二变',r:'COMMON',t:'SKILL',cost:1,e:'施加2层虚弱。抽1张牌。'},
+  {c:'孙悟空',n:'筋斗云',r:'COMMON',t:'DEFENSE',cost:2,e:'获得10点格挡。下回合多抽1张牌。'},
+  {c:'孙悟空',n:'火眼金睛',r:'UNCOMMON',t:'ATTACK',cost:2,e:'造成3点伤害。施加1层易伤。'},
+  {c:'孙悟空',n:'大闹天宫',r:'RARE',t:'ATTACK',cost:2,e:'造成15点伤害。消耗。'},
+  {c:'孙悟空',n:'毫毛分身',r:'RARE',t:'POWER',cost:2,e:'获得3点力量。抽3张牌。消耗。'},
+  {c:'孙悟空',n:'定海神针',r:'UNCOMMON',t:'ATTACK',cost:2,e:'造成12点伤害。获得2点力量。'},
+  {c:'孙悟空',n:'身外身',r:'RARE',t:'POWER',cost:1,e:'获得4点力量。抽2张牌。消耗。'},
+  {c:'孙悟空',n:'法天象地',r:'RARE',t:'ATTACK',cost:3,e:'造成18点伤害。消耗。'},
+  {c:'孙悟空',n:'哮天犬',r:'COMMON',t:'ATTACK',cost:1,e:'造成4点伤害。抽2张牌。'},
+  {c:'孙悟空',n:'筋斗云翻',r:'COMMON',t:'DEFENSE',cost:1,e:'获得6点格挡。抽1张牌。'},
+  {c:'孙悟空',n:'斗战胜佛',r:'RARE',t:'POWER',cost:3,e:'获得3点力量。获得3点敏捷。消耗。'},
+  {c:'孙悟空',n:'火眼金睛·真',r:'RARE',t:'ATTACK',cost:2,e:'造成6点伤害。施加2层易伤和1层虚弱。'},
+  {c:'孙悟空',n:'如意金箍棒',r:'RARE',t:'ATTACK',cost:3,e:'造成22点伤害。获得1点力量。'},
+  {c:'孙悟空',n:'铜头铁臂',r:'UNCOMMON',t:'DEFENSE',cost:1,e:'获得8点格挡。获得1点力量。'},
+  {c:'孙悟空',n:'齐天大圣',r:'LEGENDARY',t:'POWER',cost:3,e:'获得3点力量。获得2点敏捷。消耗。'},
+  {c:'孙悟空',n:'筋斗云·翔',r:'UNCOMMON',t:'DEFENSE',cost:1,e:'获得6点格挡。下回合增加1点能量。'},
+  {c:'孙悟空',n:'猴王怒吼',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成8点伤害。施加1层虚弱。'},
+  {c:'孙悟空',n:'定心真言',r:'UNCOMMON',t:'POWER',cost:1,e:'获得1点力量。获得1点敏捷。'},
+  {c:'孙悟空',n:'猴毛化兵',r:'COMMON',t:'SKILL',cost:1,e:'抽2张牌。'},
+  {c:'孙悟空',n:'如意变化',r:'UNCOMMON',t:'SKILL',cost:1,e:'施加3层虚弱。抽1张牌。'},
+  {c:'孙悟空',n:'火眼金睛·极',r:'RARE',t:'ATTACK',cost:2,e:'造成8点伤害。施加3层易伤。'},
+  {c:'孙悟空',n:'金箍棒·碎',r:'RARE',t:'ATTACK',cost:3,e:'造成25点伤害。消耗。'},
+  {c:'孙悟空',n:'筋斗云·瞬',r:'UNCOMMON',t:'DEFENSE',cost:1,e:'获得5点格挡。抽2张牌。'},
+  {c:'孙悟空',n:'大圣之威',r:'RARE',t:'POWER',cost:2,e:'获得2点力量。抽1张牌。'},
+  {c:'孙悟空',n:'七十二变·幻',r:'RARE',t:'SKILL',cost:1,e:'施加2层虚弱和2层易伤。抽1张牌。消耗。'},
+  {c:'孙悟空',n:'齐天一击',r:'UNCOMMON',t:'ATTACK',cost:2,e:'造成16点伤害。'},
+  {c:'孙悟空',n:'猴王护体',r:'COMMON',t:'DEFENSE',cost:1,e:'获得6点格挡。获得1点力量。'},
+  {c:'孙悟空',n:'天宫叛逆',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成8点伤害。抽1张牌。'},
+  {c:'孙悟空',n:'斗战之心',r:'UNCOMMON',t:'POWER',cost:1,e:'获得1点力量。下回合多抽1张牌。'},
+
+  // --- 猪八戒（30张） ---
+  {c:'猪八戒',n:'九齿钉耙',r:'COMMON',t:'ATTACK',cost:1,e:'造成5点伤害。获得3点格挡。'},
+  {c:'猪八戒',n:'狼吞虎咽',r:'COMMON',t:'SKILL',cost:1,e:'回复5点生命值。消耗。'},
+  {c:'猪八戒',n:'厚皮',r:'COMMON',t:'DEFENSE',cost:2,e:'获得8点格挡。回复3点生命值。'},
+  {c:'猪八戒',n:'天河水军',r:'UNCOMMON',t:'ATTACK',cost:2,e:'造成15点伤害。生命低于一半时获得5点格挡。'},
+  {c:'猪八戒',n:'贪食',r:'UNCOMMON',t:'SKILL',cost:1,e:'回复8点生命值。获得2点力量。'},
+  {c:'猪八戒',n:'天蓬之怒',r:'RARE',t:'ATTACK',cost:3,e:'造成25点伤害。'},
+  {c:'猪八戒',n:'三十六变',r:'UNCOMMON',t:'DEFENSE',cost:2,e:'获得10点格挡。回复5点生命值。'},
+  {c:'猪八戒',n:'净坛使者',r:'RARE',t:'POWER',cost:2,e:'获得2点力量。获得2点敏捷。'},
+  {c:'猪八戒',n:'倒打一耙',r:'COMMON',t:'ATTACK',cost:1,e:'造成8点伤害。回复3点生命值。'},
+  {c:'猪八戒',n:'饕餮之口',r:'RARE',t:'ATTACK',cost:2,e:'造成10点伤害。回复等量生命值。消耗。'},
+  {c:'猪八戒',n:'九齿横扫',r:'COMMON',t:'ATTACK',cost:1,e:'造成6点伤害。获得4点格挡。'},
+  {c:'猪八戒',n:'天蓬元帅',r:'RARE',t:'POWER',cost:2,e:'获得4点力量。消耗。'},
+  {c:'猪八戒',n:'三昧真火',r:'RARE',t:'ATTACK',cost:2,e:'造成12点伤害。施加2层中毒。'},
+  {c:'猪八戒',n:'天蓬戍守',r:'UNCOMMON',t:'DEFENSE',cost:1,e:'获得9点格挡。回复3点生命值。'},
+  {c:'猪八戒',n:'吞噬天地',r:'RARE',t:'SKILL',cost:2,e:'获得2点力量。回复8点生命值。消耗。'},
+  {c:'猪八戒',n:'天蓬觉醒',r:'LEGENDARY',t:'POWER',cost:3,e:'获得3点力量。回复15点生命值。消耗。'},
+  {c:'猪八戒',n:'吞食天地',r:'UNCOMMON',t:'ATTACK',cost:2,e:'造成10点伤害。回复5点生命值。'},
+  {c:'猪八戒',n:'猪突猛进',r:'COMMON',t:'ATTACK',cost:1,e:'造成7点伤害。获得3点格挡。'},
+  {c:'猪八戒',n:'天蓬之力',r:'COMMON',t:'ATTACK',cost:1,e:'造成6点伤害。获得4点格挡。'},
+  {c:'猪八戒',n:'猪八戒贪吃',r:'COMMON',t:'SKILL',cost:1,e:'回复6点生命值。'},
+  {c:'猪八戒',n:'厚土之盾',r:'COMMON',t:'DEFENSE',cost:1,e:'获得7点格挡。回复2点生命值。'},
+  {c:'猪八戒',n:'天河怒涛',r:'UNCOMMON',t:'ATTACK',cost:2,e:'造成14点伤害。回复3点生命值。'},
+  {c:'猪八戒',n:'贪婪之咬',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成5点伤害。回复5点生命值。'},
+  {c:'猪八戒',n:'天蓬守护',r:'UNCOMMON',t:'DEFENSE',cost:1,e:'获得8点格挡。获得1点力量。'},
+  {c:'猪八戒',n:'大快朵颐',r:'RARE',t:'SKILL',cost:1,e:'回复12点生命值。消耗。'},
+  {c:'猪八戒',n:'铁齿铜牙',r:'COMMON',t:'DEFENSE',cost:1,e:'获得6点格挡。回复3点生命值。'},
+  {c:'猪八戒',n:'天蓬元帅·临',r:'RARE',t:'POWER',cost:2,e:'获得3点力量。消耗。'},
+  {c:'猪八戒',n:'九齿狂舞',r:'UNCOMMON',t:'ATTACK',cost:2,e:'造成12点伤害。获得4点格挡。'},
+  {c:'猪八戒',n:'吞噬精气',r:'RARE',t:'ATTACK',cost:2,e:'造成10点伤害。回复8点生命值。消耗。'},
+  {c:'猪八戒',n:'天河水军·阵',r:'UNCOMMON',t:'DEFENSE',cost:2,e:'获得10点格挡。回复4点生命值。'},
+
+  // --- 沙僧（25张） ---
+  {c:'沙僧',n:'降妖宝杖',r:'COMMON',t:'ATTACK',cost:1,e:'造成4点伤害。获得4点格挡。'},
+  {c:'沙僧',n:'金刚不坏',r:'COMMON',t:'DEFENSE',cost:2,e:'获得12点格挡。'},
+  {c:'沙僧',n:'流沙河',r:'COMMON',t:'SKILL',cost:1,e:'获得3点敏捷。抽1张牌。'},
+  {c:'沙僧',n:'负重前行',r:'UNCOMMON',t:'ATTACK',cost:2,e:'造成10点伤害。获得6点格挡。消耗。'},
+  {c:'沙僧',n:'罗汉金身',r:'UNCOMMON',t:'POWER',cost:2,e:'获得3点敏捷。每回合获得3点格挡。'},
+  {c:'沙僧',n:'天河倒灌',r:'RARE',t:'ATTACK',cost:3,e:'造成20点伤害。获得10点格挡。消耗。'},
+  {c:'沙僧',n:'降魔阵',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成6点伤害。获得6点格挡。施加1层易伤。'},
+  {c:'沙僧',n:'琉璃盏',r:'RARE',t:'SKILL',cost:1,e:'回复8点生命值。获得8点格挡。消耗。'},
+  {c:'沙僧',n:'降妖宝杖·真',r:'RARE',t:'ATTACK',cost:2,e:'造成15点伤害。获得5点格挡。消耗。'},
+  {c:'沙僧',n:'降妖钵盂',r:'UNCOMMON',t:'SKILL',cost:1,e:'施加2层虚弱。回复5点生命值。'},
+  {c:'沙僧',n:'金身罗汉',r:'RARE',t:'POWER',cost:2,e:'获得3点敏捷。获得2点力量。'},
+  {c:'沙僧',n:'降魔大阵',r:'RARE',t:'DEFENSE',cost:2,e:'获得12点格挡。获得1点敏捷。施加1层易伤。'},
+  {c:'沙僧',n:'罗汉伏魔',r:'UNCOMMON',t:'ATTACK',cost:2,e:'造成10点伤害。获得5点格挡。'},
+  {c:'沙僧',n:'金刚罗汉阵',r:'RARE',t:'DEFENSE',cost:2,e:'获得15点格挡。获得1点敏捷。'},
+  {c:'沙僧',n:'沙暴迷眼',r:'UNCOMMON',t:'SKILL',cost:1,e:'施加2层虚弱和2层易伤。抽1张牌。'},
+  {c:'沙僧',n:'降妖之力',r:'COMMON',t:'ATTACK',cost:1,e:'造成5点伤害。获得5点格挡。'},
+  {c:'沙僧',n:'金刚护体',r:'COMMON',t:'DEFENSE',cost:1,e:'获得8点格挡。'},
+  {c:'沙僧',n:'罗汉怒目',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成8点伤害。施加1层虚弱。'},
+  {c:'沙僧',n:'流沙之盾',r:'UNCOMMON',t:'DEFENSE',cost:1,e:'获得10点格挡。'},
+  {c:'沙僧',n:'降魔真言',r:'UNCOMMON',t:'SKILL',cost:1,e:'施加2层虚弱。获得5点格挡。'},
+  {c:'沙僧',n:'沙僧护法',r:'RARE',t:'DEFENSE',cost:2,e:'获得14点格挡。施加1层虚弱。'},
+  {c:'沙僧',n:'罗汉降魔',r:'UNCOMMON',t:'ATTACK',cost:2,e:'造成12点伤害。获得5点格挡。'},
+  {c:'沙僧',n:'金身不灭',r:'RARE',t:'DEFENSE',cost:2,e:'获得16点格挡。消耗。'},
+  {c:'沙僧',n:'流沙漩涡',r:'UNCOMMON',t:'SKILL',cost:1,e:'施加3层虚弱。抽1张牌。'},
+  {c:'沙僧',n:'降妖宝杖·烈',r:'RARE',t:'ATTACK',cost:2,e:'造成16点伤害。施加1层易伤。消耗。'},
+
+  // --- 白龙马（26张） ---
+  {c:'白龙马',n:'龙吟',r:'COMMON',t:'ATTACK',cost:1,e:'造成3点伤害。抽2张牌。'},
+  {c:'白龙马',n:'腾云驾雾',r:'COMMON',t:'DEFENSE',cost:1,e:'获得7点格挡。下回合增加1点能量。'},
+  {c:'白龙马',n:'疾风步',r:'COMMON',t:'SKILL',cost:0,e:'抽3张牌。消耗。'},
+  {c:'白龙马',n:'龙爪',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成7点伤害。使用过技能则12点。'},
+  {c:'白龙马',n:'呼风唤雨',r:'RARE',t:'SKILL',cost:1,e:'抽4张牌。消耗。'},
+  {c:'白龙马',n:'龙威',r:'RARE',t:'ATTACK',cost:2,e:'造成14点伤害。抽3张牌。'},
+  {c:'白龙马',n:'龙息',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成6点伤害。施加1层虚弱。抽1张牌。'},
+  {c:'白龙马',n:'水遁',r:'UNCOMMON',t:'DEFENSE',cost:1,e:'获得9点格挡。抽1张牌。'},
+  {c:'白龙马',n:'龙战于野',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成12点伤害。获得3点格挡。'},
+  {c:'白龙马',n:'龙卷风暴',r:'UNCOMMON',t:'ATTACK',cost:2,e:'造成10点伤害。施加1层易伤。'},
+  {c:'白龙马',n:'龙腾九天',r:'RARE',t:'ATTACK',cost:2,e:'造成12点伤害。抽2张牌。'},
+  {c:'白龙马',n:'水龙吟',r:'UNCOMMON',t:'SKILL',cost:1,e:'获得6点格挡。抽2张牌。'},
+  {c:'白龙马',n:'龙魂觉醒',r:'RARE',t:'POWER',cost:2,e:'获得2点力量。下回合多抽2张牌。'},
+  {c:'白龙马',n:'龙王降临',r:'LEGENDARY',t:'POWER',cost:3,e:'获得2点力量。获得2点敏捷。消耗。'},
+  {c:'白龙马',n:'乘风破浪',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成9点伤害。抽1张牌。'},
+  {c:'白龙马',n:'龙鳞护体',r:'COMMON',t:'DEFENSE',cost:1,e:'获得8点格挡。获得1点敏捷。'},
+  {c:'白龙马',n:'龙之吐息',r:'COMMON',t:'ATTACK',cost:1,e:'造成7点伤害。施加1层虚弱。'},
+  {c:'白龙马',n:'云龙飞天',r:'COMMON',t:'DEFENSE',cost:1,e:'获得7点格挡。抽1张牌。'},
+  {c:'白龙马',n:'龙威震天',r:'UNCOMMON',t:'ATTACK',cost:2,e:'造成14点伤害。施加1层易伤。'},
+  {c:'白龙马',n:'风驰电掣',r:'COMMON',t:'SKILL',cost:0,e:'抽2张牌。消耗。'},
+  {c:'白龙马',n:'龙魂附体',r:'UNCOMMON',t:'POWER',cost:1,e:'获得1点力量。获得1点敏捷。'},
+  {c:'白龙马',n:'水龙破阵',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成10点伤害。'},
+  {c:'白龙马',n:'龙鳞壁垒',r:'UNCOMMON',t:'DEFENSE',cost:2,e:'获得12点格挡。'},
+  {c:'白龙马',n:'逆鳞之怒',r:'RARE',t:'ATTACK',cost:2,e:'造成18点伤害。消耗。'},
+  {c:'白龙马',n:'云海翻腾',r:'RARE',t:'SKILL',cost:1,e:'抽3张牌。消耗。'},
+  {c:'白龙马',n:'龙吟九天',r:'RARE',t:'ATTACK',cost:2,e:'造成12点伤害。抽2张牌。'},
+
+  // --- 唐三藏（29张） ---
+  {c:'唐三藏',n:'紧箍咒念',r:'COMMON',t:'ATTACK',cost:1,e:'造成5点伤害。施加1层虚弱。'},
+  {c:'唐三藏',n:'大乘佛法',r:'COMMON',t:'SKILL',cost:1,e:'回复6点生命值。获得3点格挡。'},
+  {c:'唐三藏',n:'金蝉脱壳',r:'COMMON',t:'DEFENSE',cost:1,e:'获得8点格挡。抽1张牌。'},
+  {c:'唐三藏',n:'普渡众生',r:'UNCOMMON',t:'SKILL',cost:2,e:'回复10点生命值。获得5点格挡。'},
+  {c:'唐三藏',n:'心经',r:'UNCOMMON',t:'POWER',cost:1,e:'获得2点敏捷。下回合多抽1张牌。'},
+  {c:'唐三藏',n:'取经誓愿',r:'RARE',t:'ATTACK',cost:2,e:'造成14点伤害。回复5点生命值。'},
+  {c:'唐三藏',n:'九环锡杖',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成8点伤害。回复4点生命值。'},
+  {c:'唐三藏',n:'袈裟护体',r:'UNCOMMON',t:'DEFENSE',cost:2,e:'获得10点格挡。回复5点生命值。'},
+  {c:'唐三藏',n:'超度',r:'RARE',t:'SKILL',cost:2,e:'回复12点生命值。获得3点格挡。抽1张牌。'},
+  {c:'唐三藏',n:'金身护体',r:'RARE',t:'POWER',cost:2,e:'获得2点敏捷。每回合开始时获得4点格挡。'},
+  {c:'唐三藏',n:'佛光普照',r:'UNCOMMON',t:'SKILL',cost:1,e:'回复6点生命值。获得5点格挡。施加1层虚弱。'},
+  {c:'唐三藏',n:'紧箍咒·禁',r:'RARE',t:'ATTACK',cost:1,e:'造成3点伤害。施加2层虚弱和1层易伤。'},
+  {c:'唐三藏',n:'般若波罗蜜',r:'RARE',t:'SKILL',cost:2,e:'回复15点生命值。获得5点格挡。抽2张牌。消耗。'},
+  {c:'唐三藏',n:'大慈大悲',r:'RARE',t:'SKILL',cost:1,e:'回复12点生命值。抽1张牌。'},
+  {c:'唐三藏',n:'佛法无边',r:'RARE',t:'POWER',cost:3,e:'获得2点力量。获得2点敏捷。消耗。'},
+  {c:'唐三藏',n:'涅槃重生',r:'LEGENDARY',t:'SKILL',cost:3,e:'回复20点生命值。获得10点格挡。消耗。'},
+  {c:'唐三藏',n:'西天取经',r:'LEGENDARY',t:'POWER',cost:2,e:'获得1点力量。获得2点敏捷。'},
+  {c:'唐三藏',n:'金钟护体',r:'UNCOMMON',t:'DEFENSE',cost:1,e:'获得10点格挡。消耗。'},
+  {c:'唐三藏',n:'超度亡魂',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成6点伤害。施加2层虚弱。回复3点生命值。'},
+  {c:'唐三藏',n:'佛光普照·真',r:'UNCOMMON',t:'SKILL',cost:1,e:'回复8点生命值。施加1层虚弱。'},
+  {c:'唐三藏',n:'袈裟金光',r:'COMMON',t:'DEFENSE',cost:1,e:'获得7点格挡。回复2点生命值。'},
+  {c:'唐三藏',n:'诵经祈福',r:'COMMON',t:'SKILL',cost:1,e:'回复7点生命值。'},
+  {c:'唐三藏',n:'禅心定意',r:'UNCOMMON',t:'POWER',cost:1,e:'获得1点敏捷。下回合多抽1张牌。'},
+  {c:'唐三藏',n:'佛门圣光',r:'UNCOMMON',t:'ATTACK',cost:1,e:'造成6点伤害。施加2层虚弱。'},
+  {c:'唐三藏',n:'大乘佛法·圆',r:'RARE',t:'SKILL',cost:1,e:'回复10点生命值。获得3点格挡。'},
+  {c:'唐三藏',n:'金蝉护体',r:'UNCOMMON',t:'DEFENSE',cost:1,e:'获得9点格挡。回复3点生命值。'},
+  {c:'唐三藏',n:'超度众生',r:'RARE',t:'SKILL',cost:2,e:'回复15点生命值。抽1张牌。消耗。'},
+  {c:'唐三藏',n:'佛光普照·极',r:'RARE',t:'SKILL',cost:1,e:'回复6点生命值。获得5点格挡。施加1层虚弱。'},
+  {c:'唐三藏',n:'紧箍咒·灭',r:'RARE',t:'ATTACK',cost:2,e:'造成10点伤害。施加2层虚弱和2层易伤。'}
+];
+
+// ====== 宝物数据（60个） ======
+const relics = [
+  // --- 角色专属宝物（5件） ---
+  {c:'孙悟空',n:'紧箍咒',tier:'SPECIAL',e:'战斗开始时获得2点力量。（孙悟空专属）'},
+  {c:'猪八戒',n:'九齿钉耙',tier:'SPECIAL',e:'每使用一张攻击牌，回复1点生命。（猪八戒专属）'},
+  {c:'沙僧',n:'降魔宝杖',tier:'SPECIAL',e:'获得格挡时，额外获得2点格挡。（沙僧专属）'},
+  {c:'白龙马',n:'龙鳞甲',tier:'SPECIAL',e:'每回合开始时多抽1张牌。（白龙马专属）'},
+  {c:'唐三藏',n:'锦襕袈裟',tier:'SPECIAL',e:'每回合开始时回复2点生命值。（唐三藏专属）'},
+
+  // --- 通用宝物（55件） ---
+  // 初始宝物
+  {c:'通用',n:'定海神针',tier:'BOSS',e:'战斗开始时获得1点额外能量。'},
+  {c:'通用',n:'蟠桃',tier:'RARE',e:'最大生命值增加10点，并恢复全部生命。'},
+  {c:'通用',n:'八卦炉',tier:'UNCOMMON',e:'每打出3张攻击牌，获得1点力量。'},
+  {c:'通用',n:'紫金铃',tier:'UNCOMMON',e:'每打出5张牌，对随机敌人造成8点伤害。'},
+  {c:'通用',n:'袈裟',tier:'COMMON',e:'在休息点可以额外回复10点生命值。'},
+  {c:'通用',n:'通关文牒',tier:'COMMON',e:'在商店购物享受8折优惠。'},
+  {c:'通用',n:'人参果',tier:'RARE',e:'每场战斗开始时回复5点生命值。'},
+  {c:'通用',n:'避水珠',tier:'COMMON',e:'受到伤害时，获得1点格挡。'},
+  {c:'通用',n:'风火轮',tier:'BOSS',e:'每回合额外获得1点能量。'},
+  {c:'通用',n:'照妖镜',tier:'COMMON',e:'战斗开始时，对敌人施加1层易伤。'},
+  {c:'通用',n:'甘露瓶',tier:'RARE',e:'在休息点可以升级一张卡牌。'},
+  // 第一批扩展
+  {c:'通用',n:'芭蕉扇',tier:'BOSS',e:'战斗开始时，对敌人施加2层虚弱。'},
+  {c:'通用',n:'九转金丹',tier:'BOSS',e:'最大生命值+15。每回合开始时回复2点生命值。'},
+  {c:'通用',n:'七星剑',tier:'BOSS',e:'所有攻击牌的伤害+2。'},
+  {c:'通用',n:'紫金红葫芦',tier:'RARE',e:'战斗开始时，对敌人造成10点伤害。'},
+  {c:'通用',n:'玉净瓶',tier:'RARE',e:'在休息点额外回复15点生命值，并可以移除一张卡牌。'},
+  {c:'通用',n:'生死簿',tier:'RARE',e:'最大生命值减少5点，但战斗开始时获得2点力量。'},
+  {c:'通用',n:'金刚琢',tier:'UNCOMMON',e:'受到伤害时，获得2点格挡。'},
+  {c:'通用',n:'炼妖壶',tier:'UNCOMMON',e:'每击杀一个敌人，最大生命值+3。'},
+  {c:'通用',n:'镇妖塔',tier:'UNCOMMON',e:'每打出4张防御牌，获得1点敏捷。'},
+  {c:'通用',n:'捆仙绳',tier:'UNCOMMON',e:'战斗开始时，对敌人施加1层虚弱和1层易伤。'},
+  // 唐朝皇帝御赐
+  {c:'通用',n:'御赐金钵',tier:'BOSS',e:'唐太宗御赐化缘金钵，战斗开始时获得30金币。'},
+  {c:'通用',n:'紫金钵盂',tier:'BOSS',e:'御赐紫金钵盂，战斗开始时获得1点额外能量。'},
+  {c:'通用',n:'大唐通关文牒',tier:'BOSS',e:'大唐通关文牒，每进入新一层时回复20点生命值。'},
+  {c:'通用',n:'李世民御剑',tier:'BOSS',e:'唐太宗亲征佩剑，战斗开始时获得2点力量。'},
+  {c:'通用',n:'玄奘九环锡杖',tier:'BOSS',e:'玄奘法器九环锡杖，战斗开始时获得2点敏捷。'},
+  {c:'通用',n:'御林军虎符',tier:'BOSS',e:'调遣御林军的兵符，战斗开始时获得10点格挡。'},
+  {c:'通用',n:'御赐琉璃盏',tier:'BOSS',e:'大唐贡品琉璃盏，每回合开始时多抽1张牌。'},
+  {c:'通用',n:'太宗玉玺',tier:'BOSS',e:'皇权至高象征，每场战斗获得的金币奖励翻倍。'},
+  // 第二批扩展
+  {c:'通用',n:'护身符',tier:'COMMON',e:'战斗开始时获得5点格挡。'},
+  {c:'通用',n:'布袋',tier:'COMMON',e:'战斗开始时获得10金币。'},
+  {c:'通用',n:'灵芝',tier:'COMMON',e:'最大生命值增加8点。'},
+  {c:'通用',n:'降魔杵',tier:'UNCOMMON',e:'战斗开始时对敌人造成5点伤害。'},
+  {c:'通用',n:'聚灵珠',tier:'UNCOMMON',e:'每回合开始时回复1点生命值。'},
+  {c:'通用',n:'天蚕甲',tier:'UNCOMMON',e:'受到伤害时获得3点格挡。'},
+  {c:'通用',n:'混元珠',tier:'RARE',e:'战斗开始时获得1点力量和1点敏捷。'},
+  {c:'通用',n:'风袋',tier:'RARE',e:'战斗开始时对敌人施加2层易伤。'},
+  {c:'通用',n:'乾坤镜',tier:'RARE',e:'战斗开始时对敌人造成8点伤害并施加1层虚弱。'},
+  {c:'通用',n:'乾坤袋',tier:'BOSS',e:'战斗开始时获得2点力量和1点额外能量。'},
+  {c:'通用',n:'轮回珠',tier:'BOSS',e:'最大生命值+20。每回合开始时回复3点生命值。'},
+  {c:'通用',n:'天罡北斗阵',tier:'BOSS',e:'战斗开始时获得1点力量、1点敏捷和5点格挡。'},
+  // 第三批扩展
+  {c:'通用',n:'安神符',tier:'COMMON',e:'战斗开始时获得1点敏捷。'},
+  {c:'通用',n:'驱邪符',tier:'COMMON',e:'战斗开始时对敌人施加1层虚弱。'},
+  {c:'通用',n:'玉佩',tier:'COMMON',e:'最大生命值增加5点。'},
+  {c:'通用',n:'布僧鞋',tier:'COMMON',e:'战斗开始时获得5金币。'},
+  {c:'通用',n:'降妖符',tier:'UNCOMMON',e:'战斗开始时对敌人造成3点伤害。'},
+  {c:'通用',n:'聚气珠',tier:'UNCOMMON',e:'战斗开始时获得1点力量。'},
+  {c:'通用',n:'天机镜',tier:'UNCOMMON',e:'战斗开始时对敌人施加1层易伤。'},
+  {c:'通用',n:'金丝甲',tier:'UNCOMMON',e:'受到伤害时获得1点格挡。'},
+  {c:'通用',n:'混沌珠',tier:'RARE',e:'战斗开始时获得2点力量。'},
+  {c:'通用',n:'九龙杯',tier:'RARE',e:'每回合开始时回复2点生命值。'},
+  {c:'通用',n:'太极图',tier:'RARE',e:'战斗开始时获得3点格挡和1点敏捷。'},
+  {c:'通用',n:'混元鼎',tier:'BOSS',e:'战斗开始时获得2点力量和2点敏捷。'},
+  {c:'通用',n:'天命珠',tier:'BOSS',e:'最大生命值+15。战斗开始时获得1点额外能量。'},
+  {c:'通用',n:'造化玉碟',tier:'BOSS',e:'战斗开始时获得1点力量、1点敏捷、1点额外能量和5点格挡。'}
+];
+
+// ====== 渲染逻辑 ======
+const charClassMap = {'孙悟空':'char-swk','猪八戒':'char-zbj','沙僧':'char-ss','白龙马':'char-blm','唐三藏':'char-tsz','通用':'char-gen'};
+const rarityLabels = {BASIC:'基础',COMMON:'普通',UNCOMMON:'罕见',RARE:'稀有',LEGENDARY:'传说',CURSE:'诅咒'};
+const typeLabels = {ATTACK:'攻击',SKILL:'技能',DEFENSE:'防御',POWER:'能力',STATUS:'状态'};
+const tierLabels = {COMMON:'普通',UNCOMMON:'罕见',RARE:'稀有',BOSS:'首领',SPECIAL:'专属'};
+let currentCardFilter = 'all';
+let currentRelicFilter = 'all';
+
+function renderCards() {
+  const tbody = document.getElementById('cardBody');
+  const search = document.getElementById('cardSearch').value.toLowerCase();
+  tbody.innerHTML = '';
+  cards.forEach(card => {
+    if (currentCardFilter !== 'all' && card.c !== currentCardFilter) return;
+    if (search && !card.n.toLowerCase().includes(search) && !card.e.toLowerCase().includes(search)) return;
+    const tr = document.createElement('tr');
+    const costClass = 'cost-' + Math.min(card.cost, 3);
+    tr.innerHTML = `
+      <td class="char-cell ${charClassMap[card.c]}">${card.c}</td>
+      <td><strong>${card.n}</strong></td>
+      <td class="rarity-${card.r.toLowerCase()}">${rarityLabels[card.r]||card.r}</td>
+      <td class="type-${card.t.toLowerCase()}">${typeLabels[card.t]||card.t}</td>
+      <td class="cost-cell ${costClass}">${card.cost}</td>
+      <td>${card.e}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderRelics() {
+  const tbody = document.getElementById('relicBody');
+  const search = document.getElementById('relicSearch').value.toLowerCase();
+  tbody.innerHTML = '';
+  relics.forEach(relic => {
+    if (currentRelicFilter !== 'all' && relic.c !== currentRelicFilter) return;
+    if (search && !relic.n.toLowerCase().includes(search) && !relic.e.toLowerCase().includes(search)) return;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="char-cell ${charClassMap[relic.c]}">${relic.c}</td>
+      <td><strong>${relic.n}</strong></td>
+      <td class="tier-${relic.tier.toLowerCase()}">${tierLabels[relic.tier]||relic.tier}</td>
+      <td>${relic.e}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function filterCards(f) {
+  currentCardFilter = f;
+  document.querySelectorAll('#cards-section .filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`#cards-section .filter-btn[data-filter="${f}"]`).classList.add('active');
+  renderCards();
+}
+
+function filterRelics(f) {
+  currentRelicFilter = f;
+  document.querySelectorAll('#relics-section .filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`#relics-section .filter-btn[data-filter="${f}"]`).classList.add('active');
+  renderRelics();
+}
+
+function searchCards() { renderCards(); }
+function searchRelics() { renderRelics(); }
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+  if (tab === 'cards') {
+    document.querySelector('.tab-btn').classList.add('active');
+    document.getElementById('cards-section').classList.add('active');
+  } else {
+    document.querySelectorAll('.tab-btn')[1].classList.add('active');
+    document.getElementById('relics-section').classList.add('active');
+  }
+}
+
+// 初始渲染
+renderCards();
+renderRelics();
+</script>
+
+</body>
+</html>

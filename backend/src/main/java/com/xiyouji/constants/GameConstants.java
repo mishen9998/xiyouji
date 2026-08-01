@@ -34,6 +34,13 @@ public final class GameConstants {
     // 商店
     public static final int SHOP_CARD_PRICE = 50;
     public static final int SHOP_DISCOUNT_PERCENT = 20;
+    public static final int SHOP_CARD_COUNT = 8;   // 商店出售卡牌数量
+    public static final int SHOP_RELIC_COUNT = 6;   // 商店出售宝物数量
+
+    // 商店宝物按等级定价
+    public static final int SHOP_RELIC_PRICE_COMMON = 75;
+    public static final int SHOP_RELIC_PRICE_UNCOMMON = 120;
+    public static final int SHOP_RELIC_PRICE_RARE = 180;
 
     // 篝火
     public static final int BONFIRE_UPGRADE_LIMIT = 2;

@@ -22,6 +22,7 @@ import com.xiyouji.service.room.RoomPlayer;
 import com.xiyouji.service.room.RoomService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -320,7 +321,7 @@ public class MultiplayerBattleService {
         if (target != null && target.isAlive()) {
             switch (intent) {
                 case ATTACK -> {
-                    int actualDmg = target.getCharacter().takeDamage(intentValue);
+                    int actualDmg = target.getCharacter().takeDamage(enemy.getActualIntentValue());
                     state.addLog(enemy.getName() + " 攻击 " + target.getUsername() + "，造成 " + actualDmg + " 伤害");
                     if (target.getCharacter().isDead()) {
                         target.setAlive(false);
@@ -460,13 +461,22 @@ public class MultiplayerBattleService {
     }
 
     /**
+     * 获取全部敌人（缓存）
+     * 使用 @Cacheable 避免每次创建敌人都查库
+     */
+    @Cacheable(value = "enemies", key = "'all'")
+    public List<Enemy> getAllEnemies() {
+        return enemyRepo.findAll();
+    }
+
+    /**
      * 为房间创建敌人（回退用，按楼层随机选择）
      */
     private Enemy createEnemyForRoom(int floor, int playerCount) {
         // 尝试按楼层查找敌人
         List<Enemy> candidates = enemyRepo.findByLevel(floor);
         if (candidates.isEmpty()) {
-            candidates = enemyRepo.findAll();
+            candidates = new ArrayList<>(getAllEnemies());
         }
         if (candidates.isEmpty()) {
             // 数据库无敌人数据，创建默认敌人
@@ -695,7 +705,7 @@ public class MultiplayerBattleService {
         enemyInfo.put("strength", enemy.getStrength());
         enemyInfo.put("emoji", enemy.getEmoji());
         enemyInfo.put("intent", enemy.getIntent() != null ? enemy.getIntent().name() : "ATTACK");
-        enemyInfo.put("intentValue", enemy.getIntentValue());
+        enemyInfo.put("intentValue", enemy.getActualIntentValue());
         enemyInfo.put("isBoss", enemy.isBoss());
         enemyInfo.put("buffs", enemy.getBuffs() != null ? enemy.getBuffs() : Map.of());
         enemyInfo.put("targetPlayerIndex", state.getTargetPlayerIndex());

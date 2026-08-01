@@ -187,7 +187,7 @@ export const gameApi = {
   },
 
   handleEvent(sessionId: string, action: string, params?: {
-    cardIndex?: number; cardId?: number; price?: number; relicName?: string
+    cardIndex?: number; cardId?: number; price?: number; relicName?: string; relicId?: number
   }): Promise<EventResponse> {
     return postJson(`${API}/event/${sessionId}`, { action, ...params })
   },

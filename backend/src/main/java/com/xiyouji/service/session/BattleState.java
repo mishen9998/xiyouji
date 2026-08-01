@@ -67,7 +67,7 @@ public class BattleState {
 
         switch (enemy.getIntent()) {
             case ATTACK -> {
-                int dmg = enemy.getIntentValue();
+                int dmg = enemy.getActualIntentValue();
                 int actualDmg = player.takeDamage(dmg);
                 combatLog.add(enemy.getEmoji() == null ? "" : enemy.getEmoji() + " " +
                         enemy.getName() + " 造成 " + actualDmg + " 点伤害");

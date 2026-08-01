@@ -11,6 +11,7 @@ import com.xiyouji.service.session.GameSession;
 import com.xiyouji.service.session.SessionStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
@@ -65,13 +66,9 @@ public class GameService {
         }
 
         if (gc.getStartingRelic() != null) {
-            List<Relic> allRelics = relicRepo.findAll();
-            for (Relic r : allRelics) {
-                if (r.getName().equals(gc.getStartingRelic())) {
-                    player.getRelics().add(r);
-                    break;
-                }
-            }
+            // 使用 findByName 替代 findAll 全表遍历
+            relicRepo.findByName(gc.getStartingRelic())
+                    .ifPresent(relic -> player.getRelics().add(relic));
         }
 
         List<MapNode> map = mapService.generateLayer(1);
@@ -199,8 +196,32 @@ public class GameService {
         return shopService.getShopCards(session);
     }
 
+    /** 获取商店宝物列表（委托给ShopService） */
+    public List<Map<String, Object>> getShopRelics(String sessionId) {
+        GameSession session = getSession(sessionId);
+        return shopService.getShopRelics(session);
+    }
+
+    /** 购买宝物（委托给ShopService） */
+    @Transactional
+    public boolean buyRelic(String sessionId, Long relicId) {
+        GameSession session = getSession(sessionId);
+        boolean result = shopService.buyRelic(session, relicId);
+        sessionStore.put(sessionId, session);
+        return result;
+    }
+
+    /**
+     * 获取随机宝物（用于随机事件奖励）
+     * 使用 @Cacheable 缓存全表数据，避免每次随机都查库
+     */
+    @Cacheable(value = "relics", key = "'all'")
+    public List<Relic> getAllRelics() {
+        return relicRepo.findAll();
+    }
+
     public Relic getRandomRelic(String sessionId) {
-        List<Relic> relics = relicRepo.findAll();
+        List<Relic> relics = new ArrayList<>(getAllRelics());
         Collections.shuffle(relics);
         return relics.isEmpty() ? null : relics.get(0);
     }
@@ -227,11 +248,10 @@ public class GameService {
 
         List<Relic> result = new ArrayList<>();
         for (String name : candidates) {
-            List<Relic> relics = relicRepo.findAll().stream()
-                    .filter(r -> name.equals(r.getName()))
-                    .toList();
-            if (!relics.isEmpty()) {
-                result.add(relics.get(0));
+            // 使用 findByName 替代 findAll().stream().filter
+            Optional<Relic> relic = relicRepo.findByName(name);
+            if (relic.isPresent()) {
+                result.add(relic.get());
                 if (result.size() >= GameConstants.EMPEROR_REWARD_CHOICES) break;
             }
         }
@@ -261,14 +281,13 @@ public class GameService {
                 return null;
             }
         }
-        // 从数据库查询
-        for (Relic r : relicRepo.findAll()) {
-            if (relicName.equals(r.getName())) {
-                session.getPlayer().getRelics().add(r);
-                sessionStore.put(sessionId, session);
-                log.info("皇帝赐宝选择完成: sessionId={}, relic={}", sessionId, relicName);
-                return r;
-            }
+        // 使用 findByName 替代 findAll 遍历
+        Optional<Relic> relic = relicRepo.findByName(relicName);
+        if (relic.isPresent()) {
+            session.getPlayer().getRelics().add(relic.get());
+            sessionStore.put(sessionId, session);
+            log.info("皇帝赐宝选择完成: sessionId={}, relic={}", sessionId, relicName);
+            return relic.get();
         }
         return null;
     }

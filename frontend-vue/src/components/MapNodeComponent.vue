@@ -6,6 +6,7 @@
       visited: node.visited,
       current: isCurrent,
       accessible: node.accessible && !node.visited,
+      'shop-reopen': isCurrent && node.type === 'SHOP',
       boss: node.type === 'BOSS',
     }"
     :style="{ left: x - 36 + 'px', top: y - 30 + 'px' }"
@@ -35,7 +36,7 @@ const imgUrl = computed(() => nodeImgUrl(props.node.type))
 const iconFallback = computed(() => NODE_ICON[props.node.type] || '❓')
 
 function onClick() {
-  if (props.node.accessible && !props.node.visited) {
+  if ((props.node.accessible && !props.node.visited) || (props.isCurrent && props.node.type === 'SHOP')) {
     emit('move', props.node)
   }
 }
@@ -83,6 +84,17 @@ function onClick() {
   border-color: var(--gold) !important;
   box-shadow: 0 0 20px rgba(242, 169, 0, 0.4) !important;
   animation: glow 1.5s infinite;
+}
+
+.map-node.shop-reopen {
+  cursor: pointer;
+  animation: pulse 2s infinite;
+}
+
+.map-node.shop-reopen:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 16px rgba(242, 169, 0, 0.3);
+  background: #3a3450;
 }
 
 .map-node.boss {

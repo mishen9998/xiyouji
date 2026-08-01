@@ -32,6 +32,10 @@ public class EventRequest {
     @Size(max = 64, message = "宝物名称长度不能超过64个字符")
     private String relicName;
 
+    /** 宝物ID（商店购买宝物时使用，需为正数） */
+    @Positive(message = "宝物ID必须为正数")
+    private Long relicId;
+
     public EventRequest() {
     }
 
@@ -73,5 +77,13 @@ public class EventRequest {
 
     public void setRelicName(String relicName) {
         this.relicName = relicName;
+    }
+
+    public Long getRelicId() {
+        return relicId;
+    }
+
+    public void setRelicId(Long relicId) {
+        this.relicId = relicId;
     }
 }

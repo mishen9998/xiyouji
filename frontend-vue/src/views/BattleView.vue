@@ -112,6 +112,9 @@
         </div>
         <div class="bottom-right">
           <button class="pile-btn" @click="pilesModalVisible = true">
+            🗑️ {{ battlePlayer?.exhaustPileSize ?? 0 }}
+          </button>
+          <button class="pile-btn" @click="pilesModalVisible = true">
             {{ battlePlayer?.discardPileSize ?? 0 }} 📤
           </button>
           <button

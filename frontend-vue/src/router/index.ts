@@ -28,6 +28,21 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/BattleView.vue'),
   },
   {
+    path: '/shop',
+    name: 'shop',
+    component: () => import('@/views/ShopView.vue'),
+  },
+  {
+    path: '/deck',
+    name: 'deck',
+    component: () => import('@/views/DeckView.vue'),
+  },
+  {
+    path: '/relics',
+    name: 'relics',
+    component: () => import('@/views/RelicsView.vue'),
+  },
+  {
     path: '/room',
     name: 'room',
     component: () => import('@/views/RoomView.vue'),

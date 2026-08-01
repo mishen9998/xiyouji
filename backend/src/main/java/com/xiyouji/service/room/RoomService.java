@@ -14,6 +14,7 @@ import com.xiyouji.repository.CharacterRepository;
 import com.xiyouji.repository.RelicRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -462,8 +463,17 @@ public class RoomService {
 
     // ===== 内部辅助方法 =====
 
+    /**
+     * 获取全部宝物（缓存）
+     * 使用 @Cacheable 避免每次随机都查库，与 GameService 共享 "relics" 缓存
+     */
+    @Cacheable(value = "relics", key = "'all'")
+    public List<Relic> getAllRelics() {
+        return relicRepo.findAll();
+    }
+
     private Relic getRandomRelic() {
-        List<Relic> relics = relicRepo.findAll();
+        List<Relic> relics = new ArrayList<>(getAllRelics());
         Collections.shuffle(relics);
         return relics.isEmpty() ? null : relics.get(0);
     }

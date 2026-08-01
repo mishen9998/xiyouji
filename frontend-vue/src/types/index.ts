@@ -19,12 +19,23 @@ export interface Card {
   description: string
   emoji?: string
   upgraded: boolean
+  exhaust?: boolean
 }
 
 export interface Relic {
   name: string
   description: string
   emoji?: string
+}
+
+/** 商店宝物（含ID和价格） */
+export interface ShopRelic {
+  id: number
+  name: string
+  description: string
+  tier: string
+  emoji?: string
+  price: number
 }
 
 export interface MapNode {
@@ -57,6 +68,7 @@ export interface Player {
   exhaustPile?: Card[]
   drawPileSize?: number
   discardPileSize?: number
+  exhaustPileSize?: number
   buffs?: BuffEntry[]
   hand?: Card[]
 }
@@ -94,6 +106,7 @@ export interface Rewards {
   cardRewards?: Card[]
   relicReward?: Relic | null
   message?: string
+  onKillMsg?: string
 }
 
 export interface GameState {
@@ -122,6 +135,7 @@ export interface EventResponse {
   relic?: Relic
   choices?: Relic[]
   shopCards?: Card[]
+  shopRelics?: ShopRelic[]
   bought?: boolean
   player?: Player
   bonfireUpgradesLeft?: number

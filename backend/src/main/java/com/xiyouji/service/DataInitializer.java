@@ -38,6 +38,12 @@ public class DataInitializer {
             migrateTangSanzang();
             // 增量迁移：扩展更多卡牌
             migrateExtraCards();
+            // 增量迁移：第四批扩展卡牌
+            migrateExpansionCards();
+            // 增量迁移：第五批扩展卡牌
+            migrateFifthBatchCards();
+            // 增量迁移：第六批扩展卡牌（冲刺200张）
+            migrateSixthBatchCards();
         }
         // 增量迁移：扩展更多宝物
         migrateExtraRelics();
@@ -45,6 +51,10 @@ public class DataInitializer {
         migrateExtraEnemies();
         // 增量迁移：唐朝皇帝8件御赐宝物
         migrateEmperorRelics();
+        // 增量迁移：第二批扩展宝物
+        migrateExpansionRelics();
+        // 增量迁移：第三批扩展宝物（冲刺60件）
+        migrateExpansionRelics2();
         // 同步卡牌"下回合"效果字段（兼容已有数据库，补齐新增字段）
         syncCardNextTurnEffects();
         // 同步扩展敌人emoji字段（用于无图时头像回退显示）
@@ -272,6 +282,34 @@ public class DataInitializer {
             xsdf.setDrawNextTurn(2);
             cr.save(xsdf);
         }
+        // 龙魂觉醒：下回合多抽2张牌
+        List<Card> lhxjList = cr.findByName("龙魂觉醒");
+        if (!lhxjList.isEmpty() && lhxjList.get(0).getDrawNextTurn() == 0) {
+            Card lhxj = lhxjList.get(0);
+            lhxj.setDrawNextTurn(2);
+            cr.save(lhxj);
+        }
+        // 筋斗云·翔：下回合+1能量
+        List<Card> jdysList = cr.findByName("筋斗云·翔");
+        if (!jdysList.isEmpty() && jdysList.get(0).getEnergyNextTurn() == 0) {
+            Card jdys = jdysList.get(0);
+            jdys.setEnergyNextTurn(1);
+            cr.save(jdys);
+        }
+        // 斗战之心：下回合多抽1张牌
+        List<Card> dzxzList = cr.findByName("斗战之心");
+        if (!dzxzList.isEmpty() && dzxzList.get(0).getDrawNextTurn() == 0) {
+            Card dzxz = dzxzList.get(0);
+            dzxz.setDrawNextTurn(1);
+            cr.save(dzxz);
+        }
+        // 禅心定意：下回合多抽1张牌
+        List<Card> cxdyList = cr.findByName("禅心定意");
+        if (!cxdyList.isEmpty() && cxdyList.get(0).getDrawNextTurn() == 0) {
+            Card cxdy = cxdyList.get(0);
+            cxdy.setDrawNextTurn(1);
+            cr.save(cxdy);
+        }
         // 补齐消耗标记（描述含"消耗"但 exhaust=false 的卡牌）
         for (Card c : cr.findAll()) {
             if (!c.isExhaust() && c.getDescription() != null && c.getDescription().contains("消耗")) {
@@ -388,6 +426,12 @@ public class DataInitializer {
 
         // 扩展卡牌
         addExtraCards();
+        // 第四批扩展卡牌
+        addExpansionCards();
+        // 第五批扩展卡牌
+        addFifthBatchCards();
+        // 第六批扩展卡牌（冲刺200张）
+        addSixthBatchCards();
     }
 
     private void initEnemies() {
@@ -500,6 +544,10 @@ public class DataInitializer {
         rl("甘露瓶","在休息点可以升级一张卡牌。",RelicTier.RARE,null);
         // 扩展宝物
         addExtraRelics();
+        // 第二批扩展宝物
+        addExpansionRelics();
+        // 第三批扩展宝物（冲刺60件）
+        addExpansionRelics2();
     }
 
     /** 增量迁移：扩展更多宝物到已有数据库 */
@@ -670,5 +718,326 @@ public class DataInitializer {
             "GOLD_DOUBLE");
 
         log.info("唐朝皇帝御赐宝物迁移完成，新增8件");
+    }
+
+    // ====== 第四批扩展卡牌（20张） ======
+
+    /** 增量迁移：第四批扩展卡牌 */
+    private void migrateExpansionCards() {
+        if (!cr.findByName("万剑诀").isEmpty()) return;
+        log.info("开始迁移：添加第四批扩展卡牌（20张）...");
+        addExpansionCards();
+        log.info("第四批扩展卡牌迁移完成，新增20张");
+    }
+
+    /** 第四批扩展卡牌定义（供 initCards 和 migrateExpansionCards 共用） */
+    private void addExpansionCards() {
+        // ====== 通用卡牌（6张） ======
+        mkb("万剑诀","造成9点伤害。抽1张牌。",CardType.ATTACK,Rarity.UNCOMMON,null,1,9,0,4,0, 0,0,0,0,0,0,1);
+        mkb("固本培元","回复6点生命值。获得1点敏捷。",CardType.SKILL,Rarity.UNCOMMON,null,1,0,0,0,0, 0,1,0,0,0,6,0);
+        mkb("金刚降魔杵","造成12点伤害。施加1层易伤。",CardType.ATTACK,Rarity.UNCOMMON,null,2,12,0,4,0, 0,0,1,0,0,0,0);
+        mkb("四象阵法","获得14点格挡。施加1层虚弱。",CardType.DEFENSE,Rarity.RARE,null,2,0,14,0,5, 0,0,0,1,0,0,0);
+        mkb("以退为进","获得5点格挡。获得1点力量。抽1张牌。",CardType.SKILL,Rarity.UNCOMMON,null,1,0,5,0,3, 1,0,0,0,0,0,1);
+        mkb("破绽百出","造成4点伤害。施加2层易伤。",CardType.ATTACK,Rarity.COMMON,null,1,4,0,3,0, 0,0,2,0,0,0,0);
+
+        // ====== 孙悟空（3张） ======
+        mkb("火眼金睛·真","造成6点伤害。施加2层易伤和1层虚弱。",CardType.ATTACK,Rarity.RARE,CharacterClass.SUN_WUKONG,2,6,0,3,0, 0,0,2,1,0,0,0);
+        mkb("如意金箍棒","造成22点伤害。获得1点力量。",CardType.ATTACK,Rarity.RARE,CharacterClass.SUN_WUKONG,3,22,0,6,0, 1,0,0,0,0,0,0);
+        mkb("铜头铁臂","获得8点格挡。获得1点力量。",CardType.DEFENSE,Rarity.UNCOMMON,CharacterClass.SUN_WUKONG,1,0,8,0,3, 1,0,0,0,0,0,0);
+
+        // ====== 猪八戒（3张） ======
+        mkb("三昧真火","造成12点伤害。施加2层中毒。",CardType.ATTACK,Rarity.RARE,CharacterClass.ZHU_BAJIE,2,12,0,4,0, 0,0,0,0,2,0,0);
+        mkb("天蓬戍守","获得9点格挡。回复3点生命值。",CardType.DEFENSE,Rarity.UNCOMMON,CharacterClass.ZHU_BAJIE,1,0,9,0,3, 0,0,0,0,0,3,0);
+        Card tstd = mkb("吞噬天地","获得2点力量。回复8点生命值。消耗。",CardType.SKILL,Rarity.RARE,CharacterClass.ZHU_BAJIE,2,0,0,0,0, 2,0,0,0,0,8,0);
+        tstd.setExhaust(true);
+        cr.save(tstd);
+
+        // ====== 沙僧（2张） ======
+        mkb("降魔大阵","获得12点格挡。获得1点敏捷。施加1层易伤。",CardType.DEFENSE,Rarity.RARE,CharacterClass.SHA_SENG,2,0,12,0,4, 0,1,1,0,0,0,0);
+        mkb("罗汉伏魔","造成10点伤害。获得5点格挡。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.SHA_SENG,2,10,5,4,2, 0,0,0,0,0,0,0);
+
+        // ====== 白龙马（3张） ======
+        mkb("龙腾九天","造成12点伤害。抽2张牌。",CardType.ATTACK,Rarity.RARE,CharacterClass.BAI_LONGMA,2,12,0,4,0, 0,0,0,0,0,0,2);
+        mkb("水龙吟","获得6点格挡。抽2张牌。",CardType.SKILL,Rarity.UNCOMMON,CharacterClass.BAI_LONGMA,1,0,6,0,3, 0,0,0,0,0,0,2);
+        Card lhxj = mkb("龙魂觉醒","获得2点力量。下回合多抽2张牌。",CardType.POWER,Rarity.RARE,CharacterClass.BAI_LONGMA,2,0,0,0,0, 2,0,0,0,0,0,0);
+        lhxj.setDrawNextTurn(2);
+        cr.save(lhxj);
+
+        // ====== 唐三藏（3张） ======
+        mkb("大慈大悲","回复12点生命值。抽1张牌。",CardType.SKILL,Rarity.RARE,CharacterClass.TANG_SANZANG,1,0,0,0,0, 0,0,0,0,0,12,1);
+        Card fowb = mkb("佛法无边","获得2点力量。获得2点敏捷。消耗。",CardType.POWER,Rarity.RARE,CharacterClass.TANG_SANZANG,3,0,0,0,0, 2,2,0,0,0,0,0);
+        fowb.setExhaust(true);
+        cr.save(fowb);
+        Card npcS = mkb("涅槃重生","回复20点生命值。获得10点格挡。消耗。",CardType.SKILL,Rarity.LEGENDARY,CharacterClass.TANG_SANZANG,3,0,10,0,3, 0,0,0,0,0,20,0);
+        npcS.setExhaust(true);
+        cr.save(npcS);
+    }
+
+    // ====== 第二批扩展宝物（12件） ======
+
+    /** 增量迁移：第二批扩展宝物 */
+    private void migrateExpansionRelics() {
+        for (Relic r : rr.findAll()) {
+            if ("护身符".equals(r.getName())) return;
+        }
+        log.info("开始迁移：添加第二批扩展宝物（12件）...");
+        addExpansionRelics();
+        log.info("第二批扩展宝物迁移完成，新增12件");
+    }
+
+    /** 第二批扩展宝物定义（供 initRelics 和 migrateExpansionRelics 共用） */
+    private void addExpansionRelics() {
+        // ====== COMMON 级宝物（3件） ======
+        rle("护身符","战斗开始时获得5点格挡。",RelicTier.COMMON,null,"🛡️","BATTLE_START;BLOCK:5");
+        rle("布袋","战斗开始时获得10金币。",RelicTier.COMMON,null,"👜","BATTLE_START;GOLD:10");
+        rle("灵芝","最大生命值增加8点。",RelicTier.COMMON,null,"🍄","MAX_HP:8");
+
+        // ====== UNCOMMON 级宝物（3件） ======
+        rle("降魔杵","战斗开始时对敌人造成5点伤害。",RelicTier.UNCOMMON,null,"🔨","BATTLE_START;DAMAGE:5");
+        rle("聚灵珠","每回合开始时回复1点生命值。",RelicTier.UNCOMMON,null,"🔮","TURN_START;HEAL:1");
+        rle("天蚕甲","受到伤害时获得3点格挡。",RelicTier.UNCOMMON,null,"🦋","ON_DAMAGE;BLOCK:3");
+
+        // ====== RARE 级宝物（3件） ======
+        rle("混元珠","战斗开始时获得1点力量和1点敏捷。",RelicTier.RARE,null,"⚫","BATTLE_START;STRENGTH:1;DEXTERITY:1");
+        rle("风袋","战斗开始时对敌人施加2层易伤。",RelicTier.RARE,null,"🌪️","BATTLE_START;ENEMY_DEBUFF;VULNERABLE:2");
+        rle("乾坤镜","战斗开始时对敌人造成8点伤害并施加1层虚弱。",RelicTier.RARE,null,"🪞","BATTLE_START;DAMAGE:8;ENEMY_DEBUFF;WEAK:1");
+
+        // ====== BOSS 级宝物（3件） ======
+        rle("乾坤袋","战斗开始时获得2点力量和1点额外能量。",RelicTier.BOSS,null,"🎒","BATTLE_START;STRENGTH:2;ENERGY:1");
+        rle("轮回珠","最大生命值+20。每回合开始时回复3点生命值。",RelicTier.BOSS,null,"💠","MAX_HP:20;TURN_START;HEAL:3");
+        rle("天罡北斗阵","战斗开始时获得1点力量、1点敏捷和5点格挡。",RelicTier.BOSS,null,"⭐","BATTLE_START;STRENGTH:1;DEXTERITY:1;BLOCK:5");
+    }
+
+    // ====== 第五批扩展卡牌（20张） ======
+
+    /** 增量迁移：第五批扩展卡牌 */
+    private void migrateFifthBatchCards() {
+        if (!cr.findByName("雷霆万钧").isEmpty()) return;
+        log.info("开始迁移：添加第五批扩展卡牌（20张）...");
+        addFifthBatchCards();
+        log.info("第五批扩展卡牌迁移完成，新增20张");
+    }
+
+    /** 第五批扩展卡牌定义（供 initCards 和 migrateFifthBatchCards 共用） */
+    private void addFifthBatchCards() {
+        // ====== 通用卡牌（6张） ======
+        Card ltwj = mk("雷霆万钧","造成16点伤害。消耗。",CardType.ATTACK,Rarity.RARE,null,2,16,0,5,0);
+        ltwj.setExhaust(true);
+        cr.save(ltwj);
+        Card hgfx = mkb("回光返照","回复10点生命值。消耗。",CardType.SKILL,Rarity.RARE,null,1,0,0,0,0, 0,0,0,0,0,10,0);
+        hgfx.setExhaust(true);
+        cr.save(hgfx);
+        mkb("破釜沉舟","造成14点伤害。失去2点生命值。",CardType.ATTACK,Rarity.UNCOMMON,null,2,14,0,5,0, 0,0,0,0,0,0,0);
+        mkb("守心如一","获得7点格挡。获得1点敏捷。",CardType.DEFENSE,Rarity.COMMON,null,1,0,7,0,3, 0,1,0,0,0,0,0);
+        mkb("毒蛇吐信","造成5点伤害。施加2层中毒。",CardType.ATTACK,Rarity.COMMON,null,1,5,0,3,0, 0,0,0,0,2,0,0);
+        Card lywcz = mk("两仪微尘阵","获得16点格挡。消耗。",CardType.DEFENSE,Rarity.RARE,null,2,0,16,0,5);
+        lywcz.setExhaust(true);
+        cr.save(lywcz);
+
+        // ====== 孙悟空（3张） ======
+        Card qtds = mkb("齐天大圣","获得3点力量。获得2点敏捷。消耗。",CardType.POWER,Rarity.LEGENDARY,CharacterClass.SUN_WUKONG,3,0,0,0,0, 3,2,0,0,0,0,0);
+        qtds.setExhaust(true);
+        cr.save(qtds);
+        Card jdys = mk("筋斗云·翔","获得6点格挡。下回合增加1点能量。",CardType.DEFENSE,Rarity.UNCOMMON,CharacterClass.SUN_WUKONG,1,0,6,0,3);
+        jdys.setEnergyNextTurn(1);
+        cr.save(jdys);
+        mkb("猴王怒吼","造成8点伤害。施加1层虚弱。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.SUN_WUKONG,1,8,0,3,0, 0,0,0,1,0,0,0);
+
+        // ====== 猪八戒（3张） ======
+        Card tpjx = mkb("天蓬觉醒","获得3点力量。回复15点生命值。消耗。",CardType.POWER,Rarity.LEGENDARY,CharacterClass.ZHU_BAJIE,3,0,0,0,0, 3,0,0,0,0,15,0);
+        tpjx.setExhaust(true);
+        cr.save(tpjx);
+        mkb("吞食天地","造成10点伤害。回复5点生命值。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.ZHU_BAJIE,2,10,0,4,0, 0,0,0,0,0,5,0);
+        mkb("猪突猛进","造成7点伤害。获得3点格挡。",CardType.ATTACK,Rarity.COMMON,CharacterClass.ZHU_BAJIE,1,7,3,3,2, 0,0,0,0,0,0,0);
+
+        // ====== 沙僧（2张） ======
+        mkb("金刚罗汉阵","获得15点格挡。获得1点敏捷。",CardType.DEFENSE,Rarity.RARE,CharacterClass.SHA_SENG,2,0,15,0,5, 0,1,0,0,0,0,0);
+        mkb("沙暴迷眼","施加2层虚弱和2层易伤。抽1张牌。",CardType.SKILL,Rarity.UNCOMMON,CharacterClass.SHA_SENG,1,0,0,0,0, 0,0,2,2,0,0,1);
+
+        // ====== 白龙马（3张） ======
+        Card lwdl = mkb("龙王降临","获得2点力量。获得2点敏捷。消耗。",CardType.POWER,Rarity.LEGENDARY,CharacterClass.BAI_LONGMA,3,0,0,0,0, 2,2,0,0,0,0,0);
+        lwdl.setExhaust(true);
+        cr.save(lwdl);
+        mkb("乘风破浪","造成9点伤害。抽1张牌。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.BAI_LONGMA,1,9,0,4,0, 0,0,0,0,0,0,1);
+        mkb("龙鳞护体","获得8点格挡。获得1点敏捷。",CardType.DEFENSE,Rarity.COMMON,CharacterClass.BAI_LONGMA,1,0,8,0,3, 0,1,0,0,0,0,0);
+
+        // ====== 唐三藏（3张） ======
+        mkb("西天取经","获得1点力量。获得2点敏捷。",CardType.POWER,Rarity.LEGENDARY,CharacterClass.TANG_SANZANG,2,0,0,0,0, 1,2,0,0,0,0,0);
+        Card jzht = mk("金钟护体","获得10点格挡。消耗。",CardType.DEFENSE,Rarity.UNCOMMON,CharacterClass.TANG_SANZANG,1,0,10,0,3);
+        jzht.setExhaust(true);
+        cr.save(jzht);
+        mkb("超度亡魂","造成6点伤害。施加2层虚弱。回复3点生命值。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.TANG_SANZANG,1,6,0,3,0, 0,0,0,2,0,3,0);
+    }
+
+    // ====== 第六批扩展卡牌（74张，冲刺200张总量） ======
+
+    /** 增量迁移：第六批扩展卡牌 */
+    private void migrateSixthBatchCards() {
+        if (!cr.findByName("雷劫").isEmpty()) return;
+        log.info("开始迁移：添加第六批扩展卡牌（74张）...");
+        addSixthBatchCards();
+        log.info("第六批扩展卡牌迁移完成，新增74张");
+    }
+
+    /** 第六批扩展卡牌定义（供 initCards 和 migrateSixthBatchCards 共用） */
+    private void addSixthBatchCards() {
+        addSixthBatchGeneral();
+        addSixthBatchSunWukong();
+        addSixthBatchZhuBajie();
+        addSixthBatchShaSeng();
+        addSixthBatchBaiLongma();
+        addSixthBatchTangSanzang();
+    }
+
+    private void addSixthBatchGeneral() {
+        // ====== 通用卡牌（20张） ======
+        Card lj = mk("雷劫","造成16点伤害。消耗。",CardType.ATTACK,Rarity.RARE,null,2,16,0,5,0);
+        lj.setExhaust(true); cr.save(lj);
+        Card np = mkb("涅槃","回复15点生命值。消耗。",CardType.SKILL,Rarity.RARE,null,1,0,0,0,0, 0,0,0,0,0,15,0);
+        np.setExhaust(true); cr.save(np);
+        mkb("天网恢恢","施加2层易伤和2层虚弱。",CardType.SKILL,Rarity.UNCOMMON,null,1,0,0,0,0, 0,0,2,2,0,0,0);
+        mkb("金光咒","获得6点格挡。抽1张牌。",CardType.DEFENSE,Rarity.COMMON,null,1,0,6,0,3, 0,0,0,0,0,0,1);
+        mkb("万象归一","获得2点力量。获得1点敏捷。",CardType.POWER,Rarity.RARE,null,2,0,0,0,0, 2,1,0,0,0,0,0);
+        mkb("斩妖除魔","造成7点伤害。",CardType.ATTACK,Rarity.COMMON,null,1,7,0,3,0, 0,0,0,0,0,0,0);
+        mkb("灵光护盾","获得8点格挡。",CardType.DEFENSE,Rarity.COMMON,null,1,0,8,0,3, 0,0,0,0,0,0,0);
+        mkb("蚀骨毒雾","施加4层中毒。",CardType.SKILL,Rarity.UNCOMMON,null,1,0,0,0,0, 0,0,0,0,4,0,0);
+        mkb("天道轮回","回复12点生命值。抽2张牌。",CardType.SKILL,Rarity.RARE,null,2,0,0,0,0, 0,0,0,0,0,12,2);
+        mkb("神兵天降","造成14点伤害。",CardType.ATTACK,Rarity.UNCOMMON,null,2,14,0,5,0, 0,0,0,0,0,0,0);
+        mk("金刚不坏·改","获得18点格挡。",CardType.DEFENSE,Rarity.RARE,null,2,0,18,0,6);
+        mkb("破魔一击","造成6点伤害。施加1层易伤。",CardType.ATTACK,Rarity.UNCOMMON,null,1,6,0,3,0, 0,0,1,0,0,0,0);
+        mkb("避邪符","施加1层虚弱。抽1张牌。",CardType.SKILL,Rarity.COMMON,null,0,0,0,0,0, 0,0,0,1,0,0,1);
+        Card dzxy = mkb("斗转星移","获得5点格挡。获得1点力量。获得1点敏捷。消耗。",CardType.SKILL,Rarity.RARE,null,1,0,5,0,3, 1,1,0,0,0,0,0);
+        dzxy.setExhaust(true); cr.save(dzxy);
+        mkb("噬魂爪","造成5点伤害。施加3层中毒。",CardType.ATTACK,Rarity.UNCOMMON,null,1,5,0,3,0, 0,0,0,0,3,0,0);
+        mkb("药石之言","回复5点生命值。抽1张牌。",CardType.SKILL,Rarity.COMMON,null,1,0,0,0,0, 0,0,0,0,0,5,1);
+        mkb("铁血战意","获得1点力量。获得5点格挡。",CardType.POWER,Rarity.UNCOMMON,null,1,0,0,0,0, 1,0,0,0,0,0,0);
+        Card hyfs = mkb("幻影分身","抽3张牌。消耗。",CardType.SKILL,Rarity.UNCOMMON,null,1,0,0,0,0, 0,0,0,0,0,0,3);
+        hyfs.setExhaust(true); cr.save(hyfs);
+        mkb("惊雷一击","造成9点伤害。",CardType.ATTACK,Rarity.COMMON,null,1,9,0,4,0, 0,0,0,0,0,0,0);
+        mkb("玄铁盾","获得7点格挡。回复2点生命值。",CardType.DEFENSE,Rarity.COMMON,null,1,0,7,0,3, 0,0,0,0,0,2,0);
+    }
+
+    private void addSixthBatchSunWukong() {
+        // ====== 孙悟空（12张） ======
+        mkb("定心真言","获得1点力量。获得1点敏捷。",CardType.POWER,Rarity.UNCOMMON,CharacterClass.SUN_WUKONG,1,0,0,0,0, 1,1,0,0,0,0,0);
+        mkb("猴毛化兵","抽2张牌。",CardType.SKILL,Rarity.COMMON,CharacterClass.SUN_WUKONG,1,0,0,0,0, 0,0,0,0,0,0,2);
+        mkb("如意变化","施加3层虚弱。抽1张牌。",CardType.SKILL,Rarity.UNCOMMON,CharacterClass.SUN_WUKONG,1,0,0,0,0, 0,0,0,3,0,0,1);
+        mkb("火眼金睛·极","造成8点伤害。施加3层易伤。",CardType.ATTACK,Rarity.RARE,CharacterClass.SUN_WUKONG,2,8,0,3,0, 0,0,3,0,0,0,0);
+        Card jgbs = mk("金箍棒·碎","造成25点伤害。消耗。",CardType.ATTACK,Rarity.RARE,CharacterClass.SUN_WUKONG,3,25,0,8,0);
+        jgbs.setExhaust(true); cr.save(jgbs);
+        mkb("筋斗云·瞬","获得5点格挡。抽2张牌。",CardType.DEFENSE,Rarity.UNCOMMON,CharacterClass.SUN_WUKONG,1,0,5,0,3, 0,0,0,0,0,0,2);
+        mkb("大圣之威","获得2点力量。抽1张牌。",CardType.POWER,Rarity.RARE,CharacterClass.SUN_WUKONG,2,0,0,0,0, 2,0,0,0,0,0,1);
+        Card qseb = mkb("七十二变·幻","施加2层虚弱和2层易伤。抽1张牌。消耗。",CardType.SKILL,Rarity.RARE,CharacterClass.SUN_WUKONG,1,0,0,0,0, 0,0,2,2,0,0,1);
+        qseb.setExhaust(true); cr.save(qseb);
+        mkb("齐天一击","造成16点伤害。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.SUN_WUKONG,2,16,0,5,0, 0,0,0,0,0,0,0);
+        mkb("猴王护体","获得6点格挡。获得1点力量。",CardType.DEFENSE,Rarity.COMMON,CharacterClass.SUN_WUKONG,1,0,6,0,3, 1,0,0,0,0,0,0);
+        mkb("天宫叛逆","造成8点伤害。抽1张牌。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.SUN_WUKONG,1,8,0,3,0, 0,0,0,0,0,0,1);
+        Card dzxz = mkb("斗战之心","获得1点力量。下回合多抽1张牌。",CardType.POWER,Rarity.UNCOMMON,CharacterClass.SUN_WUKONG,1,0,0,0,0, 1,0,0,0,0,0,0);
+        dzxz.setDrawNextTurn(1); cr.save(dzxz);
+    }
+
+    private void addSixthBatchZhuBajie() {
+        // ====== 猪八戒（12张） ======
+        mkb("天蓬之力","造成6点伤害。获得4点格挡。",CardType.ATTACK,Rarity.COMMON,CharacterClass.ZHU_BAJIE,1,6,4,3,2, 0,0,0,0,0,0,0);
+        mkb("猪八戒贪吃","回复6点生命值。",CardType.SKILL,Rarity.COMMON,CharacterClass.ZHU_BAJIE,1,0,0,0,0, 0,0,0,0,0,6,0);
+        mkb("厚土之盾","获得7点格挡。回复2点生命值。",CardType.DEFENSE,Rarity.COMMON,CharacterClass.ZHU_BAJIE,1,0,7,0,3, 0,0,0,0,0,2,0);
+        mkb("天河怒涛","造成14点伤害。回复3点生命值。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.ZHU_BAJIE,2,14,0,5,0, 0,0,0,0,0,3,0);
+        mkb("贪婪之咬","造成5点伤害。回复5点生命值。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.ZHU_BAJIE,1,5,0,3,0, 0,0,0,0,0,5,0);
+        mkb("天蓬守护","获得8点格挡。获得1点力量。",CardType.DEFENSE,Rarity.UNCOMMON,CharacterClass.ZHU_BAJIE,1,0,8,0,3, 1,0,0,0,0,0,0);
+        Card dkyi = mkb("大快朵颐","回复12点生命值。消耗。",CardType.SKILL,Rarity.RARE,CharacterClass.ZHU_BAJIE,1,0,0,0,0, 0,0,0,0,0,12,0);
+        dkyi.setExhaust(true); cr.save(dkyi);
+        mkb("铁齿铜牙","获得6点格挡。回复3点生命值。",CardType.DEFENSE,Rarity.COMMON,CharacterClass.ZHU_BAJIE,1,0,6,0,3, 0,0,0,0,0,3,0);
+        Card tpyl = mkb("天蓬元帅·临","获得3点力量。消耗。",CardType.POWER,Rarity.RARE,CharacterClass.ZHU_BAJIE,2,0,0,0,0, 3,0,0,0,0,0,0);
+        tpyl.setExhaust(true); cr.save(tpyl);
+        mkb("九齿狂舞","造成12点伤害。获得4点格挡。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.ZHU_BAJIE,2,12,4,4,2, 0,0,0,0,0,0,0);
+        Card tsjq = mkb("吞噬精气","造成10点伤害。回复8点生命值。消耗。",CardType.ATTACK,Rarity.RARE,CharacterClass.ZHU_BAJIE,2,10,0,4,0, 0,0,0,0,0,0,0);
+        tsjq.setExhaust(true); cr.save(tsjq);
+        mkb("天河水军·阵","获得10点格挡。回复4点生命值。",CardType.DEFENSE,Rarity.UNCOMMON,CharacterClass.ZHU_BAJIE,2,0,10,0,3, 0,0,0,0,0,4,0);
+    }
+
+    private void addSixthBatchShaSeng() {
+        // ====== 沙僧（10张） ======
+        mkb("降妖之力","造成5点伤害。获得5点格挡。",CardType.ATTACK,Rarity.COMMON,CharacterClass.SHA_SENG,1,5,5,3,2, 0,0,0,0,0,0,0);
+        mkb("金刚护体","获得8点格挡。",CardType.DEFENSE,Rarity.COMMON,CharacterClass.SHA_SENG,1,0,8,0,3, 0,0,0,0,0,0,0);
+        mkb("罗汉怒目","造成8点伤害。施加1层虚弱。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.SHA_SENG,1,8,0,3,0, 0,0,0,1,0,0,0);
+        mkb("流沙之盾","获得10点格挡。",CardType.DEFENSE,Rarity.UNCOMMON,CharacterClass.SHA_SENG,1,0,10,0,3, 0,0,0,0,0,0,0);
+        mkb("降魔真言","施加2层虚弱。获得5点格挡。",CardType.SKILL,Rarity.UNCOMMON,CharacterClass.SHA_SENG,1,0,5,0,3, 0,0,0,2,0,0,0);
+        mkb("沙僧护法","获得14点格挡。施加1层虚弱。",CardType.DEFENSE,Rarity.RARE,CharacterClass.SHA_SENG,2,0,14,0,5, 0,0,0,1,0,0,0);
+        mkb("罗汉降魔","造成12点伤害。获得5点格挡。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.SHA_SENG,2,12,5,4,2, 0,0,0,0,0,0,0);
+        Card jsbm = mk("金身不灭","获得16点格挡。消耗。",CardType.DEFENSE,Rarity.RARE,CharacterClass.SHA_SENG,2,0,16,0,5);
+        jsbm.setExhaust(true); cr.save(jsbm);
+        mkb("流沙漩涡","施加3层虚弱。抽1张牌。",CardType.SKILL,Rarity.UNCOMMON,CharacterClass.SHA_SENG,1,0,0,0,0, 0,0,0,3,0,0,1);
+        Card xybz = mkb("降妖宝杖·烈","造成16点伤害。施加1层易伤。消耗。",CardType.ATTACK,Rarity.RARE,CharacterClass.SHA_SENG,2,16,0,5,0, 0,0,1,0,0,0,0);
+        xybz.setExhaust(true); cr.save(xybz);
+    }
+
+    private void addSixthBatchBaiLongma() {
+        // ====== 白龙马（10张） ======
+        mkb("龙之吐息","造成7点伤害。施加1层虚弱。",CardType.ATTACK,Rarity.COMMON,CharacterClass.BAI_LONGMA,1,7,0,3,0, 0,0,0,1,0,0,0);
+        mkb("云龙飞天","获得7点格挡。抽1张牌。",CardType.DEFENSE,Rarity.COMMON,CharacterClass.BAI_LONGMA,1,0,7,0,3, 0,0,0,0,0,0,1);
+        mkb("龙威震天","造成14点伤害。施加1层易伤。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.BAI_LONGMA,2,14,0,5,0, 0,0,1,0,0,0,0);
+        Card fcdc = mkb("风驰电掣","抽2张牌。消耗。",CardType.SKILL,Rarity.COMMON,CharacterClass.BAI_LONGMA,0,0,0,0,0, 0,0,0,0,0,0,2);
+        fcdc.setExhaust(true); cr.save(fcdc);
+        mkb("龙魂附体","获得1点力量。获得1点敏捷。",CardType.POWER,Rarity.UNCOMMON,CharacterClass.BAI_LONGMA,1,0,0,0,0, 1,1,0,0,0,0,0);
+        mkb("水龙破阵","造成10点伤害。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.BAI_LONGMA,1,10,0,4,0, 0,0,0,0,0,0,0);
+        mkb("龙鳞壁垒","获得12点格挡。",CardType.DEFENSE,Rarity.UNCOMMON,CharacterClass.BAI_LONGMA,2,0,12,0,4, 0,0,0,0,0,0,0);
+        Card xlzn = mk("逆鳞之怒","造成18点伤害。消耗。",CardType.ATTACK,Rarity.RARE,CharacterClass.BAI_LONGMA,2,18,0,6,0);
+        xlzn.setExhaust(true); cr.save(xlzn);
+        Card yhft = mkb("云海翻腾","抽3张牌。消耗。",CardType.SKILL,Rarity.RARE,CharacterClass.BAI_LONGMA,1,0,0,0,0, 0,0,0,0,0,0,3);
+        yhft.setExhaust(true); cr.save(yhft);
+        mkb("龙吟九天","造成12点伤害。抽2张牌。",CardType.ATTACK,Rarity.RARE,CharacterClass.BAI_LONGMA,2,12,0,4,0, 0,0,0,0,0,0,2);
+    }
+
+    private void addSixthBatchTangSanzang() {
+        // ====== 唐三藏（10张） ======
+        mkb("佛光普照·真","回复8点生命值。施加1层虚弱。",CardType.SKILL,Rarity.UNCOMMON,CharacterClass.TANG_SANZANG,1,0,0,0,0, 0,0,0,1,0,8,0);
+        mkb("袈裟金光","获得7点格挡。回复2点生命值。",CardType.DEFENSE,Rarity.COMMON,CharacterClass.TANG_SANZANG,1,0,7,0,3, 0,0,0,0,0,2,0);
+        mkb("诵经祈福","回复7点生命值。",CardType.SKILL,Rarity.COMMON,CharacterClass.TANG_SANZANG,1,0,0,0,0, 0,0,0,0,0,7,0);
+        Card cxdy = mkb("禅心定意","获得1点敏捷。下回合多抽1张牌。",CardType.POWER,Rarity.UNCOMMON,CharacterClass.TANG_SANZANG,1,0,0,0,0, 0,1,0,0,0,0,0);
+        cxdy.setDrawNextTurn(1); cr.save(cxdy);
+        mkb("佛门圣光","造成6点伤害。施加2层虚弱。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.TANG_SANZANG,1,6,0,3,0, 0,0,0,2,0,0,0);
+        mkb("大乘佛法·圆","回复10点生命值。获得3点格挡。",CardType.SKILL,Rarity.RARE,CharacterClass.TANG_SANZANG,1,0,3,0,2, 0,0,0,0,0,10,0);
+        mkb("金蝉护体","获得9点格挡。回复3点生命值。",CardType.DEFENSE,Rarity.UNCOMMON,CharacterClass.TANG_SANZANG,1,0,9,0,3, 0,0,0,0,0,3,0);
+        Card cdzs = mkb("超度众生","回复15点生命值。抽1张牌。消耗。",CardType.SKILL,Rarity.RARE,CharacterClass.TANG_SANZANG,2,0,0,0,0, 0,0,0,0,0,15,1);
+        cdzs.setExhaust(true); cr.save(cdzs);
+        mkb("佛光普照·极","回复6点生命值。获得5点格挡。施加1层虚弱。",CardType.SKILL,Rarity.RARE,CharacterClass.TANG_SANZANG,1,0,5,0,3, 0,0,0,1,0,6,0);
+        mkb("紧箍咒·灭","造成10点伤害。施加2层虚弱和2层易伤。",CardType.ATTACK,Rarity.RARE,CharacterClass.TANG_SANZANG,2,10,0,4,0, 0,0,2,2,0,0,0);
+    }
+
+    // ====== 第三批扩展宝物（14件，冲刺60件总量） ======
+
+    /** 增量迁移：第三批扩展宝物 */
+    private void migrateExpansionRelics2() {
+        for (Relic r : rr.findAll()) {
+            if ("安神符".equals(r.getName())) return;
+        }
+        log.info("开始迁移：添加第三批扩展宝物（14件）...");
+        addExpansionRelics2();
+        log.info("第三批扩展宝物迁移完成，新增14件");
+    }
+
+    /** 第三批扩展宝物定义（供 initRelics 和 migrateExpansionRelics2 共用） */
+    private void addExpansionRelics2() {
+        // ====== COMMON 级宝物（4件） ======
+        rle("安神符","战斗开始时获得1点敏捷。",RelicTier.COMMON,null,"🌿","BATTLE_START;DEXTERITY:1");
+        rle("驱邪符","战斗开始时对敌人施加1层虚弱。",RelicTier.COMMON,null,"📜","BATTLE_START;ENEMY_DEBUFF;WEAK:1");
+        rle("玉佩","最大生命值增加5点。",RelicTier.COMMON,null,"📿","MAX_HP:5");
+        rle("布僧鞋","战斗开始时获得5金币。",RelicTier.COMMON,null,"👟","BATTLE_START;GOLD:5");
+
+        // ====== UNCOMMON 级宝物（4件） ======
+        rle("降妖符","战斗开始时对敌人造成3点伤害。",RelicTier.UNCOMMON,null,"🔱","BATTLE_START;DAMAGE:3");
+        rle("聚气珠","战斗开始时获得1点力量。",RelicTier.UNCOMMON,null,"🔵","BATTLE_START;STRENGTH:1");
+        rle("天机镜","战斗开始时对敌人施加1层易伤。",RelicTier.UNCOMMON,null,"🔮","BATTLE_START;ENEMY_DEBUFF;VULNERABLE:1");
+        rle("金丝甲","受到伤害时获得1点格挡。",RelicTier.UNCOMMON,null,"✨","ON_DAMAGE;BLOCK:1");
+
+        // ====== RARE 级宝物（3件） ======
+        rle("混沌珠","战斗开始时获得2点力量。",RelicTier.RARE,null,"🌑","BATTLE_START;STRENGTH:2");
+        rle("九龙杯","每回合开始时回复2点生命值。",RelicTier.RARE,null,"🍶","TURN_START;HEAL:2");
+        rle("太极图","战斗开始时获得3点格挡和1点敏捷。",RelicTier.RARE,null,"☯️","BATTLE_START;BLOCK:3;DEXTERITY:1");
+
+        // ====== BOSS 级宝物（3件） ======
+        rle("混元鼎","战斗开始时获得2点力量和2点敏捷。",RelicTier.BOSS,null,"🏺","BATTLE_START;STRENGTH:2;DEXTERITY:2");
+        rle("天命珠","最大生命值+15。战斗开始时获得1点额外能量。",RelicTier.BOSS,null,"🌟","MAX_HP:15;BATTLE_START;ENERGY:1");
+        rle("造化玉碟","战斗开始时获得1点力量、1点敏捷、1点额外能量和5点格挡。",RelicTier.BOSS,null,"💠","BATTLE_START;STRENGTH:1;DEXTERITY:1;ENERGY:1;BLOCK:5");
     }
 }

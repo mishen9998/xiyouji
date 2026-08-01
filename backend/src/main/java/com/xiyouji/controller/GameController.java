@@ -19,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 游戏主控制器 - 管理游戏会话、地图移动、节点事件等核心API
@@ -173,6 +174,7 @@ public class GameController {
                     session.getPlayer().getRelics().add(relic);
                     result.put("relic", relic);
                     result.put("message", "获得遗物: " + relic.getName());
+                    result.put("player", playerSummaryAssembler.toPlayerSummary(session.getPlayer()));
                     log.info("Relic '{}' obtained for session: {}", relic.getName(), sessionId);
                 }
             }
@@ -214,9 +216,23 @@ public class GameController {
                     result.put("player", playerSummaryAssembler.toPlayerSummary(session.getPlayer()));
                     log.info("Shop purchase cardId={}, price={}, bought={} for session: {}",
                             cardId, price, bought, sessionId);
+                } else if ("buy_relic".equals(action)) {
+                    Long relicId = request.getRelicId();
+                    if (relicId == null) {
+                        log.warn("Missing relicId for shop relic purchase, session: {}", sessionId);
+                        throw new InvalidActionException("购买宝物时必须提供relicId");
+                    }
+                    boolean bought = gameService.buyRelic(sessionId, relicId);
+                    result.put("bought", bought);
+                    result.put("player", playerSummaryAssembler.toPlayerSummary(session.getPlayer()));
+                    log.info("Shop relic purchase relicId={}, bought={} for session: {}",
+                            relicId, bought, sessionId);
                 } else {
+                    // 浏览商店：返回卡牌和宝物列表
                     List<Card> shopCards = gameService.getShopCards(sessionId);
+                    List<Map<String, Object>> shopRelics = gameService.getShopRelics(sessionId);
                     result.put("shopCards", shopCards);
+                    result.put("shopRelics", shopRelics);
                 }
             }
             case "RANDOM" -> {
@@ -300,8 +316,9 @@ public class GameController {
             "山间的温泉让你神清气爽。回复5点生命值。"
         };
 
-        Random r = new Random();
-        String event = events[r.nextInt(events.length)];
+        // 使用 ThreadLocalRandom 替代每次 new Random()
+        int idx = ThreadLocalRandom.current().nextInt(events.length);
+        String event = events[idx];
 
         // 简单效果
         if (event.contains("10金币")) session.getPlayer().setGold(session.getPlayer().getGold() + 10);

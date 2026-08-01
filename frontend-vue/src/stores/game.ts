@@ -4,7 +4,7 @@ import { ref, computed } from 'vue'
 import { gameApi } from '@/api/game'
 import type {
   CharacterClass, Player, MapNode as GameMapNode,
-  BattleInfo, Rewards, GameState
+  BattleInfo, Rewards, GameState, Card, ShopRelic
 } from '@/types'
 
 const SESSION_KEY = 'xiyouji_session_id'
@@ -22,6 +22,12 @@ export const useGameStore = defineStore('game', () => {
   const battleInfo = ref<BattleInfo | null>(null)
   const rewards = ref<Rewards | null>(null)
   const bonfireUpgradesLeft = ref(2)
+
+  // 商店状态
+  const shopCards = ref<Card[]>([])
+  const shopRelics = ref<ShopRelic[]>([])
+  const boughtCardIds = ref<Set<number>>(new Set())
+  const boughtRelicIds = ref<Set<number>>(new Set())
 
   // ====== Getters ======
   const isPlayerAlive = computed(() => (player.value?.hp ?? 0) > 0)
@@ -188,6 +194,51 @@ export const useGameStore = defineStore('game', () => {
     return data
   }
 
+  // ====== 商店相关 ======
+
+  /** 浏览商店：获取卡牌和宝物列表 */
+  async function browseShop() {
+    if (!sessionId.value) return
+    boughtCardIds.value = new Set()
+    boughtRelicIds.value = new Set()
+    const data = await gameApi.handleEvent(sessionId.value, 'browse')
+    if (data.shopCards) shopCards.value = data.shopCards
+    if (data.shopRelics) shopRelics.value = data.shopRelics
+  }
+
+  /** 购买卡牌 */
+  async function buyShopCard(cardId: number, price: number): Promise<boolean> {
+    if (!sessionId.value) return false
+    const data = await gameApi.handleEvent(sessionId.value, 'buy', { cardId, price })
+    if (data.bought) {
+      boughtCardIds.value = new Set([...boughtCardIds.value, cardId])
+      if (data.player) player.value = data.player
+      return true
+    }
+    return false
+  }
+
+  /** 购买宝物 */
+  async function buyShopRelic(relicId: number): Promise<boolean> {
+    if (!sessionId.value) return false
+    const data = await gameApi.handleEvent(sessionId.value, 'buy_relic', { relicId })
+    if (data.bought) {
+      boughtRelicIds.value = new Set([...boughtRelicIds.value, relicId])
+      if (data.player) player.value = data.player
+      return true
+    }
+    return false
+  }
+
+  /** 离开商店，清理状态并刷新地图 */
+  async function leaveShop() {
+    shopCards.value = []
+    shopRelics.value = []
+    boughtCardIds.value = new Set()
+    boughtRelicIds.value = new Set()
+    await refreshState()
+  }
+
   function resetBattle() {
     inBattle.value = false
     battleInfo.value = null
@@ -210,12 +261,14 @@ export const useGameStore = defineStore('game', () => {
     // state
     sessionId, selectedCharacter, player, mapNodes, currentNode,
     currentLayer, maxLayer, inBattle, battleInfo, rewards, bonfireUpgradesLeft,
+    shopCards, shopRelics, boughtCardIds, boughtRelicIds,
     // getters
     isPlayerAlive, hasSession,
     // actions
     startNewGame, refreshState, loadSavedSession, restoreBattleState,
     deleteSavedSession, moveToNode, startBattle, playCard, endTurn,
     chooseCardReward, nextLayer, handleEvent, upgradeCard,
+    browseShop, buyShopCard, buyShopRelic, leaveShop,
     resetBattle, clearAll, getSavedSessionId, saveSessionLocal, clearSessionLocal,
   }
 })

@@ -34,7 +34,51 @@ export const CARD_IMG: Record<string, string> = {
   '蓄势待发': 'card_xushidaifa', '筋斗云翻': 'card_jindouyunfan', '斗战胜佛': 'card_douzhanshengfo',
   '九齿横扫': 'card_jiuchihengsao', '天蓬元帅': 'card_tianpengyuanshuai',
   '降妖钵盂': 'card_xiangyaoboyu', '金身罗汉': 'card_jinshenluohan',
-  '龙卷风暴': 'card_longjuanfengbao', '般若波罗蜜': 'card_boreboluomi'
+  '龙卷风暴': 'card_longjuanfengbao', '般若波罗蜜': 'card_boreboluomi',
+  // 第四批扩展卡牌
+  '万剑诀': 'card_wanjianjue', '固本培元': 'card_gubenpeiyuan', '金刚降魔杵': 'card_jingangxiangmozhu',
+  '四象阵法': 'card_sixiangzhenfa', '以退为进': 'card_yituweijin', '破绽百出': 'card_pozhanbaichu',
+  '火眼金睛·真': 'card_huoyanjinjing_zhen', '如意金箍棒': 'card_ruyijingubang', '铜头铁臂': 'card_tongtoutiebi',
+  '三昧真火': 'card_sanweizhenhuo', '天蓬戍守': 'card_tianpengshoushou', '吞噬天地': 'card_tunshitiandi',
+  '降魔大阵': 'card_xiangmodazhen', '罗汉伏魔': 'card_luohanfumo',
+  '龙腾九天': 'card_longtengjiutian', '水龙吟': 'card_shuilongyin', '龙魂觉醒': 'card_longhunjuexing',
+  '大慈大悲': 'card_dacidadei', '佛法无边': 'card_fofawubian', '涅槃重生': 'card_niepanchongsheng',
+  // 第五批扩展卡牌
+  '雷霆万钧': 'card_leitingwanjun', '回光返照': 'card_huiguangfanzhao', '破釜沉舟': 'card_pofuchenzhou',
+  '守心如一': 'card_shouxinruyi', '毒蛇吐信': 'card_dushetuxin', '两仪微尘阵': 'card_liangyiweichenzhen',
+  '齐天大圣': 'card_qitiandasheng', '筋斗云·翔': 'card_jindouyun_xiang', '猴王怒吼': 'card_houwangnuhou',
+  '天蓬觉醒': 'card_tianpengjuexing', '吞食天地': 'card_tunshitiandi2', '猪突猛进': 'card_zhutumengjin',
+  '金刚罗汉阵': 'card_jingangluohanzhen', '沙暴迷眼': 'card_shabaomiyan',
+  '龙王降临': 'card_longwangjianglin', '乘风破浪': 'card_chengfengpolang', '龙鳞护体': 'card_longlinhuti',
+  '西天取经': 'card_xitianqujing', '金钟护体': 'card_jinzhonghuti', '超度亡魂': 'card_chaoduwanghun',
+  // 第六批扩展卡牌（74张）
+  '雷劫': 'card_leijie', '涅槃': 'card_niepan', '天网恢恢': 'card_tianwanghuihui',
+  '金光咒': 'card_jinguangzhou', '万象归一': 'card_wanxiangguiyi', '斩妖除魔': 'card_zhanyaochumo',
+  '灵光护盾': 'card_lingguanghudun', '蚀骨毒雾': 'card_shiguduwu', '天道轮回': 'card_tiandaolunhui',
+  '神兵天降': 'card_shenbingtianjiang', '金刚不坏·改': 'card_jingangbuhuai_gai', '破魔一击': 'card_pomoyiji',
+  '避邪符': 'card_bixiefu', '斗转星移': 'card_douzhuanxingyi', '噬魂爪': 'card_shihunzhua',
+  '药石之言': 'card_yaoshizhiyan', '铁血战意': 'card_tiexuezhanyi', '幻影分身': 'card_huanyingfenshen',
+  '惊雷一击': 'card_jingleiyiji', '玄铁盾': 'card_xuantiedun',
+  '定心真言': 'card_dingxinzhenyan', '猴毛化兵': 'card_houmaohuabing', '如意变化': 'card_ruyibianhua',
+  '火眼金睛·极': 'card_huoyanjinjing_ji', '金箍棒·碎': 'card_jingubang_sui', '筋斗云·瞬': 'card_jindouyun_shun',
+  '大圣之威': 'card_dashengzhiwei', '七十二变·幻': 'card_qishierbian_huan', '齐天一击': 'card_qitianyiji',
+  '猴王护体': 'card_houwanghuti', '天宫叛逆': 'card_tiangongpanni', '斗战之心': 'card_douzhanzhixin',
+  '天蓬之力': 'card_tianpengzhili', '猪八戒贪吃': 'card_zhubajietanchi', '厚土之盾': 'card_houtuzhidun',
+  '天河怒涛': 'card_tianhenutao', '贪婪之咬': 'card_tanlanzhiyao', '天蓬守护': 'card_tianpengshouhu',
+  '大快朵颐': 'card_dakuaiduoyi', '铁齿铜牙': 'card_tiechitongya', '天蓬元帅·临': 'card_tianpengyuanshuai_lin',
+  '九齿狂舞': 'card_jiuchikuangwu', '吞噬精气': 'card_tunshijingqi', '天河水军·阵': 'card_tianheshuijun_zhen',
+  '降妖之力': 'card_xiangyaozhili', '金刚护体': 'card_jinganghuti', '罗汉怒目': 'card_luohannumu',
+  '流沙之盾': 'card_liushazhidun', '降魔真言': 'card_xiangmozhenyan', '沙僧护法': 'card_shasenghufa',
+  '罗汉降魔': 'card_luohanxiangmo', '金身不灭': 'card_jinshengbumie', '流沙漩涡': 'card_liushaxuanwo',
+  '降妖宝杖·烈': 'card_xiangyaobaozhang_lie',
+  '龙之吐息': 'card_longzhituxi', '云龙飞天': 'card_yunlongfeitian', '龙威震天': 'card_longweizhentian',
+  '风驰电掣': 'card_fengchidianche', '龙魂附体': 'card_longhunfuti', '水龙破阵': 'card_shuilongpozhen',
+  '龙鳞壁垒': 'card_longlinbilei', '逆鳞之怒': 'card_nilinzhinu', '云海翻腾': 'card_yunhaifanteng',
+  '龙吟九天': 'card_longyinjiutian',
+  '佛光普照·真': 'card_foguangpuhzhao_zhen', '袈裟金光': 'card_jiashajinguang', '诵经祈福': 'card_songjingqifu',
+  '禅心定意': 'card_chanxindingyi', '佛门圣光': 'card_fomenshengguang', '大乘佛法·圆': 'card_dachengfofa_yuan',
+  '金蝉护体': 'card_jinchanhuti', '超度众生': 'card_chaoduzhongsheng', '佛光普照·极': 'card_foguangpuhzhao_ji',
+  '紧箍咒·灭': 'card_jinguzhou_mie'
 }
 
 export const FULL_IMG: Record<string, string> = {
@@ -83,7 +127,17 @@ export const RELIC_IMG: Record<string, string> = {
   // 8件唐朝皇帝御赐宝物（卡通图片）
   '御赐金钵': 'relic_yucijinbo', '紫金钵盂': 'relic_zijinboyu', '大唐通关文牒': 'relic_datatongguanwendie',
   '李世民御剑': 'relic_lishiminyujian', '玄奘九环锡杖': 'relic_xuanzangjiuhuanxizhang',
-  '御林军虎符': 'relic_yulinjunhufu', '御赐琉璃盏': 'relic_yuciliulizhan', '太宗玉玺': 'relic_taizongyuxi'
+  '御林军虎符': 'relic_yulinjunhufu', '御赐琉璃盏': 'relic_yuciliulizhan', '太宗玉玺': 'relic_taizongyuxi',
+  // 第二批扩展宝物
+  '护身符': 'relic_hushenfu', '布袋': 'relic_budai', '灵芝': 'relic_lingzhi',
+  '降魔杵': 'relic_xiangmozhu', '聚灵珠': 'relic_julingzhu', '天蚕甲': 'relic_tiancanjia',
+  '混元珠': 'relic_hunyuanzhu', '风袋': 'relic_fengdai', '乾坤镜': 'relic_qiankunjing',
+  '乾坤袋': 'relic_qiankundai', '轮回珠': 'relic_lunhuizhu', '天罡北斗阵': 'relic_tiangangbeidouzhen',
+  // 第三批扩展宝物（14件）
+  '安神符': 'relic_anshenfu', '驱邪符': 'relic_quxiefu', '玉佩': 'relic_yupei', '布僧鞋': 'relic_busengxie',
+  '降妖符': 'relic_xiangyaofu', '聚气珠': 'relic_juqizhu', '天机镜': 'relic_tianjijing', '金丝甲': 'relic_jinsijia',
+  '混沌珠': 'relic_hundunzhu', '九龙杯': 'relic_jiulongbei', '太极图': 'relic_taijitu',
+  '混元鼎': 'relic_hunyunding', '天命珠': 'relic_tianmingzhu', '造化玉碟': 'relic_zaohuayudie'
 }
 
 export const NODE_IMG: Record<string, string> = {
