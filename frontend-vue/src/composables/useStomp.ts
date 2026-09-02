@@ -29,11 +29,41 @@ export function useStomp() {
     onRoomUpdate: (room: RoomDTO) => void,
     onBattleUpdate: (battle: MultiplayerBattleInfo) => void,
     onSystemMsg?: (message: string) => void,
+    onConnected?: () => void | Promise<void>,
   ): Promise<void> {
     const token = await getTokenForWs()
     const protocol = location.protocol === 'https:' ? 'wss' : 'ws'
     const wsUrl = `${protocol}://${location.host}/ws?token=${encodeURIComponent(token)}`
 
+    let resolveConnected: (() => void) | null = null
+    let rejectConnected: ((reason?: unknown) => void) | null = null
+    const connectedPromise = new Promise<void>((resolve, reject) => {
+      resolveConnected = resolve
+      rejectConnected = reject
+    })
+
+    const subscribe = () => {
+      roomSub?.unsubscribe()
+      battleSub?.unsubscribe()
+      roomSub = null
+      battleSub = null
+      // 订阅房间状态频道
+      roomSub = client!.subscribe(`/topic/room/${roomCode}`, (msg) => {
+        const data = JSON.parse(msg.body)
+        if (data.type === 'SYSTEM_MESSAGE' && data.message) {
+          onSystemMsg?.(data.message)
+        } else {
+          onRoomUpdate(data as RoomDTO)
+        }
+      })
+
+      // 订阅战斗状态频道
+      battleSub = client!.subscribe(`/topic/room/${roomCode}/battle`, (msg) => {
+        onBattleUpdate(JSON.parse(msg.body) as MultiplayerBattleInfo)
+      })
+    }
+
+    let firstConnect = true
     client = new Client({
       brokerURL: wsUrl,
       reconnectDelay: 3000,
@@ -41,22 +71,14 @@ export function useStomp() {
       heartbeatOutgoing: 10000,
 
       onConnect: () => {
-        // 订阅房间状态频道
-        roomSub = client!.subscribe(`/topic/room/${roomCode}`, (msg) => {
-          const data = JSON.parse(msg.body)
-          if (data.type === 'SYSTEM_MESSAGE' && data.message) {
-            onSystemMsg?.(data.message)
-          } else {
-            // RoomDTO 格式
-            onRoomUpdate(data as RoomDTO)
-          }
-        })
-
-        // 订阅战斗状态频道
-        battleSub = client!.subscribe(`/topic/room/${roomCode}/battle`, (msg) => {
-          const data = JSON.parse(msg.body)
-          onBattleUpdate(data as MultiplayerBattleInfo)
-        })
+        subscribe()
+        void onConnected?.()
+        if (firstConnect) {
+          firstConnect = false
+          resolveConnected?.()
+          resolveConnected = null
+          rejectConnected = null
+        }
       },
 
       onStompError: (frame) => {
@@ -65,10 +87,12 @@ export function useStomp() {
 
       onWebSocketError: (event) => {
         console.error('WebSocket error:', event)
+        if (firstConnect) rejectConnected?.(event)
       },
     })
 
     client.activate()
+    await connectedPromise
   }
 
   /** 断开连接 */

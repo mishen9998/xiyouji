@@ -37,10 +37,63 @@ export const CARD_IMG: Record<string, string> = {
   '龙卷风暴': 'card_longjuanfengbao', '般若波罗蜜': 'card_boreboluomi'
 }
 
+/**
+ * 角色专属卡牌所在的图库目录。
+ *
+ * 通用卡牌没有角色归属，统一放在「宝物/卡牌/通用」；这里仅维护有
+ * 明确 CharacterClass 的卡牌。这样新增通用卡牌时无需再改路径映射。
+ */
+export const CARD_CHARACTER_DIR: Record<string, string> = {
+  // 孙悟空
+  '金箍棒法': '孙悟空', '七十二变': '孙悟空', '筋斗云': '孙悟空',
+  '火眼金睛': '孙悟空', '大闹天宫': '孙悟空', '毫毛分身': '孙悟空',
+  '定海神针': '孙悟空', '身外身': '孙悟空', '法天象地': '孙悟空',
+  '哮天犬': '孙悟空', '筋斗云翻': '孙悟空', '斗战胜佛': '孙悟空',
+  // 猪八戒
+  '九齿钉耙': '猪八戒', '狼吞虎咽': '猪八戒', '厚皮': '猪八戒',
+  '天河水军': '猪八戒', '贪食': '猪八戒', '天蓬之怒': '猪八戒',
+  '三十六变': '猪八戒', '净坛使者': '猪八戒', '倒打一耙': '猪八戒',
+  '饕餮之口': '猪八戒', '九齿横扫': '猪八戒', '天蓬元帅': '猪八戒',
+  // 沙僧
+  '降妖宝杖': '沙僧', '金刚不坏': '沙僧', '流沙河': '沙僧',
+  '负重前行': '沙僧', '罗汉金身': '沙僧', '天河倒灌': '沙僧',
+  '降魔阵': '沙僧', '琉璃盏': '沙僧', '降妖宝杖·真': '沙僧',
+  '降妖钵盂': '沙僧', '金身罗汉': '沙僧',
+  // 白龙马
+  '龙吟': '白龙马', '腾云驾雾': '白龙马', '疾风步': '白龙马',
+  '龙爪': '白龙马', '呼风唤雨': '白龙马', '龙威': '白龙马',
+  '龙息': '白龙马', '水遁': '白龙马', '龙战于野': '白龙马',
+  '龙卷风暴': '白龙马',
+  // 唐三藏
+  '紧箍咒念': '唐三藏', '大乘佛法': '唐三藏', '金蝉脱壳': '唐三藏',
+  '普渡众生': '唐三藏', '心经': '唐三藏', '取经誓愿': '唐三藏',
+  '九环锡杖': '唐三藏', '袈裟护体': '唐三藏', '超度': '唐三藏',
+  '金身护体': '唐三藏', '佛光普照': '唐三藏', '紧箍咒·禁': '唐三藏',
+  '般若波罗蜜': '唐三藏',
+}
+
 export const FULL_IMG: Record<string, string> = {
   SUN_WUKONG: 'full_sunwukong', ZHU_BAJIE: 'full_zhubajie',
   SHA_SENG: 'full_shaseng', BAI_LONGMA: 'full_bailongma',
   TANG_SANZANG: 'full_tangsanzang'
+}
+
+/** CharacterClass -> Chinese图库目录，供立绘/模型及头像路径共用。 */
+export const CHARACTER_DIR: Record<string, string> = {
+  SUN_WUKONG: '孙悟空',
+  ZHU_BAJIE: '猪八戒',
+  SHA_SENG: '沙僧',
+  BAI_LONGMA: '白龙马',
+  TANG_SANZANG: '唐三藏',
+}
+
+/** 角色选择页使用的头像文件（白龙马使用透明 PNG 头像）。 */
+export const CHARACTER_AVATAR: Record<string, string> = {
+  SUN_WUKONG: 'avatar_sunwukong.jpg',
+  ZHU_BAJIE: 'avatar_zhubajie.jpg',
+  SHA_SENG: 'avatar_shawujing.jpg',
+  BAI_LONGMA: 'bailongma.png',
+  TANG_SANZANG: 'avatar_tangsanzang.jpg',
 }
 
 export const ENEMY_IMG: Record<string, string> = {
@@ -134,29 +187,41 @@ export const BUFF_ICONS: Record<string, string> = {
 export function cardImgUrl(name: string, _upgraded?: boolean): string | null {
   const f = CARD_IMG[name]
   if (!f) return null
-  return '/images/cards/' + f + '.jpg'
+  const characterDir = CARD_CHARACTER_DIR[name]
+  return characterDir
+    ? `/images/${characterDir}/卡牌/${f}.jpg`
+    : `/images/宝物/卡牌/通用/${f}.jpg`
 }
 
 export function fullImgUrl(charClass: string): string | null {
   const f = FULL_IMG[charClass]
   if (!f) return null
-  return '/images/full/' + f + '.jpg'
+  const characterDir = CHARACTER_DIR[charClass]
+  if (!characterDir) return null
+  return `/images/${characterDir}/建模/${f}.jpg`
+}
+
+export function characterAvatarUrl(charClass: string): string | null {
+  const characterDir = CHARACTER_DIR[charClass]
+  const filename = CHARACTER_AVATAR[charClass]
+  if (!characterDir || !filename) return null
+  return `/images/${characterDir}/头像/${filename}`
 }
 
 export function enemyImgUrl(name: string): string | null {
   const f = ENEMY_IMG[name]
   if (!f) return null
-  return '/images/enemies/' + f + '.jpg'
+  return `/images/敌人/建模/${f}.jpg`
 }
 
 export function relicImgUrl(name: string): string | null {
   const f = RELIC_IMG[name]
   if (!f) return null
-  return '/images/relics/' + f + '.jpg'
+  return `/images/宝物/遗物/${f}.jpg`
 }
 
 export function nodeImgUrl(type: string): string | null {
   const f = NODE_IMG[type]
   if (!f) return null
-  return '/images/nodes/' + f + '.jpg'
+  return `/images/宝物/场景/${f}.jpg`
 }

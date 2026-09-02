@@ -55,9 +55,14 @@ launcher.err
 .trae-html-share-packages/
 .uploads/
 
-# 构建产物补充
-backend/target/
+# 构建产物补充（五个 Maven 模块）
+**/target/
 frontend-vue/dist/
+/xiyouji-bootstrap/src/main/resources/static/images/
+
+# Local generated artifacts (resume exports, render QA, scratch builders)
+output/
+tmp/
 
 # 本地运行时数据
 data/

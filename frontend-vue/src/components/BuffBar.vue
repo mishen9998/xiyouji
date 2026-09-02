@@ -10,7 +10,7 @@
     >
       <img
         v-if="getIcon(buff.name).startsWith('IMG:')"
-        :src="`/images/debuffs/${getIcon(buff.name).substring(4)}.jpg`"
+        :src="`/images/宝物/状态/${getIcon(buff.name).substring(4)}.jpg`"
         class="buff-img"
         :alt="buff.name"
       />

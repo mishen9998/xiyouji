@@ -6,9 +6,8 @@ global:
   scrape_interval: 15s          # 每15秒抓取一次
   evaluation_interval: 15s      # 每15秒评估一次告警规则
 
-# 告警规则文件（可选）
-# rule_files:
-#   - "alert_rules.yml"
+rule_files:
+  - /etc/prometheus/alert_rules.yml
 
 # 抓取目标
 scrape_configs:

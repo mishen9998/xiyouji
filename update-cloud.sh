@@ -6,20 +6,23 @@
 # ========================================
 set -e
 
+if [ ! -f ".env.cloud" ]; then
+    echo "[ERROR] 未找到 .env.cloud，无法安全更新。"
+    exit 1
+fi
+set -a
+# shellcheck disable=SC1091
+. ./.env.cloud
+set +a
+PUBLIC_BASE_URL="${PUBLIC_BASE_URL:-http://localhost:8080}"
+
 echo "============================================"
 echo "  西游记应用增量更新"
 echo "============================================"
 echo ""
 
-# 检查 JAR 是否存在
-if [ ! -f "backend/target/xiyouji-roguelike-1.0.0.jar" ]; then
-    echo "[ERROR] 未找到 backend/target/xiyouji-roguelike-1.0.0.jar"
-    echo "  请将新构建的JAR上传到 backend/target/ 目录"
-    exit 1
-fi
-
-JAR_SIZE=$(du -h backend/target/xiyouji-roguelike-1.0.0.jar | cut -f1)
-echo "[1/4] 检查新JAR文件... OK ($JAR_SIZE)"
+# 使用根目录 Dockerfile 重新构建，避免依赖宿主机 JAR 路径。
+echo "[1/4] 使用多阶段 Dockerfile 构建新镜像... OK"
 echo ""
 
 # 只重新构建并重启 app 容器（不影响 MySQL 和 Redis）
@@ -42,7 +45,7 @@ for i in $(seq 1 $MAX_WAIT); do
         echo "  更新成功！"
         echo "============================================"
         echo ""
-        echo "  访问地址: http://114.132.55.119:8080"
+        echo "  访问地址: ${PUBLIC_BASE_URL}"
         echo ""
         docker compose -f docker-compose-cloud.yml ps
         echo "============================================"

@@ -4,9 +4,9 @@
 # ========================================
 
 $ErrorActionPreference = "Stop"
-$PROJECT_ROOT = "C:\Users\20126\Desktop\西游记"
-$STAGING_DIR = "C:\Users\20126\.trae-cn\work\6a655f448da1db765ee3d021\update-pkg"
-$OUTPUT_ZIP = "$PROJECT_ROOT\西行更新包.zip"
+$PROJECT_ROOT = $PSScriptRoot
+$STAGING_DIR = Join-Path $PROJECT_ROOT 'tmp\update-pkg'
+$OUTPUT_ZIP = Join-Path $PROJECT_ROOT '西行更新包.zip'
 
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Yellow
@@ -19,13 +19,9 @@ Write-Host "[1/5] 构建前端 (Vue3 + Vite)..." -ForegroundColor Cyan
 $frontendDir = "$PROJECT_ROOT\frontend-vue"
 Push-Location $frontendDir
 try {
-    # 安装依赖（如果node_modules不存在）
-    if (-not (Test-Path "node_modules")) {
-        Write-Host "  安装依赖..." -ForegroundColor Gray
-        npm install 2>&1 | Out-Null
-    }
-    # 构建，跳过TypeScript类型检查
-    npx vite build 2>&1 | Select-Object -Last 3
+    Write-Host "  安装锁定版本依赖..." -ForegroundColor Gray
+    npm ci 2>&1 | Out-Null
+    npm run build 2>&1 | Select-Object -Last 5
     Write-Host "  前端构建完成" -ForegroundColor Green
 } catch {
     Write-Host "  [ERROR] 前端构建失败: $_" -ForegroundColor Red
@@ -33,22 +29,17 @@ try {
 }
 Pop-Location
 
-# ===== Step 2: 复制前端到后端static =====
-Write-Host "[2/5] 复制前端资源到后端..." -ForegroundColor Cyan
-$staticDir = "$PROJECT_ROOT\backend\src\main\resources\static"
-$distDir = "$frontendDir\dist"
-if (Test-Path $staticDir) { Remove-Item -Recurse -Force $staticDir }
-Copy-Item -Recurse $distDir $staticDir
-Write-Host "  前端资源已复制到 backend/src/main/resources/static/" -ForegroundColor Green
+# 前端 dist 和插图由 Maven resources 在打包时合入 JAR，
+# 避免将构建产物回写到 src/main/resources 导致工作区变脏。
+Write-Host "[2/5] 前端产物已就绪，将由 Maven 合入 JAR" -ForegroundColor Green
 
 # ===== Step 3: 构建后端JAR =====
 Write-Host "[3/5] 构建后端JAR (Maven)..." -ForegroundColor Cyan
-$backendDir = "$PROJECT_ROOT\backend"
-Push-Location $backendDir
+Push-Location $PROJECT_ROOT
 try {
-    # 使用mvn clean package，跳过测试
-    & mvn clean package -DskipTests -q 2>&1 | Select-Object -Last 5
-    $jarPath = "$backendDir\target\xiyouji-roguelike-1.0.0.jar"
+    # 使用仓库内 Maven Wrapper，避免依赖本机 Maven 安装路径
+    & "$PROJECT_ROOT\mvnw.cmd" -pl xiyouji-bootstrap -am clean package -DskipTests -q 2>&1 | Select-Object -Last 5
+    $jarPath = "$PROJECT_ROOT\xiyouji-bootstrap\target\xiyouji-bootstrap-1.0.0.jar"
     if (-not (Test-Path $jarPath)) {
         Write-Host "  [ERROR] JAR构建失败，未找到输出文件" -ForegroundColor Red
         exit 1
@@ -65,10 +56,10 @@ Pop-Location
 Write-Host "[4/5] 打包更新包..." -ForegroundColor Cyan
 if (Test-Path $STAGING_DIR) { Remove-Item -Recurse -Force $STAGING_DIR }
 New-Item -ItemType Directory -Path $STAGING_DIR -Force | Out-Null
-New-Item -ItemType Directory -Path "$STAGING_DIR\backend\target" -Force | Out-Null
+New-Item -ItemType Directory -Path "$STAGING_DIR\xiyouji-bootstrap\target" -Force | Out-Null
 
 # 只复制更新需要的文件
-Copy-Item "$PROJECT_ROOT\backend\target\xiyouji-roguelike-1.0.0.jar" "$STAGING_DIR\backend\target\"
+Copy-Item "$PROJECT_ROOT\xiyouji-bootstrap\target\xiyouji-bootstrap-1.0.0.jar" "$STAGING_DIR\xiyouji-bootstrap\target\"
 Copy-Item "$PROJECT_ROOT\update-cloud.sh" "$STAGING_DIR\"
 
 # 删除旧zip

@@ -123,7 +123,7 @@ function handleExit() {
 .home {
   width: 100%;
   height: 100vh;
-  background: url('/images/login_screen.jpg') center / cover no-repeat;
+  background: url('/images/宝物/场景/login_screen.jpg') center / cover no-repeat;
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -42,58 +42,60 @@
     <!-- 可滑动的地图容器 -->
     <div class="map-scroll-wrapper" ref="scrollWrapper">
       <div class="map-container" :style="wrapperStyle" ref="mapContainer">
-        <!-- SVG 连线层 -->
-        <svg
-          class="map-svg"
-          :viewBox="`0 0 ${MAP_WIDTH} ${mapHeight}`"
-          :style="{ width: MAP_WIDTH + 'px', height: mapHeight + 'px' }"
-        >
-          <line
-            v-for="(line, i) in connectionLines"
-            :key="i"
-            :x1="line.x1"
-            :y1="line.y1"
-            :x2="line.x2"
-            :y2="line.y2"
-            stroke="rgba(242,169,0,0.3)"
-            stroke-width="2"
-            stroke-dasharray="6,4"
-          />
-        </svg>
+        <div class="map-graph-layer" :style="{ width: MAP_WIDTH + 'px', minHeight: mapHeight + 'px' }">
+          <!-- SVG 连线层 -->
+          <svg
+            class="map-svg"
+            :viewBox="`0 0 ${MAP_WIDTH} ${mapHeight}`"
+            :style="{ width: MAP_WIDTH + 'px', height: mapHeight + 'px' }"
+          >
+            <line
+              v-for="(line, i) in connectionLines"
+              :key="i"
+              :x1="line.x1"
+              :y1="line.y1"
+              :x2="line.x2"
+              :y2="line.y2"
+              stroke="rgba(242,169,0,0.3)"
+              stroke-width="2"
+              stroke-dasharray="6,4"
+            />
+          </svg>
 
-        <!-- 地图节点 -->
-        <MapNodeComponent
-          v-for="node in mapNodes"
-          :key="node.id"
-          :node="node"
-          :is-current="currentNode?.id === node.id"
-          :x="nodePositions[node.id]?.x ?? 0"
-          :y="nodePositions[node.id]?.y ?? 0"
-          @move="onMoveNode"
-        />
-
-        <!-- 玩家头像标记 -->
-        <div
-          v-if="currentNode && nodePositions[currentNode.id]"
-          class="map-player-marker"
-          :style="{
-            left: (nodePositions[currentNode.id].x - 20) + 'px',
-            top: (nodePositions[currentNode.id].y - 48) + 'px',
-          }"
-        >
-          <img
-            v-if="playerAvatarUrl"
-            class="map-avatar-img"
-            :src="playerAvatarUrl"
-            alt="玩家"
+          <!-- 地图节点 -->
+          <MapNodeComponent
+            v-for="node in mapNodes"
+            :key="node.id"
+            :node="node"
+            :is-current="currentNode?.id === node.id"
+            :x="nodePositions[node.id]?.x ?? 0"
+            :y="nodePositions[node.id]?.y ?? 0"
+            @move="onMoveNode"
           />
-          <span v-else class="map-avatar-emoji">{{ playerEmoji }}</span>
+
+          <!-- 玩家头像标记 -->
+          <div
+            v-if="currentNode && nodePositions[currentNode.id]"
+            class="map-player-marker"
+            :style="{
+              left: (nodePositions[currentNode.id].x - 20) + 'px',
+              top: (nodePositions[currentNode.id].y - 48) + 'px',
+            }"
+          >
+            <img
+              v-if="playerAvatarUrl"
+              class="map-avatar-img"
+              :src="playerAvatarUrl"
+              alt="玩家"
+            />
+            <span v-else class="map-avatar-emoji">{{ playerEmoji }}</span>
+          </div>
+
+          <!-- 底部起点标签 -->
+          <div class="map-label map-label-start">▼ 第{{ currentLayer }}层出发</div>
+          <!-- 顶部Boss标签 -->
+          <div v-if="maxRow > 0" class="map-label map-label-boss">👑 Boss</div>
         </div>
-
-        <!-- 底部起点标签 -->
-        <div class="map-label map-label-start">▼ 第{{ currentLayer }}层出发</div>
-        <!-- 顶部Boss标签 -->
-        <div v-if="maxRow > 0" class="map-label map-label-boss">👑 Boss</div>
       </div>
     </div>
 
@@ -129,14 +131,15 @@ const router = useRouter()
 const store = useGameStore()
 const ui = useUiStore()
 
-// 布局常量 - 27行地图使用更紧凑的行距
-const ROW_HEIGHT = 70
-const COL_WIDTH = 140
-const MAP_WIDTH = 600
+// 布局常量 - 四列路线自适应铺满可视宽度，并给大节点留出呼吸感
+const ROW_HEIGHT = 220
+const MAP_WIDTH = Math.max(360, Math.round((typeof window !== 'undefined' ? window.innerWidth : 1200) * 0.9))
+const COL_WIDTH = MAP_WIDTH / 4
 
 // 本地状态
 const eventModalVisible = ref(false)
 const currentEventType = ref('')
+const moving = ref(false)
 const deckModalVisible = ref(false)
 const relicsModalVisible = ref(false)
 const scrollWrapper = ref<HTMLElement | null>(null)
@@ -174,7 +177,9 @@ const HORIZONTAL_OFFSET = computed(() => (MAP_WIDTH - 4 * COL_WIDTH) / 2)
 const nodePositions = computed(() => {
   const positions: Record<string, { x: number; y: number }> = {}
   for (const n of mapNodes.value) {
-    const x = HORIZONTAL_OFFSET.value + n.col * COL_WIDTH + COL_WIDTH / 2
+    const x = n.type === 'BOSS'
+      ? MAP_WIDTH / 2
+      : HORIZONTAL_OFFSET.value + n.col * COL_WIDTH + COL_WIDTH / 2
     const y = mapHeight.value - 30 - n.row * ROW_HEIGHT
     positions[n.id] = { x, y }
   }
@@ -198,13 +203,16 @@ const connectionLines = computed(() => {
 const wrapperStyle = computed(() => ({
   position: 'relative' as const,
   width: '100%',
-  maxWidth: MAP_WIDTH + 'px',
+  maxWidth: 'none',
+  height: mapHeight.value + 'px',
   minHeight: mapHeight.value + 'px',
-  margin: '0 auto',
+  margin: '0',
 }))
 
 // 交互逻辑
 async function onMoveNode(node: MapNode) {
+  if (moving.value) return
+  moving.value = true
   try {
     const eventType = await store.moveToNode(node.id)
     if (eventType === 'battle' || eventType === 'boss_battle') {
@@ -216,6 +224,8 @@ async function onMoveNode(node: MapNode) {
   } catch (e: any) {
     console.error('Move failed:', e)
     ui.showToast('移动失败: ' + (e?.message || '未知错误'))
+  } finally {
+    moving.value = false
   }
 }
 
@@ -228,12 +238,32 @@ function goHome() {
   router.push('/')
 }
 
-// 滚动到底部（起点在底部）
+// 没有当前节点时，从底部起点开始；进入路线后由 scrollToCurrentNode 居中角色。
 function scrollToBottom() {
   nextTick(() => {
     if (scrollWrapper.value) {
       scrollWrapper.value.scrollTop = scrollWrapper.value.scrollHeight
     }
+  })
+}
+
+function scrollToCurrentNode() {
+  nextTick(() => {
+    const wrapper = scrollWrapper.value
+    if (!wrapper) return
+
+    const position = currentNode.value
+      ? nodePositions.value[currentNode.value.id]
+      : undefined
+    if (!position) {
+      wrapper.scrollTop = wrapper.scrollHeight
+      return
+    }
+
+    const maxScrollTop = Math.max(0, wrapper.scrollHeight - wrapper.clientHeight)
+    const centeredTop = position.y - wrapper.clientHeight / 2
+    const targetTop = Math.max(0, Math.min(centeredTop, maxScrollTop))
+    wrapper.scrollTo({ top: targetTop, behavior: 'smooth' })
   })
 }
 
@@ -254,11 +284,11 @@ onMounted(async () => {
       return
     }
   }
-  scrollToBottom()
+  scrollToCurrentNode()
 })
 
-watch(mapNodes, () => {
-  scrollToBottom()
+watch([mapNodes, currentNode], () => {
+  scrollToCurrentNode()
 })
 </script>
 
@@ -336,8 +366,27 @@ watch(mapNodes, () => {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 10px;
+  /* The scrollable map itself owns the artwork so the scene moves with the route. */
+  background-color: #171527;
   scrollbar-width: thin;
   scrollbar-color: rgba(242, 169, 0, 0.3) transparent;
+}
+
+.map-container {
+  background-color: #252139;
+  background-image:
+    linear-gradient(180deg, rgba(15, 14, 23, 0.28), rgba(15, 14, 23, 0.12) 40%, rgba(15, 14, 23, 0.38)),
+    url('/images/宝物/场景/map_background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.map-graph-layer {
+  position: relative;
+  margin: 0 auto;
 }
 
 .map-scroll-wrapper::-webkit-scrollbar {

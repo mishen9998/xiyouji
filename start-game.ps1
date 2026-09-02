@@ -1,15 +1,13 @@
-﻿# 西游记 Roguelike 卡牌游戏 - 启动器 (PowerShell 版)
+# 西游记 Roguelike 卡牌游戏 - 启动器 (PowerShell 版)
 # 此脚本由 启动游戏.bat 调用，避免 bat 文件的中文编码问题
 
 $ErrorActionPreference = 'Stop'
 $ProjectDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$BackendDir = Join-Path $ProjectDir 'backend'
+$BackendDir = $ProjectDir
 $GameUrl = 'http://localhost:8080/'
 $Port = 8080
 
-# 配置区
-$JavaHome = 'C:\Users\20126\.jdks\openjdk-26.0.1'
-$MavenCmd = 'D:\dpj\apache-maven-3.8.9\bin\mvn.cmd'
+$MavenCmd = Join-Path $ProjectDir 'mvnw.cmd'
 
 # 设置控制台编码为 UTF-8，确保中文显示正确
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
@@ -87,12 +85,13 @@ Write-Host ''
 
 # ===== 2. 检查 Java =====
 Write-Step '[2/6] 检查 Java 环境...'
-$javaExe = Join-Path $JavaHome 'bin\java.exe'
-if (Test-Path $javaExe) {
-    Write-Ok "Java 已找到: $JavaHome"
+$javaCommand = Get-Command java.exe -ErrorAction SilentlyContinue
+if ($javaCommand) {
+    $javaExe = $javaCommand.Source
+    Write-Ok "Java 已找到: $javaExe"
 } else {
-    Write-Err "未找到 Java: $JavaHome"
-    Write-Info '请修改脚本中的 $JavaHome 配置'
+    Write-Err '未在 PATH 中找到 Java 17'
+    Write-Info '请安装 JDK 17 并配置 JAVA_HOME/PATH'
     Fail-Exit
 }
 Write-Host ''
@@ -108,23 +107,21 @@ if (Test-Path $MavenCmd) {
 }
 Write-Host ''
 
-# ===== 4. 检查依赖服务 =====
-Write-Step '[4/6] 检查依赖服务 (MySQL / Redis)...'
+# ===== 4. 检查依赖服务（可选，standalone profile 用 H2 内存数据库）=====
+Write-Step '[4/6] 检查依赖服务 (MySQL / Redis) - 可选...'
 
-if (Test-PortListen 3306) {
-    Write-Ok "MySQL 已启动 (端口 3306)"
+$useStandalone = $true
+if ((Test-PortListen 3306) -and (Test-PortListen 6379)) {
+    Write-Ok "MySQL 和 Redis 已启动，将使用 distributed profile"
+    $useStandalone = $false
 } else {
-    Write-Err "MySQL 未启动 (端口 3306 未监听)"
-    Write-Info '请先启动 MySQL 服务'
-    Fail-Exit
+    Write-Info "MySQL 未启动 - 将使用 H2 内存数据库 (standalone profile)"
 }
 
 if (Test-PortListen 6379) {
     Write-Ok "Redis 已启动 (端口 6379)"
 } else {
-    Write-Err "Redis 未启动 (端口 6379 未监听)"
-    Write-Info '请先启动 Redis 服务'
-    Fail-Exit
+    Write-Info "Redis 未启动 - 单机模式不需要 Redis"
 }
 Write-Host ''
 
@@ -134,8 +131,16 @@ Write-Info '后端窗口标题: "西游记后端服务"'
 Write-Info '首次启动需编译，请耐心等待 30-60 秒'
 Write-Host ''
 
+# 根据 MySQL 状态决定使用哪个 profile
+if ($useStandalone) {
+    $profileArg = '-Dspring-boot.run.profiles=standalone'
+} else {
+    $profileArg = '-Dspring-boot.run.profiles=distributed'
+}
+
 # 直接用 cmd /k 启动 mvn，避免中间 bat 文件的编码问题
-$backendCmd = "title 西游记后端服务 && cd /d `"$BackendDir`" && set `"PATH=$JavaHome\bin;%PATH%`" && `"$MavenCmd`" spring-boot:run"
+$jarPath = Join-Path $ProjectDir 'xiyouji-bootstrap\target\xiyouji-bootstrap-1.0.0.jar'
+$backendCmd = "title 西游记后端服务 && cd /d `"$BackendDir`" && `"$MavenCmd`" -pl xiyouji-bootstrap -am package -DskipTests -q && `"$javaExe`" -jar `"$jarPath`" --spring.profiles.active=$($profileArg.Replace('-Dspring-boot.run.profiles=', ''))"
 Start-Process -FilePath 'cmd.exe' -ArgumentList '/k', $backendCmd -WindowStyle Normal
 Write-Host ''
 

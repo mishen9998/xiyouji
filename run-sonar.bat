@@ -12,16 +12,13 @@ echo.
 
 set /p SONAR_TOKEN="请输入 SonarQube Token: "
 
-set JAVA_HOME=C:\Users\20126\AppData\Local\Programs\Eclipse Adoptium\jdk-17.0.19.10-hotspot
-set PATH=%JAVA_HOME%\bin;%PATH%
-
-cd /d "%~dp0backend"
+cd /d "%~dp0"
 
 echo.
 echo 正在运行 SonarQube 分析...
 echo ============================================
 
-call mvn sonar:sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.login=%SONAR_TOKEN%
+call mvnw.cmd -pl xiyouji-bootstrap -am sonar:sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.login=%SONAR_TOKEN%
 
 echo.
 echo ============================================

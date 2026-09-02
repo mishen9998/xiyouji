@@ -30,17 +30,22 @@
       <div class="battle-arena">
         <!-- 玩家区 -->
         <div class="arena-side arena-player">
-          <img
-            v-if="fullImgUrl(battlePlayer?.characterClass || '')"
-            :src="fullImgUrl(battlePlayer?.characterClass || '') || ''"
-            class="player-full-img"
-            :alt="battlePlayer?.displayName"
+          <BattleCharacter3D
+            v-if="battlePlayer"
+            :character-class="battlePlayer.characterClass"
+            :image-url="fullImgUrl(battlePlayer.characterClass || '')"
+            :emoji="EMOJI_MAP[battlePlayer.characterClass || ''] || battlePlayer.emoji || '🦸'"
+            :label="CHARACTER_DIR[battlePlayer.characterClass] || battlePlayer.displayName"
+            :action="playerAction"
+            :action-token="playerActionToken"
+            size="lg"
+            class="battle-player-character"
           />
-          <div v-else class="player-full-img player-emoji-fallback">
-            {{ EMOJI_MAP[battlePlayer?.characterClass || ''] || '🦸' }}
+          <div class="battle-action-status" :class="`is-${playerAction}`" aria-live="polite">
+            <span class="battle-action-status__dot" aria-hidden="true"></span>
+            {{ playerAction === 'idle' ? '待机' : playerAction === 'defense' ? '防御' : playerAction === 'ability' ? '能力' : playerAction === 'hit' ? '受击' : '攻击' }}
           </div>
           <div class="arena-info">
-            <div class="player-name">{{ battlePlayer?.displayName }}</div>
             <HpBar
               :hp="battlePlayer?.hp ?? 0"
               :max-hp="battlePlayer?.maxHp ?? 1"
@@ -116,7 +121,7 @@
           </button>
           <button
             class="end-turn-btn"
-            :disabled="!canEndTurn"
+            :disabled="!canEndTurn || commandPending"
             @click="onEndTurn"
           >
             ⏭️ 结束回合
@@ -145,6 +150,7 @@ import { storeToRefs } from 'pinia'
 import { useGameStore } from '@/stores/game'
 import { useUiStore } from '@/stores/ui'
 import { useBattleKeyboard } from '@/composables/useKeyboard'
+import { useBattleAnimation } from '@/composables/useBattleAnimation'
 import {
   fullImgUrl,
   enemyImgUrl,
@@ -152,9 +158,11 @@ import {
   INTENT_ICONS,
   INTENT_LABELS,
   EMOJI_MAP,
+  CHARACTER_DIR,
 } from '@/constants/images'
 import type { Card } from '@/types'
 import HpBar from '@/components/HpBar.vue'
+import BattleCharacter3D from '@/components/BattleCharacter3D.vue'
 import GameCard from '@/components/GameCard.vue'
 import BuffBar from '@/components/BuffBar.vue'
 import DeckModal from '@/components/DeckModal.vue'
@@ -176,6 +184,10 @@ const {
 
 const resultModalVisible = ref(false)
 const pilesModalVisible = ref(false)
+const playerAnimation = useBattleAnimation()
+const playerAction = playerAnimation.action
+const playerActionToken = playerAnimation.actionToken
+const commandPending = ref(false)
 
 // 响应式派生
 const bi = computed(() => battleInfo.value)
@@ -190,17 +202,23 @@ const canEndTurn = computed(() => {
 })
 
 function canPlayCard(card: Card): boolean {
+  if (commandPending.value) return false
   if (!bi.value?.playerTurn || bi.value?.battleOver) return false
   return (battlePlayer.value?.energy ?? 0) >= card.cost
 }
 
 async function onPlayCard(index: number) {
+  if (commandPending.value) return
   if (!bi.value?.playerTurn || bi.value?.battleOver) return
   const card = battlePlayer.value?.hand?.[index]
   if (!card || !canPlayCard(card)) return
+  // 先播动作，让出牌反馈不被网络延迟吞掉；actionToken 保证连续同类牌也会重播。
+  playerAnimation.playCard(card.type)
+  commandPending.value = true
   try {
     await playCard(index)
   } catch (e: any) {
+    playerAnimation.idle()
     console.error('Play card failed:', e)
     // 会话丢失等严重错误时提示用户返回首页
     const msg = String(e?.message || '')
@@ -213,14 +231,39 @@ async function onPlayCard(index: number) {
       return
     }
     showToast('出牌失败: ' + msg)
+  } finally {
+    commandPending.value = false
   }
 }
 
 async function onEndTurn() {
-  if (!canEndTurn.value) return
+  if (!canEndTurn.value || commandPending.value) return
+  commandPending.value = true
+  // endTurn 会在服务端同步执行敌人回合，保存一个轻量快照供受击检测。
+  const before = bi.value
+    ? {
+        player: {
+          hp: bi.value.player?.hp,
+          block: bi.value.player?.block,
+        },
+        enemy: { intent: bi.value.enemy?.intent },
+        playerTurn: bi.value.playerTurn,
+        battleOver: bi.value.battleOver,
+        turnNumber: bi.value.turnNumber,
+        combatLog: bi.value.combatLog ? [...bi.value.combatLog] : [],
+      }
+    : null
   try {
     await endTurn()
+    // 单人结束回合接口会完整执行一次敌人行动；以上一刻的攻击意图为准，
+    // 即使伤害被格挡全部吸收，也应给玩家明确的受击反馈。
+    if (String(before?.enemy?.intent || '').toUpperCase() === 'ATTACK') {
+      playerAnimation.playHit()
+    } else {
+      playerAnimation.sync(before, bi.value)
+    }
   } catch (e: any) {
+    playerAnimation.idle()
     console.error('End turn failed:', e)
     const msg = String(e?.message || '')
     if (msg.includes('会话不存在') || msg.includes('SESSION_NOT_FOUND') || msg.includes('404')) {
@@ -232,6 +275,8 @@ async function onEndTurn() {
       return
     }
     showToast('结束回合失败: ' + msg)
+  } finally {
+    commandPending.value = false
   }
 }
 
@@ -393,6 +438,60 @@ onMounted(async () => {
   border: 3px solid var(--gold);
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 16px rgba(242, 169, 0, 0.2);
+}
+.battle-player-character {
+  --character-accent: var(--gold);
+  --character-glow: rgba(242, 169, 0, 0.42);
+  z-index: 1;
+}
+.battle-action-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 24px;
+  padding: 3px 11px;
+  border: 1px solid rgba(242, 169, 0, 0.28);
+  border-radius: 999px;
+  background: rgba(15, 14, 23, 0.72);
+  color: var(--gold);
+  font-size: 12px;
+  letter-spacing: 1px;
+  transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+.battle-action-status__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+.battle-action-status.is-attack {
+  color: var(--red);
+  border-color: rgba(232, 93, 117, 0.52);
+  background: rgba(232, 93, 117, 0.12);
+}
+.battle-action-status.is-defense {
+  color: var(--blue);
+  border-color: rgba(79, 195, 247, 0.5);
+  background: rgba(79, 195, 247, 0.12);
+}
+.battle-action-status.is-ability {
+  color: var(--purple);
+  border-color: rgba(187, 134, 252, 0.52);
+  background: rgba(187, 134, 252, 0.12);
+}
+.battle-action-status.is-hit {
+  color: #ff8f8f;
+  border-color: rgba(255, 112, 112, 0.58);
+  background: rgba(232, 93, 117, 0.2);
+  animation: hit-status 560ms ease-out;
+}
+
+@keyframes hit-status {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-2px); }
 }
 .player-emoji-fallback {
   display: flex;
@@ -585,6 +684,16 @@ onMounted(async () => {
     width: 140px;
     height: 200px;
   }
+  .battle-player-character {
+    transform: scale(0.82);
+    transform-origin: center top;
+    margin-bottom: -54px;
+  }
+  .battle-action-status {
+    font-size: 11px;
+    min-height: 21px;
+    padding: 2px 8px;
+  }
   .enemy-avatar {
     width: 110px;
     height: 110px;
@@ -607,6 +716,10 @@ onMounted(async () => {
   .player-full-img {
     width: 100px;
     height: 150px;
+  }
+  .battle-player-character {
+    transform: scale(0.62);
+    margin-bottom: -112px;
   }
   .enemy-avatar {
     width: 80px;

@@ -80,12 +80,17 @@ export interface Enemy {
 }
 
 export interface BattleInfo {
+  stateVersion: number
   inBattle: boolean
+  /** 当前回合序号；用于在敌人行动后精准触发受击动画 */
+  turnNumber?: number
   playerTurn: boolean
   battleOver: boolean
   victory: boolean
   player: Player
   enemy: Enemy
+  /** 后端返回的最近战斗日志；动画同步时可用于识别致命攻击 */
+  combatLog?: string[]
   rewards?: Rewards | null
 }
 
@@ -98,6 +103,7 @@ export interface Rewards {
 
 export interface GameState {
   sessionId: string
+  stateVersion: number
   player: Player
   map: MapNode[]
   currentNode: MapNode | null
@@ -108,6 +114,7 @@ export interface GameState {
 
 export interface NewGameResponse {
   sessionId: string
+  stateVersion: number
   player: Player
   map: MapNode[]
   currentNode: MapNode
@@ -116,9 +123,11 @@ export interface NewGameResponse {
 export interface MoveResponse {
   node: MapNode
   eventType: string
+  stateVersion: number
 }
 
 export interface EventResponse {
+  stateVersion?: number
   relic?: Relic
   choices?: Relic[]
   shopCards?: Card[]
@@ -133,6 +142,7 @@ export interface EventResponse {
 }
 
 export interface CardRewardChooseResponse {
+  stateVersion?: number
   player?: Player
   chosenCard?: string
 }
@@ -156,6 +166,7 @@ export interface RoomPlayer {
 }
 
 export interface RoomDTO {
+  eventId?: string
   code: string
   hostUserId: string
   players: RoomPlayer[]
@@ -168,6 +179,7 @@ export interface RoomDTO {
   map?: MapNode[]
   currentNode?: MapNode | null
   bonfireUpgradesLeft?: number
+  stateVersion: number
 }
 
 /** 多人战斗中的玩家信息 */
@@ -219,7 +231,9 @@ export interface MultiplayerEnemyInfo {
 }
 
 export interface MultiplayerBattleInfo {
+  eventId?: string
   roomCode: string
+  stateVersion: number
   turnNumber: number
   playerTurn: boolean
   battleOver: boolean

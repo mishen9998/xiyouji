@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.4.1</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.xiyouji</groupId>
+    <artifactId>xiyouji-parent</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    <name>xiyouji-parent</name>
+
+    <modules>
+        <module>xiyouji-common</module>
+        <module>xiyouji-domain</module>
+        <module>xiyouji-application</module>
+        <module>xiyouji-infrastructure</module>
+        <module>xiyouji-bootstrap</module>
+    </modules>
+
+    <properties>
+        <java.version>17</java.version>
+        <jjwt.version>0.12.6</jjwt.version>
+        <redisson.version>3.40.2</redisson.version>
+        <archunit.version>1.3.0</archunit.version>
+        <springdoc.version>2.7.0</springdoc.version>
+        <jacoco.version>0.8.12</jacoco.version>
+        <!-- Keep Testcontainers aligned with the Docker Desktop API used by local/CI integration tests. -->
+        <testcontainers.version>1.21.3</testcontainers.version>
+        <maven.compiler.release>17</maven.compiler.release>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.xiyouji</groupId>
+                <artifactId>xiyouji-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.xiyouji</groupId>
+                <artifactId>xiyouji-domain</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.xiyouji</groupId>
+                <artifactId>xiyouji-application</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.xiyouji</groupId>
+                <artifactId>xiyouji-infrastructure</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

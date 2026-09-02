@@ -11,20 +11,21 @@ export const roomApi = {
     return postJson(`${ROOM_API}/create`)
   },
 
-  joinRoom(code: string): Promise<RoomDTO> {
-    return postJson(`${ROOM_API}/join`, { code })
+  async joinRoom(code: string, expectedStateVersion?: number, idempotencyKey?: string): Promise<RoomDTO> {
+    const version = expectedStateVersion ?? (await this.getRoom(code)).stateVersion
+    return postJson(`${ROOM_API}/join`, { code }, { expectedStateVersion: version, idempotencyKey })
   },
 
-  leaveRoom(code: string): Promise<{ dissolved: boolean; room?: RoomDTO }> {
-    return postJson(`${ROOM_API}/${code}/leave`)
+  leaveRoom(code: string, expectedStateVersion: number, idempotencyKey?: string): Promise<{ dissolved: boolean; room?: RoomDTO }> {
+    return postJson(`${ROOM_API}/${code}/leave`, undefined, { expectedStateVersion, idempotencyKey })
   },
 
-  toggleReady(code: string): Promise<RoomDTO> {
-    return postJson(`${ROOM_API}/${code}/ready`)
+  toggleReady(code: string, expectedStateVersion: number, idempotencyKey?: string): Promise<RoomDTO> {
+    return postJson(`${ROOM_API}/${code}/ready`, undefined, { expectedStateVersion, idempotencyKey })
   },
 
-  selectCharacter(code: string, characterClass: CharacterClass): Promise<RoomDTO> {
-    return postJson(`${ROOM_API}/${code}/character`, { characterClass })
+  selectCharacter(code: string, characterClass: CharacterClass, expectedStateVersion: number, idempotencyKey?: string): Promise<RoomDTO> {
+    return postJson(`${ROOM_API}/${code}/character`, { characterClass }, { expectedStateVersion, idempotencyKey })
   },
 
   getRoom(code: string): Promise<RoomDTO> {
@@ -41,35 +42,36 @@ export const roomApi = {
 
   // ===== 地图探索 API =====
 
-  startGame(code: string): Promise<RoomDTO> {
-    return postJson(`${ROOM_API}/${code}/start-game`)
+  startGame(code: string, expectedStateVersion: number, idempotencyKey?: string): Promise<RoomDTO> {
+    return postJson(`${ROOM_API}/${code}/start-game`, undefined, { expectedStateVersion, idempotencyKey })
   },
 
-  moveToNode(code: string, nodeId: string): Promise<{ node: any; eventType: string; room: RoomDTO }> {
-    return postJson(`${ROOM_API}/${code}/move`, { nodeId })
+  moveToNode(code: string, nodeId: string, expectedStateVersion: number, idempotencyKey?: string): Promise<{ node: any; eventType: string; room: RoomDTO }> {
+    return postJson(`${ROOM_API}/${code}/move`, { nodeId }, { expectedStateVersion, idempotencyKey })
   },
 
-  handleEvent(code: string, action: string, params?: { cardId?: number; cardIndex?: number }): Promise<any> {
-    return postJson(`${ROOM_API}/${code}/event`, { action, ...params })
+  handleEvent(code: string, action: string, params: { cardId?: number; cardIndex?: number } | undefined,
+              expectedStateVersion: number, idempotencyKey?: string): Promise<any> {
+    return postJson(`${ROOM_API}/${code}/event`, { action, ...params }, { expectedStateVersion, idempotencyKey })
   },
 
-  nextLayer(code: string): Promise<any> {
-    return postJson(`${ROOM_API}/${code}/next-layer`)
+  nextLayer(code: string, expectedStateVersion: number, idempotencyKey?: string): Promise<any> {
+    return postJson(`${ROOM_API}/${code}/next-layer`, undefined, { expectedStateVersion, idempotencyKey })
   },
 }
 
 // ====== 多人战斗 API ======
 export const multiplayerBattleApi = {
-  startBattle(roomCode: string): Promise<MultiplayerBattleInfo> {
-    return postJson(`${BATTLE_API}/${roomCode}/start`)
+  startBattle(roomCode: string, expectedStateVersion: number, idempotencyKey?: string): Promise<MultiplayerBattleInfo> {
+    return postJson(`${BATTLE_API}/${roomCode}/start`, undefined, { expectedStateVersion, idempotencyKey })
   },
 
-  playCard(roomCode: string, handIndex: number): Promise<MultiplayerBattleInfo> {
-    return postJson(`${BATTLE_API}/${roomCode}/play`, { handIndex })
+  playCard(roomCode: string, handIndex: number, expectedStateVersion: number, idempotencyKey?: string): Promise<MultiplayerBattleInfo> {
+    return postJson(`${BATTLE_API}/${roomCode}/play`, { handIndex }, { expectedStateVersion, idempotencyKey })
   },
 
-  endTurn(roomCode: string): Promise<MultiplayerBattleInfo> {
-    return postJson(`${BATTLE_API}/${roomCode}/endturn`)
+  endTurn(roomCode: string, expectedStateVersion: number, idempotencyKey?: string): Promise<MultiplayerBattleInfo> {
+    return postJson(`${BATTLE_API}/${roomCode}/endturn`, undefined, { expectedStateVersion, idempotencyKey })
   },
 
   getBattleState(roomCode: string): Promise<MultiplayerBattleInfo> {
@@ -80,12 +82,12 @@ export const multiplayerBattleApi = {
     return getJson(`${BATTLE_API}/${roomCode}/exists`)
   },
 
-  claimReward(roomCode: string, cardName: string): Promise<MultiplayerBattleInfo> {
-    return postJson(`${BATTLE_API}/${roomCode}/claim-reward`, { cardName })
+  claimReward(roomCode: string, cardName: string, expectedStateVersion: number, idempotencyKey?: string): Promise<MultiplayerBattleInfo> {
+    return postJson(`${BATTLE_API}/${roomCode}/claim-reward`, { cardName }, { expectedStateVersion, idempotencyKey })
   },
 
-  nextFloor(roomCode: string): Promise<MultiplayerBattleInfo> {
-    return postJson(`${BATTLE_API}/${roomCode}/next-floor`)
+  nextFloor(roomCode: string, expectedStateVersion: number, idempotencyKey?: string): Promise<MultiplayerBattleInfo> {
+    return postJson(`${BATTLE_API}/${roomCode}/next-floor`, undefined, { expectedStateVersion, idempotencyKey })
   },
 }
 

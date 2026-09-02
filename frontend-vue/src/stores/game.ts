@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { gameApi } from '@/api/game'
+import { useUiStore } from './ui'
 import type {
   CharacterClass, Player, MapNode as GameMapNode,
   BattleInfo, Rewards, GameState
@@ -10,6 +11,7 @@ import type {
 const SESSION_KEY = 'xiyouji_session_id'
 
 export const useGameStore = defineStore('game', () => {
+  const uiStore = useUiStore()
   // ====== State ======
   const sessionId = ref<string | null>(null)
   const selectedCharacter = ref<CharacterClass | null>(null)
@@ -22,6 +24,7 @@ export const useGameStore = defineStore('game', () => {
   const battleInfo = ref<BattleInfo | null>(null)
   const rewards = ref<Rewards | null>(null)
   const bonfireUpgradesLeft = ref(2)
+  const stateVersion = ref(0)
 
   // ====== Getters ======
   const isPlayerAlive = computed(() => (player.value?.hp ?? 0) > 0)
@@ -46,6 +49,7 @@ export const useGameStore = defineStore('game', () => {
   async function startNewGame(charClass: CharacterClass) {
     const data = await gameApi.newGame(charClass)
     sessionId.value = data.sessionId
+    stateVersion.value = data.stateVersion ?? 0
     player.value = data.player
     mapNodes.value = data.map
     currentNode.value = data.currentNode
@@ -61,6 +65,7 @@ export const useGameStore = defineStore('game', () => {
     if (!sessionId.value) return
     try {
       const data: GameState = await gameApi.getState(sessionId.value)
+      stateVersion.value = data.stateVersion ?? stateVersion.value
       player.value = data.player
       mapNodes.value = data.map
       currentNode.value = data.currentNode
@@ -71,12 +76,21 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  async function recoverFromConflict(error: any): Promise<never> {
+    if (error?.status === 409 || error?.code === 'STATE_VERSION_CONFLICT') {
+      await refreshState()
+      uiStore.showToast('游戏状态已更新，请根据最新状态重新操作')
+    }
+    throw error
+  }
+
   async function loadSavedSession(): Promise<GameState | null> {
     const savedId = getSavedSessionId()
     if (!savedId) return null
     try {
       const data: GameState = await gameApi.getState(savedId)
       sessionId.value = savedId
+      stateVersion.value = data.stateVersion ?? 0
       player.value = data.player
       mapNodes.value = data.map
       currentNode.value = data.currentNode
@@ -97,6 +111,7 @@ export const useGameStore = defineStore('game', () => {
     try {
       const bi = await gameApi.getBattleState(sessionId.value)
       battleInfo.value = bi
+      stateVersion.value = bi.stateVersion ?? stateVersion.value
       inBattle.value = true
       if (bi.rewards) rewards.value = bi.rewards
     } catch (e) {
@@ -107,10 +122,15 @@ export const useGameStore = defineStore('game', () => {
   async function deleteSavedSession() {
     const savedId = getSavedSessionId()
     if (!savedId) return
-    await gameApi.deleteSession(savedId)
+    try {
+      await gameApi.deleteSession(savedId, stateVersion.value)
+    } catch (error) {
+      await recoverFromConflict(error)
+    }
     clearSessionLocal()
     if (sessionId.value === savedId) {
       sessionId.value = null
+      stateVersion.value = 0
       player.value = null
       inBattle.value = false
       battleInfo.value = null
@@ -119,7 +139,13 @@ export const useGameStore = defineStore('game', () => {
 
   async function moveToNode(nodeId: string): Promise<string> {
     if (!sessionId.value) throw new Error('No session')
-    const data = await gameApi.move(sessionId.value, nodeId)
+    let data
+    try {
+      data = await gameApi.move(sessionId.value, nodeId, stateVersion.value)
+    } catch (error) {
+      return recoverFromConflict(error)
+    }
+    stateVersion.value = data.stateVersion ?? stateVersion.value
     currentNode.value = data.node
 
     if (data.eventType === 'bonfire') {
@@ -132,7 +158,10 @@ export const useGameStore = defineStore('game', () => {
     if (!sessionId.value) {
       throw new Error('未找到会话，请重新加载游戏')
     }
-    const bi = await gameApi.startBattle(sessionId.value)
+    let bi
+    try { bi = await gameApi.startBattle(sessionId.value, stateVersion.value) }
+    catch (error) { return recoverFromConflict(error) }
+    stateVersion.value = bi.stateVersion ?? stateVersion.value
     battleInfo.value = bi
     inBattle.value = true
     if (bi.rewards) rewards.value = bi.rewards
@@ -140,28 +169,40 @@ export const useGameStore = defineStore('game', () => {
 
   async function playCard(handIndex: number) {
     if (!sessionId.value) return
-    const bi = await gameApi.playCard(sessionId.value, handIndex)
+    let bi
+    try { bi = await gameApi.playCard(sessionId.value, handIndex, stateVersion.value) }
+    catch (error) { return recoverFromConflict(error) }
+    stateVersion.value = bi.stateVersion ?? stateVersion.value
     battleInfo.value = bi
     if (bi.rewards) rewards.value = bi.rewards
   }
 
   async function endTurn() {
     if (!sessionId.value) return
-    const bi = await gameApi.endTurn(sessionId.value)
+    let bi
+    try { bi = await gameApi.endTurn(sessionId.value, stateVersion.value) }
+    catch (error) { return recoverFromConflict(error) }
+    stateVersion.value = bi.stateVersion ?? stateVersion.value
     battleInfo.value = bi
     if (bi.rewards) rewards.value = bi.rewards
   }
 
   async function chooseCardReward(cardIndex: number) {
     if (!sessionId.value) return
-    const data = await gameApi.chooseCardReward(sessionId.value, cardIndex)
+    let data
+    try { data = await gameApi.chooseCardReward(sessionId.value, cardIndex, stateVersion.value) }
+    catch (error) { return recoverFromConflict(error) }
+    stateVersion.value = data.stateVersion ?? stateVersion.value
     if (data.player) player.value = data.player
     return data
   }
 
   async function nextLayer(): Promise<{ success: boolean; currentLayer?: number }> {
     if (!sessionId.value) return { success: false }
-    const data = await gameApi.nextLayer(sessionId.value)
+    let data
+    try { data = await gameApi.nextLayer(sessionId.value, stateVersion.value) }
+    catch (error) { return recoverFromConflict(error) }
+    stateVersion.value = data.stateVersion ?? stateVersion.value
     if (data.success) {
       currentLayer.value = data.currentLayer || currentLayer.value + 1
       return { success: true, currentLayer: data.currentLayer }
@@ -173,7 +214,10 @@ export const useGameStore = defineStore('game', () => {
     cardIndex?: number; cardId?: number; price?: number; relicName?: string
   }) {
     if (!sessionId.value) return null
-    const data = await gameApi.handleEvent(sessionId.value, action, params)
+    let data
+    try { data = await gameApi.handleEvent(sessionId.value, action, params, stateVersion.value) }
+    catch (error) { return recoverFromConflict(error) }
+    stateVersion.value = data.stateVersion ?? stateVersion.value
     if (data.player) player.value = data.player
     if (data.bonfireUpgradesLeft !== undefined) bonfireUpgradesLeft.value = data.bonfireUpgradesLeft
     return data
@@ -181,7 +225,10 @@ export const useGameStore = defineStore('game', () => {
 
   async function upgradeCard(cardIndex: number) {
     if (!sessionId.value) return null
-    const data = await gameApi.handleEvent(sessionId.value, 'upgrade', { cardIndex })
+    let data
+    try { data = await gameApi.handleEvent(sessionId.value, 'upgrade', { cardIndex }, stateVersion.value) }
+    catch (error) { return recoverFromConflict(error) }
+    stateVersion.value = data.stateVersion ?? stateVersion.value
     if (data.bonfireUpgradesLeft !== undefined) bonfireUpgradesLeft.value = data.bonfireUpgradesLeft
     if (data.player) player.value = data.player
     await refreshState()
@@ -200,6 +247,7 @@ export const useGameStore = defineStore('game', () => {
     player.value = null
     mapNodes.value = []
     currentNode.value = null
+    stateVersion.value = 0
     inBattle.value = false
     battleInfo.value = null
     rewards.value = null
@@ -208,7 +256,7 @@ export const useGameStore = defineStore('game', () => {
 
   return {
     // state
-    sessionId, selectedCharacter, player, mapNodes, currentNode,
+    sessionId, selectedCharacter, player, mapNodes, currentNode, stateVersion,
     currentLayer, maxLayer, inBattle, battleInfo, rewards, bonfireUpgradesLeft,
     // getters
     isPlayerAlive, hasSession,

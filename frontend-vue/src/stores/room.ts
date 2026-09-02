@@ -15,6 +15,7 @@ export const useRoomStore = defineStore('room', () => {
   const battleInfo = ref<MultiplayerBattleInfo | null>(null)
   const systemMessages = ref<string[]>([])
   const connected = ref(false)
+  const seenEventIds = new Set<string>()
 
   // ====== Getters ======
   const roomCode = computed(() => room.value?.code ?? '')
@@ -34,18 +35,45 @@ export const useRoomStore = defineStore('room', () => {
            room.value.players.every(p => p.ready)
   })
 
+  function applyRoom(next: RoomDTO) {
+    if (next.eventId && seenEventIds.has(next.eventId)) return
+    if (next.eventId) {
+      seenEventIds.add(next.eventId)
+      if (seenEventIds.size > 200) seenEventIds.delete(seenEventIds.values().next().value as string)
+    }
+    if (!room.value || next.stateVersion >= room.value.stateVersion) room.value = next
+  }
+
+  function applyBattle(next: MultiplayerBattleInfo) {
+    if (next.eventId && seenEventIds.has(next.eventId)) return
+    if (next.eventId) {
+      seenEventIds.add(next.eventId)
+      if (seenEventIds.size > 200) seenEventIds.delete(seenEventIds.values().next().value as string)
+    }
+    if (!battleInfo.value || next.stateVersion >= battleInfo.value.stateVersion) battleInfo.value = next
+  }
+
+  async function recoverFromConflict(error: any): Promise<never> {
+    if (error?.status === 409 || error?.code === 'STATE_VERSION_CONFLICT') {
+      await refreshRoomState()
+      await refreshBattleState()
+      uiStore.showToast('房间状态已更新，请根据最新状态重新操作')
+    }
+    throw error
+  }
+
   // ====== Actions ======
 
   /** 开始游戏（房主生成地图） */
   async function startGame() {
     if (!room.value) return
     try {
-      const dto = await roomApi.startGame(room.value.code)
-      room.value = dto
+      const dto = await roomApi.startGame(room.value.code, room.value.stateVersion)
+      applyRoom(dto)
       return dto
     } catch (e: any) {
       uiStore.showToast(e?.message || '开始游戏失败')
-      throw e
+      return recoverFromConflict(e)
     }
   }
 
@@ -53,12 +81,12 @@ export const useRoomStore = defineStore('room', () => {
   async function moveToNode(nodeId: string): Promise<string> {
     if (!room.value) return ''
     try {
-      const result = await roomApi.moveToNode(room.value.code, nodeId)
-      room.value = result.room
+      const result = await roomApi.moveToNode(room.value.code, nodeId, room.value.stateVersion)
+      applyRoom(result.room)
       return result.eventType
     } catch (e: any) {
       uiStore.showToast(e?.message || '移动失败')
-      throw e
+      return recoverFromConflict(e)
     }
   }
 
@@ -66,8 +94,12 @@ export const useRoomStore = defineStore('room', () => {
   async function handleEvent(action: string, params?: { cardId?: number; cardIndex?: number }) {
     if (!room.value) return
     try {
-      const result = await roomApi.handleEvent(room.value.code, action, params)
+      const result = await roomApi.handleEvent(room.value.code, action, params, room.value.stateVersion)
       // 更新房间玩家状态
+      if (result.room) applyRoom(result.room)
+      if (result.stateVersion !== undefined && room.value) {
+        room.value.stateVersion = Math.max(room.value.stateVersion, result.stateVersion)
+      }
       if (result.players) {
         if (room.value) {
           room.value.players = result.players
@@ -76,7 +108,7 @@ export const useRoomStore = defineStore('room', () => {
       return result
     } catch (e: any) {
       uiStore.showToast(e?.message || '事件处理失败')
-      throw e
+      return recoverFromConflict(e)
     }
   }
 
@@ -84,14 +116,14 @@ export const useRoomStore = defineStore('room', () => {
   async function nextLayer() {
     if (!room.value) return
     try {
-      const result = await roomApi.nextLayer(room.value.code)
+      const result = await roomApi.nextLayer(room.value.code, room.value.stateVersion)
       // 刷新房间状态
       const dto = await roomApi.getRoom(room.value.code)
-      room.value = dto
+      applyRoom(dto)
       return result
     } catch (e: any) {
       uiStore.showToast(e?.message || '进入下一层失败')
-      throw e
+      return recoverFromConflict(e)
     }
   }
 
@@ -100,7 +132,7 @@ export const useRoomStore = defineStore('room', () => {
     if (!room.value) return
     try {
       const dto = await roomApi.getRoom(room.value.code)
-      room.value = dto
+      applyRoom(dto)
     } catch { /* ignore */ }
   }
 
@@ -128,7 +160,7 @@ export const useRoomStore = defineStore('room', () => {
   async function joinRoom(code: string) {
     let dto
     try {
-      dto = await roomApi.joinRoom(code)
+    dto = await roomApi.joinRoom(code)
     } catch (e: any) {
       uiStore.showToast('加入房间失败: ' + (e?.message || ''))
       throw e
@@ -149,7 +181,7 @@ export const useRoomStore = defineStore('room', () => {
   async function leaveRoom() {
     if (!room.value) return
     try {
-      await roomApi.leaveRoom(room.value.code)
+      await roomApi.leaveRoom(room.value.code, room.value.stateVersion)
     } catch { /* ignore */ }
     disconnect()
     room.value = null
@@ -161,8 +193,8 @@ export const useRoomStore = defineStore('room', () => {
   async function toggleReady() {
     if (!room.value) return
     try {
-      const dto = await roomApi.toggleReady(room.value.code)
-      room.value = dto
+      const dto = await roomApi.toggleReady(room.value.code, room.value.stateVersion)
+      applyRoom(dto)
     } catch (e: any) {
       uiStore.showToast(e?.message || '操作失败')
     }
@@ -172,8 +204,8 @@ export const useRoomStore = defineStore('room', () => {
   async function selectCharacter(charClass: CharacterClass) {
     if (!room.value) return
     try {
-      const dto = await roomApi.selectCharacter(room.value.code, charClass)
-      room.value = dto
+      const dto = await roomApi.selectCharacter(room.value.code, charClass, room.value.stateVersion)
+      applyRoom(dto)
     } catch (e: any) {
       uiStore.showToast(e?.message || '选择角色失败')
     }
@@ -183,12 +215,12 @@ export const useRoomStore = defineStore('room', () => {
   async function startBattle() {
     if (!room.value) return
     try {
-      const info = await multiplayerBattleApi.startBattle(room.value.code)
-      battleInfo.value = info
+      const info = await multiplayerBattleApi.startBattle(room.value.code, room.value.stateVersion)
+      applyBattle(info)
       return info
     } catch (e: any) {
       uiStore.showToast(e?.message || '开始战斗失败')
-      throw e
+      return recoverFromConflict(e)
     }
   }
 
@@ -196,12 +228,13 @@ export const useRoomStore = defineStore('room', () => {
   async function playCard(handIndex: number) {
     if (!room.value) return
     try {
-      const info = await multiplayerBattleApi.playCard(room.value.code, handIndex)
-      battleInfo.value = info
+      const info = await multiplayerBattleApi.playCard(room.value.code, handIndex,
+        battleInfo.value?.stateVersion ?? room.value.stateVersion)
+      applyBattle(info)
       return info
     } catch (e: any) {
       uiStore.showToast(e?.message || '出牌失败')
-      throw e
+      return recoverFromConflict(e)
     }
   }
 
@@ -209,12 +242,13 @@ export const useRoomStore = defineStore('room', () => {
   async function endTurn() {
     if (!room.value) return
     try {
-      const info = await multiplayerBattleApi.endTurn(room.value.code)
-      battleInfo.value = info
+      const info = await multiplayerBattleApi.endTurn(room.value.code,
+        battleInfo.value?.stateVersion ?? room.value.stateVersion)
+      applyBattle(info)
       return info
     } catch (e: any) {
       uiStore.showToast(e?.message || '操作失败')
-      throw e
+      return recoverFromConflict(e)
     }
   }
 
@@ -223,7 +257,7 @@ export const useRoomStore = defineStore('room', () => {
     if (!room.value) return
     try {
       const info = await multiplayerBattleApi.getBattleState(room.value.code)
-      battleInfo.value = info
+      applyBattle(info)
     } catch { /* ignore */ }
   }
 
@@ -231,11 +265,12 @@ export const useRoomStore = defineStore('room', () => {
   async function claimReward(cardName: string) {
     if (!room.value) return
     try {
-      const info = await multiplayerBattleApi.claimReward(room.value.code, cardName)
-      battleInfo.value = info
+      const info = await multiplayerBattleApi.claimReward(room.value.code, cardName,
+        battleInfo.value?.stateVersion ?? room.value.stateVersion)
+      applyBattle(info)
     } catch (e: any) {
       uiStore.showToast(e?.message || '领取奖励失败')
-      throw e
+      return recoverFromConflict(e)
     }
   }
 
@@ -243,11 +278,12 @@ export const useRoomStore = defineStore('room', () => {
   async function nextFloor() {
     if (!room.value) return
     try {
-      const info = await multiplayerBattleApi.nextFloor(room.value.code)
-      battleInfo.value = info
+      const info = await multiplayerBattleApi.nextFloor(room.value.code,
+        battleInfo.value?.stateVersion ?? room.value.stateVersion)
+      applyBattle(info)
     } catch (e: any) {
       uiStore.showToast(e?.message || '进入下一层失败')
-      throw e
+      return recoverFromConflict(e)
     }
   }
 
@@ -255,13 +291,19 @@ export const useRoomStore = defineStore('room', () => {
   async function connectWs(code: string) {
     await stomp.connect(
       code,
-      (dto) => { room.value = dto },           // 房间更新
-      (info) => { battleInfo.value = info },     // 战斗更新
+      (dto) => { applyRoom(dto) },           // 房间更新
+      (info) => { applyBattle(info) },     // 战斗更新
       (msg) => {                                  // 系统消息
         systemMessages.value.push(msg)
         if (systemMessages.value.length > 20) {
           systemMessages.value.shift()
         }
+      },
+      async () => {
+        // Pub/Sub is transient; reconcile authoritative state after every
+        // initial connection and reconnect.
+        await refreshRoomState()
+        await refreshBattleState()
       },
     )
     connected.value = true

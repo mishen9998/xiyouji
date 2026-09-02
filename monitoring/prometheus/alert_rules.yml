@@ -1,0 +1,38 @@
+groups:
+  - name: xiyouji-availability
+    interval: 15s
+    rules:
+      - alert: XiyoujiApplicationInstanceDown
+        expr: up{job=~"xiyouji-app-[12]"} == 0
+        for: 1m
+        labels:
+          severity: warning
+          service: xiyouji
+        annotations:
+          summary: "西游记应用实例不可用"
+          description: "实例 {{ $labels.instance }} 已连续 1 分钟无法被 Prometheus 抓取。"
+
+      - alert: XiyoujiAllApplicationInstancesDown
+        expr: sum(up{job=~"xiyouji-app-[12]"}) == 0
+        for: 30s
+        labels:
+          severity: critical
+          service: xiyouji
+        annotations:
+          summary: "西游记应用集群全部不可用"
+          description: "两个 Spring Boot 实例均无法被 Prometheus 抓取。"
+
+      - alert: XiyoujiHighHttp5xxRate
+        expr: |
+          (
+            sum(rate(http_server_requests_seconds_count{job=~"xiyouji-app-[12]",status=~"5.."}[5m]))
+            /
+            clamp_min(sum(rate(http_server_requests_seconds_count{job=~"xiyouji-app-[12]"}[5m])), 1)
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: xiyouji
+        annotations:
+          summary: "西游记 HTTP 5xx 比例过高"
+          description: "最近 5 分钟应用 5xx 比例超过 5%，请检查 Redis、MySQL 或业务错误。"

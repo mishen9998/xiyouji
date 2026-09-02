@@ -27,23 +27,22 @@ echo "  Docker: $(docker --version)"
 echo "  Compose: $(docker compose version)"
 echo ""
 
-# 检查 JAR 是否存在
-if [ ! -f "backend/target/xiyouji-roguelike-1.0.0.jar" ]; then
-    echo "[ERROR] 未找到 backend/target/xiyouji-roguelike-1.0.0.jar"
-    echo "  请先在本地执行 mvn clean package -DskipTests 构建 JAR"
-    echo "  然后将 JAR 上传到服务器 backend/target/ 目录"
-    exit 1
-fi
-echo "[2/6] 检查 JAR 文件... OK ($(du -h backend/target/xiyouji-roguelike-1.0.0.jar | cut -f1))"
+# 镜像由根目录 Dockerfile 多阶段构建，不依赖宿主机预先生成 JAR。
+echo "[2/6] 使用 Docker 多阶段构建前端和五个 Maven 模块... OK"
 echo ""
 
 # 加载环境变量
 if [ -f ".env.cloud" ]; then
-    export $(cat .env.cloud | grep -v '^#' | xargs)
+    set -a
+    # shellcheck disable=SC1091
+    . ./.env.cloud
+    set +a
     echo "[3/6] 加载环境变量... OK"
 else
-    echo "[WARNING] 未找到 .env.cloud，使用默认配置（不安全！）"
+    echo "[ERROR] 未找到 .env.cloud；云端部署不允许使用默认密钥。"
+    exit 1
 fi
+PUBLIC_BASE_URL="${PUBLIC_BASE_URL:-http://localhost:8080}"
 echo ""
 
 # 停止旧容器
@@ -67,8 +66,8 @@ for i in $(seq 1 $MAX_WAIT); do
         echo "  部署成功！"
         echo "============================================"
         echo ""
-        echo "  访问地址: http://114.132.55.119:8080"
-        echo "  健康检查: http://114.132.55.119:8080/actuator/health"
+        echo "  访问地址: ${PUBLIC_BASE_URL}"
+        echo "  健康检查: ${PUBLIC_BASE_URL}/actuator/health"
         echo ""
         echo "  容器状态:"
         docker compose -f docker-compose-cloud.yml ps

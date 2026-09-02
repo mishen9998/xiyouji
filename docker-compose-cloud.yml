@@ -7,15 +7,12 @@
 services:
   # ====== MySQL 数据库 ======
   mysql:
-    image: mysql:8.0
-    container_name: xiyouji-mysql
+    image: mysql:8.0.39
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-xiyouji2026}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in .env.cloud}
       MYSQL_DATABASE: xiyouji
       MYSQL_CHARSET: utf8mb4
       MYSQL_COLLATION: utf8mb4_unicode_ci
-    ports:
-      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
@@ -30,13 +27,10 @@ services:
 
   # ====== Redis 缓存 & 会话存储 ======
   redis:
-    image: redis:7-alpine
-    container_name: xiyouji-redis
-    ports:
-      - "6379:6379"
+    image: redis:7.2.5-alpine3.19
     volumes:
       - redis_data:/data
-    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
+    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy noeviction
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -48,22 +42,22 @@ services:
 
   # ====== Spring Boot 应用实例 ======
   app:
+    image: xiyouji:1.0.0
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
-    container_name: xiyouji-app
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8080
+      - INSTANCE_ID=cloud-app
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/xiyouji?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-xiyouji2026}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:?DB_PASSWORD must be set in .env.cloud}
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
       - ENFORCE_JWT=true
-      - JWT_SECRET=${JWT_SECRET:-xiyouji-production-secret-key-change-me-256bits}
-      - CORS_ORIGINS=http://114.132.55.119,http://localhost,http://localhost:8080,http://127.0.0.1
-    ports:
-      - "8080:8080"
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set in .env.cloud}
+      - CORS_ORIGINS=${CORS_ORIGINS:?CORS_ORIGINS must be set in .env.cloud}
     depends_on:
       mysql:
         condition: service_healthy
@@ -74,7 +68,9 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
-      start_period: 60s
+      start_period: 180s
+    ports:
+      - "8080:8080"
     restart: unless-stopped
     networks:
       - xiyouji-net

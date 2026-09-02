@@ -8,7 +8,7 @@
       accessible: node.accessible && !node.visited,
       boss: node.type === 'BOSS',
     }"
-    :style="{ left: x - 36 + 'px', top: y - 30 + 'px' }"
+    :style="{ left: x + 'px', top: y + 'px' }"
     @click="onClick"
   >
     <img v-if="imgUrl" class="node-icon-img" :src="imgUrl" :alt="iconFallback" />
@@ -43,8 +43,8 @@ function onClick() {
 
 <style scoped>
 .map-node {
-  width: 80px;
-  height: 80px;
+  width: 96px;
+  height: 96px;
   border-radius: 12px;
   background: var(--bg-card);
   border: 2px solid rgba(255, 255, 255, 0.08);
@@ -55,6 +55,7 @@ function onClick() {
   align-items: center;
   justify-content: center;
   position: absolute;
+  transform: translate(-50%, -50%);
   z-index: 2;
   font-size: 12px;
   color: var(--text-muted);
@@ -68,7 +69,7 @@ function onClick() {
 
 .map-node.accessible:hover {
   border-color: var(--gold);
-  transform: scale(1.08);
+  transform: translate(-50%, -50%) scale(1.08);
   box-shadow: 0 0 16px rgba(242, 169, 0, 0.3);
   background: #3a3450;
 }
@@ -86,12 +87,32 @@ function onClick() {
 }
 
 .map-node.boss {
+  width: 128px;
+  height: 128px;
   border-color: rgba(232, 93, 117, 0.7);
+  border-width: 3px;
+  background: radial-gradient(circle at center, rgba(232, 93, 117, 0.3), var(--bg-card) 72%);
+  box-shadow: 0 0 22px rgba(232, 93, 117, 0.58), 0 0 42px rgba(242, 169, 0, 0.24);
+}
+
+.map-node.boss .node-icon-img {
+  width: 76px;
+  height: 76px;
+}
+
+.map-node.boss .node-icon {
+  font-size: 48px;
+}
+
+.map-node.boss .node-name {
+  color: #ffe4e8;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .node-icon-img {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border-radius: 10px;
   object-fit: cover;
   object-position: center;
@@ -103,12 +124,50 @@ function onClick() {
 }
 
 .node-icon {
-  font-size: 28px;
+  font-size: 34px;
   margin-bottom: 2px;
 }
 
 .node-name {
-  font-size: 10px;
+  font-size: 11px;
   white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .map-node {
+    width: 78px;
+    height: 78px;
+  }
+
+  .node-icon-img {
+    width: 44px;
+    height: 44px;
+  }
+
+  .node-icon {
+    font-size: 28px;
+  }
+
+  .node-name {
+    font-size: 9px;
+  }
+
+  .map-node.boss {
+    width: 104px;
+    height: 104px;
+  }
+
+  .map-node.boss .node-icon-img {
+    width: 62px;
+    height: 62px;
+  }
+
+  .map-node.boss .node-icon {
+    font-size: 38px;
+  }
+
+  .map-node.boss .node-name {
+    font-size: 12px;
+  }
 }
 </style>

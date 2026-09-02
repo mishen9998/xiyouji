@@ -2,10 +2,98 @@
 setlocal enabledelayedexpansion
 title Xiyouji Launcher
 
-rem ===== Configuration =====
-set "JAVA_HOME=C:\Users\20126\.jdks\openjdk-26.0.1"
-set "MVN_CMD=D:\dpj\apache-maven-3.8.9\bin\mvn.cmd"
-set "BACKEND_DIR=%~dp0backend"
+rem ===== Detect JDK =====
+set "JAVA_HOME="
+
+rem Method 1: Check JAVA_HOME env variable
+if exist "%JAVA_HOME%\bin\java.exe" goto :java_found
+
+rem Method 2: Check registry (Eclipse Adoptium)
+for /f "tokens=2,*" %%a in ('reg query "HKLM\SOFTWARE\Eclipse Adoptium" /s /v "Path" 2^>nul ^| findstr /i "jdk-17"') do set "JAVA_HOME=%%b"
+if exist "!JAVA_HOME!\bin\java.exe" goto :java_found
+
+rem Method 3: Check common user paths
+for /d %%i in ("%USERPROFILE%\.jdks\*") do if exist "%%i\bin\java.exe" set "JAVA_HOME=%%i"
+if exist "!JAVA_HOME!\bin\java.exe" goto :java_found
+
+rem Method 4: Check system paths
+for /d %%i in ("C:\Program Files\Java\jdk*") do if exist "%%i\bin\java.exe" set "JAVA_HOME=%%i"
+if exist "!JAVA_HOME!\bin\java.exe" goto :java_found
+
+for /d %%i in ("C:\Program Files\Eclipse Adoptium\jdk*") do if exist "%%i\bin\java.exe" set "JAVA_HOME=%%i"
+if exist "!JAVA_HOME!\bin\java.exe" goto :java_found
+
+for /d %%i in ("%USERPROFILE%\AppData\Local\Programs\Eclipse Adoptium\jdk*") do if exist "%%i\bin\java.exe" set "JAVA_HOME=%%i"
+if exist "!JAVA_HOME!\bin\java.exe" goto :java_found
+
+rem Method 5: Try java on PATH as last resort
+where java >nul 2>&1
+if !errorlevel!==0 (
+    for /f "delims=" %%i in ('where java 2^>nul') do set "JAVA_BIN=%%i"
+    if defined JAVA_BIN (
+        set "JAVA_HOME=!JAVA_BIN:\bin\java.exe=!"
+        if exist "!JAVA_HOME!\bin\java.exe" goto :java_found
+    )
+)
+
+echo [FAIL] JDK not found! Please install JDK 17+.
+echo   Download: https://adoptium.net/download/
+goto :error
+
+:java_found
+echo [OK] JDK found: !JAVA_HOME!
+
+rem ===== Detect Maven =====
+set "MVN_HOME="
+set "MVN_CMD=mvn"
+
+rem Check if project has mvnw (Maven wrapper) — best option
+if exist "%~dp0mvnw.cmd" (
+    set "MVN_CMD=%~dp0mvnw.cmd"
+    echo [OK] Using Maven Wrapper ^(mvnw^)
+    goto :mvn_found
+)
+if exist "%~dp0mvnw" (
+    echo [OK] Using Maven Wrapper ^(mvnw^)
+    goto :mvn_found
+)
+
+rem Try MAVEN_HOME env variable
+if exist "%MAVEN_HOME%\bin\mvn.cmd" (
+    set "MVN_CMD=%MAVEN_HOME%\bin\mvn.cmd"
+    goto :mvn_found
+)
+
+rem Try common paths
+for /d %%i in ("D:\dpj\apache-maven-*") do if exist "%%i\bin\mvn.cmd" (
+    set "MVN_CMD=%%i\bin\mvn.cmd"
+    goto :mvn_found
+)
+for /d %%i in ("C:\Program Files\apache-maven-*") do if exist "%%i\bin\mvn.cmd" (
+    set "MVN_CMD=%%i\bin\mvn.cmd"
+    goto :mvn_found
+)
+
+rem Try user profile (new install location - preferred over PATH which may have broken mvn)
+for /d %%i in ("%USERPROFILE%\apache-maven-*") do if exist "%%i\bin\mvn.cmd" (
+    set "MVN_CMD=%%i\bin\mvn.cmd"
+    echo [OK] Using Maven at %%i
+    goto :mvn_found
+)
+
+rem Try PATH
+where mvn >nul 2>&1
+if !errorlevel!==0 (
+    echo [OK] Maven found on PATH
+    goto :mvn_found
+)
+
+echo [FAIL] Maven not found! Please install Maven or run from project root with mvnw.
+echo   Download: https://maven.apache.org/download.cgi
+goto :error
+
+:mvn_found
+set "BACKEND_DIR=%~dp0"
 set "PORT=8080"
 set "MAX_WAIT=60"
 
@@ -29,17 +117,13 @@ if not exist "%JAVA_HOME%\bin\java.exe" (
     echo [FAIL] Java not found: %JAVA_HOME%\bin\java.exe
     goto :error
 )
-if not exist "%MVN_CMD%" (
-    echo [FAIL] Maven not found: %MVN_CMD%
-    goto :error
-)
 echo [OK] Java and Maven located.
 
 rem ===== Step 3: Start backend in a new persistent window =====
 echo [3/4] Starting backend in a new window ...
 set "PATH=%JAVA_HOME%\bin;%PATH%"
 
-rem Use a here-doc style approach: write a tiny launcher bat in TEMP, then start it.
+rem Write a tiny launcher bat in TEMP, then start it.
 set "BACKEND_LAUNCHER=%TEMP%\xiyouji_backend_launcher.bat"
 > "%BACKEND_LAUNCHER%" echo @echo off
 >> "%BACKEND_LAUNCHER%" echo title Xiyouji Backend
@@ -47,7 +131,8 @@ set "BACKEND_LAUNCHER=%TEMP%\xiyouji_backend_launcher.bat"
 >> "%BACKEND_LAUNCHER%" echo set "PATH=%JAVA_HOME%\bin;%PATH%"
 >> "%BACKEND_LAUNCHER%" echo echo Starting Spring Boot backend...
 >> "%BACKEND_LAUNCHER%" echo echo.
->> "%BACKEND_LAUNCHER%" echo call "%MVN_CMD%" spring-boot:run
+>> "%BACKEND_LAUNCHER%" echo call "%MVN_CMD%" -pl xiyouji-bootstrap -am package -DskipTests -q
+>> "%BACKEND_LAUNCHER%" echo java -jar xiyouji-bootstrap\target\xiyouji-bootstrap-1.0.0.jar --spring.profiles.active=standalone
 >> "%BACKEND_LAUNCHER%" echo echo.
 >> "%BACKEND_LAUNCHER%" echo echo ============================================
 >> "%BACKEND_LAUNCHER%" echo echo Backend has exited. Press any key to close.

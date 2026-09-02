@@ -28,52 +28,54 @@
     <!-- 可滑动的地图容器 -->
     <div class="map-scroll-wrapper" ref="scrollWrapper">
       <div class="map-container" :style="wrapperStyle" ref="mapContainer">
-        <!-- SVG 连线层 -->
-        <svg
-          class="map-svg"
-          :viewBox="`0 0 ${MAP_WIDTH} ${mapHeight}`"
-          :style="{ width: MAP_WIDTH + 'px', height: mapHeight + 'px' }"
-        >
-          <line
-            v-for="(line, i) in connectionLines"
-            :key="i"
-            :x1="line.x1"
-            :y1="line.y1"
-            :x2="line.x2"
-            :y2="line.y2"
-            stroke="rgba(242,169,0,0.3)"
-            stroke-width="2"
-            stroke-dasharray="6,4"
+        <div class="map-graph-layer" :style="{ width: MAP_WIDTH + 'px', minHeight: mapHeight + 'px' }">
+          <!-- SVG 连线层 -->
+          <svg
+            class="map-svg"
+            :viewBox="`0 0 ${MAP_WIDTH} ${mapHeight}`"
+            :style="{ width: MAP_WIDTH + 'px', height: mapHeight + 'px' }"
+          >
+            <line
+              v-for="(line, i) in connectionLines"
+              :key="i"
+              :x1="line.x1"
+              :y1="line.y1"
+              :x2="line.x2"
+              :y2="line.y2"
+              stroke="rgba(242,169,0,0.3)"
+              stroke-width="2"
+              stroke-dasharray="6,4"
+            />
+          </svg>
+
+          <!-- 地图节点 -->
+          <MapNodeComponent
+            v-for="node in mapNodes"
+            :key="node.id"
+            :node="node"
+            :is-current="currentNode?.id === node.id"
+            :x="nodePositions[node.id]?.x ?? 0"
+            :y="nodePositions[node.id]?.y ?? 0"
+            @move="onMoveNode"
           />
-        </svg>
 
-        <!-- 地图节点 -->
-        <MapNodeComponent
-          v-for="node in mapNodes"
-          :key="node.id"
-          :node="node"
-          :is-current="currentNode?.id === node.id"
-          :x="nodePositions[node.id]?.x ?? 0"
-          :y="nodePositions[node.id]?.y ?? 0"
-          @move="onMoveNode"
-        />
+          <!-- 队伍标记 -->
+          <div
+            v-if="currentNode && nodePositions[currentNode.id]"
+            class="map-player-marker"
+            :style="{
+              left: (nodePositions[currentNode.id].x - 20) + 'px',
+              top: (nodePositions[currentNode.id].y - 48) + 'px',
+            }"
+          >
+            <span class="map-avatar-emoji">👥</span>
+          </div>
 
-        <!-- 队伍标记 -->
-        <div
-          v-if="currentNode && nodePositions[currentNode.id]"
-          class="map-player-marker"
-          :style="{
-            left: (nodePositions[currentNode.id].x - 20) + 'px',
-            top: (nodePositions[currentNode.id].y - 48) + 'px',
-          }"
-        >
-          <span class="map-avatar-emoji">👥</span>
+          <!-- 底部起点标签 -->
+          <div class="map-label map-label-start">▼ 第{{ room?.floor || 1 }}层出发</div>
+          <!-- 顶部Boss标签 -->
+          <div v-if="maxRow > 0" class="map-label map-label-boss">👑 Boss</div>
         </div>
-
-        <!-- 底部起点标签 -->
-        <div class="map-label map-label-start">▼ 第{{ room?.floor || 1 }}层出发</div>
-        <!-- 顶部Boss标签 -->
-        <div v-if="maxRow > 0" class="map-label map-label-boss">👑 Boss</div>
       </div>
     </div>
 
@@ -139,9 +141,9 @@ const route = useRoute()
 const roomStore = useRoomStore()
 const ui = useUiStore()
 
-const ROW_HEIGHT = 110
-const COL_WIDTH = 140
-const MAP_WIDTH = 600
+const ROW_HEIGHT = 220
+const MAP_WIDTH = Math.max(360, Math.round((typeof window !== 'undefined' ? window.innerWidth : 1200) * 0.9))
+const COL_WIDTH = MAP_WIDTH / 4
 
 // 本地状态
 const eventModalVisible = ref(false)
@@ -190,7 +192,9 @@ const HORIZONTAL_OFFSET = computed(() => (MAP_WIDTH - 4 * COL_WIDTH) / 2)
 const nodePositions = computed(() => {
   const positions: Record<string, { x: number; y: number }> = {}
   for (const n of mapNodes.value) {
-    const x = HORIZONTAL_OFFSET.value + n.col * COL_WIDTH + COL_WIDTH / 2
+    const x = n.type === 'BOSS'
+      ? MAP_WIDTH / 2
+      : HORIZONTAL_OFFSET.value + n.col * COL_WIDTH + COL_WIDTH / 2
     const y = mapHeight.value - 30 - n.row * ROW_HEIGHT
     positions[n.id] = { x, y }
   }
@@ -214,9 +218,10 @@ const connectionLines = computed(() => {
 const wrapperStyle = computed(() => ({
   position: 'relative' as const,
   width: '100%',
-  maxWidth: MAP_WIDTH + 'px',
+  maxWidth: 'none',
+  height: mapHeight.value + 'px',
   minHeight: mapHeight.value + 'px',
-  margin: '0 auto',
+  margin: '0',
 }))
 
 // 交互逻辑
@@ -340,6 +345,26 @@ function scrollToBottom() {
   })
 }
 
+function scrollToCurrentNode() {
+  nextTick(() => {
+    const wrapper = scrollWrapper.value
+    if (!wrapper) return
+
+    const position = currentNode.value
+      ? nodePositions.value[currentNode.value.id]
+      : undefined
+    if (!position) {
+      wrapper.scrollTop = wrapper.scrollHeight
+      return
+    }
+
+    const maxScrollTop = Math.max(0, wrapper.scrollHeight - wrapper.clientHeight)
+    const centeredTop = position.y - wrapper.clientHeight / 2
+    const targetTop = Math.max(0, Math.min(centeredTop, maxScrollTop))
+    wrapper.scrollTo({ top: targetTop, behavior: 'smooth' })
+  })
+}
+
 onMounted(async () => {
   const code = route.params.code as string
   if (code && roomStore.room?.code !== code) {
@@ -355,11 +380,11 @@ onMounted(async () => {
     router.replace('/room')
     return
   }
-  scrollToBottom()
+  scrollToCurrentNode()
 })
 
-watch(mapNodes, () => {
-  scrollToBottom()
+watch([mapNodes, currentNode], () => {
+  scrollToCurrentNode()
 })
 </script>
 
@@ -431,6 +456,25 @@ watch(mapNodes, () => {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 10px;
+  /* The scrollable map itself owns the artwork so the scene moves with the route. */
+  background-color: #171527;
+}
+
+.map-container {
+  background-color: #252139;
+  background-image:
+    linear-gradient(180deg, rgba(15, 14, 23, 0.28), rgba(15, 14, 23, 0.12) 40%, rgba(15, 14, 23, 0.38)),
+    url('/images/宝物/场景/map_background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.map-graph-layer {
+  position: relative;
+  margin: 0 auto;
 }
 
 .map-svg {
