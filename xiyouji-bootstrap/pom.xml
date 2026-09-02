@@ -264,7 +264,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.12</version>
+                <version>${jacoco.version}</version>
                 <configuration>
                     <destFile>${project.build.directory}/jacoco.exec</destFile>
                     <dataFile>${project.build.directory}/jacoco.exec</dataFile>
@@ -293,30 +293,30 @@
                             <includeCurrentProject>true</includeCurrentProject>
                         </configuration>
                     </execution>
-                    <!-- 覆盖率阈值检查：低于下限则构建失败，防止覆盖率回退 -->
+                </executions>
+            </plugin>
+            <!--
+              JaCoCo 原生 check 在此只会检查 bootstrap bundle。
+              verify 阶段在 report-aggregate 之后读取五模块 XML，防止聚合覆盖率回退。
+            -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
                     <execution>
-                        <id>check</id>
+                        <id>check-jacoco-aggregate</id>
+                        <phase>verify</phase>
                         <goals>
-                            <goal>check</goal>
+                            <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <rules>
-                                <rule>
-                                    <element>BUNDLE</element>
-                                    <limits>
-                                        <limit>
-                                            <counter>LINE</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <!--
-                                              当前测试覆盖多个 reactor 模块，而 JaCoCo
-                                              单模块 check 只看到 bootstrap classpath。
-                                              先保留报告/CI 校验，聚合报告完成后再提高阈值。
-                                            -->
-                                            <minimum>0.00</minimum>
-                                        </limit>
-                                    </limits>
-                                </rule>
-                            </rules>
+                            <executable>node</executable>
+                            <workingDirectory>${maven.multiModuleProjectDirectory}</workingDirectory>
+                            <arguments>
+                                <argument>${maven.multiModuleProjectDirectory}/scripts/check-jacoco-aggregate.mjs</argument>
+                                <argument>${project.build.directory}/site/jacoco-aggregate/jacoco.xml</argument>
+                            </arguments>
                         </configuration>
                     </execution>
                 </executions>

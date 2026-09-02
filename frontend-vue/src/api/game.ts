@@ -12,6 +12,10 @@ export interface CommandOptions {
   idempotencyKey?: string
 }
 
+interface ResolvedCommandOptions extends CommandOptions {
+  idempotencyKey: string
+}
+
 export class ApiError extends Error {
   readonly status: number
   readonly code?: string
@@ -35,9 +39,16 @@ function createIdempotencyKey(): string {
   }
 }
 
-function commandHeaders(base: HeadersInit, options: CommandOptions = {}): Headers {
+function resolveCommandOptions(options: CommandOptions): ResolvedCommandOptions {
+  return {
+    ...options,
+    idempotencyKey: options.idempotencyKey || createIdempotencyKey(),
+  }
+}
+
+function commandHeaders(base: HeadersInit, options: ResolvedCommandOptions): Headers {
   const headers = new Headers(base)
-  headers.set('X-Idempotency-Key', options.idempotencyKey || createIdempotencyKey())
+  headers.set('X-Idempotency-Key', options.idempotencyKey)
   if (options.expectedStateVersion !== undefined && options.expectedStateVersion !== null) {
     headers.set('X-Expected-State-Version', String(options.expectedStateVersion))
   }
@@ -98,7 +109,11 @@ export async function authHeaders(): Promise<HeadersInit> {
 
 // ====== 核心 HTTP 方法 ======
 export async function postJson(url: string, body?: unknown, options: CommandOptions = {}): Promise<any> {
-  const headers = commandHeaders(await authHeaders(), options)
+  // A retry after refreshing an expired token is still the same logical
+  // command. Resolve the key once so the server can replay the first result
+  // instead of executing the mutation twice.
+  const commandOptions = resolveCommandOptions(options)
+  const headers = commandHeaders(await authHeaders(), commandOptions)
   const res = await fetch(url, {
     method: 'POST',
     headers,
@@ -108,7 +123,7 @@ export async function postJson(url: string, body?: unknown, options: CommandOpti
   // 401/403 时清除缓存 Token 并重试一次
   if (isAuthFailure(res.status)) {
     clearToken()
-    const retryHeaders = commandHeaders(await authHeaders(), options)
+    const retryHeaders = commandHeaders(await authHeaders(), commandOptions)
     const retryRes = await fetch(url, {
       method: 'POST',
       headers: retryHeaders,
@@ -149,12 +164,13 @@ export async function getJson(url: string): Promise<any> {
 }
 
 async function deleteJson(url: string, options: CommandOptions = {}): Promise<any> {
-  const headers = commandHeaders(await authHeaders(), options)
+  const commandOptions = resolveCommandOptions(options)
+  const headers = commandHeaders(await authHeaders(), commandOptions)
   const res = await fetch(url, { method: 'DELETE', headers })
 
   if (isAuthFailure(res.status)) {
     clearToken()
-    const retryHeaders = commandHeaders(await authHeaders(), options)
+    const retryHeaders = commandHeaders(await authHeaders(), commandOptions)
     const retryRes = await fetch(url, { method: 'DELETE', headers: retryHeaders })
     if (!retryRes.ok) {
       return parseFailure(retryRes)

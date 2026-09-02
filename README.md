@@ -62,7 +62,7 @@
 | 接口 | REST、WebSocket/STOMP、OpenAPI/Swagger |
 | 可观测性 | Actuator、Micrometer、Prometheus、Grafana、Zipkin |
 | 工程化 | Maven、Docker、Docker Compose、Nginx、GitHub Actions |
-| 测试 | JUnit 5、Mockito、ArchUnit、Testcontainers、JaCoCo、Compose 黑盒 E2E |
+| 测试 | JUnit 5、Mockito、ArchUnit、Testcontainers、JaCoCo、Vitest、Playwright、Compose 黑盒 E2E |
 
 ## 运行架构
 
@@ -217,6 +217,8 @@ Linux/macOS 将 `.\mvnw.cmd` 替换为 `./mvnw`。
 | 验证项 | 结果 |
 | --- | --- |
 | 前端 TypeScript 检查与生产构建 | 通过 |
+| 前端 Vitest 单元测试 | 2 个全部通过 |
+| 前端 Playwright 浏览器 E2E | 2 个全部通过 |
 | Maven 测试 | 76 个全部通过，0 失败、0 错误、0 跳过 |
 | Testcontainers 集成测试 | 上述测试中包含 3 个 MySQL/Redis 容器集成测试 |
 | Compose 黑盒 E2E | 2 个全部通过 |
@@ -226,12 +228,13 @@ Linux/macOS 将 `.\mvnw.cmd` 替换为 `./mvnw`。
 | Kubernetes 清单 | 6 个资源通过 kubeconform 离线 schema 校验 |
 
 > [!NOTE]
-> 以上是可复现的工程验收记录，不是生产环境 SLA 或性能结论。README 不展示当前覆盖率百分比；下一阶段将建立聚合覆盖率非零门禁，并优先补足关键路径测试。
+> 以上是可复现的工程验收记录，不是生产环境 SLA 或性能结论。README 不展示当前覆盖率百分比；CI 已建立五模块聚合覆盖率非零回归门禁，具体阈值与校验逻辑见 [`check-jacoco-aggregate.mjs`](scripts/check-jacoco-aggregate.mjs)。
 
 ### 基础验证
 
 ```powershell
 npm ci --prefix frontend-vue
+npm run test:unit --prefix frontend-vue
 npm run typecheck --prefix frontend-vue
 npm run build --prefix frontend-vue
 .\mvnw.cmd -B -pl xiyouji-bootstrap -am clean verify
@@ -273,15 +276,16 @@ docker compose -p xiyouji-e2e -f docker-compose.yml -f docker-compose.e2e.yml do
 
 [GitHub Actions 工作流](.github/workflows/ci.yml)执行：
 
-1. 前端依赖安装、TypeScript 检查与生产构建。
-2. Maven 测试与 JaCoCo 聚合报告生成。
+1. 前端依赖安装、Vitest 单元测试、TypeScript 检查与生产构建。
+2. Maven 测试、JaCoCo 聚合报告与非零覆盖率门禁。
 3. Docker Compose 配置校验。
 4. Kubernetes 清单离线 schema 校验。
 5. 多阶段 Docker 镜像构建。
 6. 双实例 Compose 启动与健康检查。
 7. Prometheus 告警规则校验。
-8. 跨实例 REST/WebSocket 黑盒 E2E。
-9. 配置密钥时执行可选 SonarQube 分析。
+8. 跨实例 REST/WebSocket 黑盒 E2E 与 Playwright 浏览器 E2E。
+9. 上传 Surefire、JaCoCo 和 Playwright 验证产物。
+10. 配置密钥时执行可选 SonarQube 分析。
 
 ## k6 当前状态
 
@@ -317,12 +321,12 @@ docker run --rm \
 - [x] 整理并发布模块化单体与双实例运行基线。
 - [x] 建立 Compose、CI、跨实例黑盒 E2E 与 K8s 离线清单校验。
 - [x] 增加真实页面截图、Mermaid 架构图和技术取舍说明。
-- [ ] 为 JaCoCo 聚合覆盖率建立非零门禁，并增加前端单元测试与 Playwright E2E。
+- [x] 为 JaCoCo 聚合覆盖率建立非零门禁，并增加前端单元测试与 Playwright E2E。
 - [ ] 设计真实业务 k6 场景，固定环境并输出可复现报告。
 - [ ] 拆分体积较大的 Service 和 Controller。
 - [ ] 逐步移除领域层与应用层的框架依赖。
 - [ ] 在真实 Kubernetes 集群验证部署、扩缩容、滚动升级与故障恢复。
 
-当前没有公网 Demo；前端尚未接入正式自动化测试；部分 Service/Controller 仍较大。公开分发前还应补充项目 LICENSE，以及插画、字体等素材的来源与授权说明。
+当前没有公网 Demo；前端自动化仍只覆盖关键路径，尚需扩展多人和失败场景；部分 Service/Controller 仍较大。公开分发前还应补充项目 LICENSE，以及插画、字体等素材的来源与授权说明。
 
 对于求职展示，本项目优先提供可运行代码、通过的 CI、复现命令和清晰的技术取舍，而不是继续叠加尚未形成实际价值的中间件。

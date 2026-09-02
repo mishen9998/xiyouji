@@ -7,7 +7,10 @@
     "dev": "vite",
     "typecheck": "vue-tsc --noEmit",
     "build": "vue-tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@stomp/stompjs": "^7.3.0",
@@ -17,10 +20,13 @@
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@types/three": "^0.185.4",
-    "@vitejs/plugin-vue": "^5.0.4",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "jsdom": "^25.0.1",
     "typescript": "^5.4.2",
-    "vite": "^5.2.6",
+    "vite": "^6.4.3",
+    "vitest": "^3.2.6",
     "vue-tsc": "^2.0.6"
   }
 }
