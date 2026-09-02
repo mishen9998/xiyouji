@@ -20,10 +20,10 @@ import java.time.Duration;
 
 /**
  * Redis 缓存配置
- * 
+ *
  * 解决问题: JPA 实体对象默认使用 JDK 序列化存储到 Redis, 会导致序列化失败
  * 解决方案: 使用 Jackson JSON 序列化, 支持复杂对象且可读性好
- * 
+ *
  * 分布式缓存核心概念:
  * - 多个实例共享同一个 Redis 缓存
  * - 实例1查询数据库后缓存到 Redis, 实例2直接从 Redis 读取
