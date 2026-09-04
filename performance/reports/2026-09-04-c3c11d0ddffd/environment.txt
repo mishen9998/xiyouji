@@ -1,0 +1,63 @@
+report_id=2026-09-04-c3c11d0ddffd
+report_scope=single-host local Docker business-flow baseline
+result_scope_note=not production capacity, concurrency, SLA, or SLO
+
+source_git_sha=c3c11d0ddffdffcb29378e836b7d7e05a360c3c0
+source_branch=codex/multimodule-distributed
+direct_run_window_utc=2026-09-03T18:58:52.034Z..2026-09-03T19:22:00.491Z (derived from summary end timestamps and k6 run durations)
+confirmation_summary_end_utc=2026-09-04T16:49:21.766Z,2026-09-04T16:55:10.983Z,2026-09-04T17:01:04.958Z
+resource_sample_window_utc=2026-09-03T18:54:38.2576754Z..2026-09-04T17:05:45.4764270Z
+
+load_generator_location=Windows host, same physical machine as Docker Engine
+host_os=Microsoft Windows 10 Pro 10.0.19045, 64-bit
+host_cpu=12th Gen Intel(R) Core(TM) i5-12490F; 6 cores; 12 logical processors
+host_physical_memory_bytes=34163703808
+docker_stats_unlimited_container_memory_denominator=15.53 GiB
+
+k6_version=k6.exe v2.2.0 (commit/00a9a1b7f5, go1.26.5, windows/amd64)
+docker_client_version=29.6.2
+docker_compose_version=5.3.1
+host_java_version=openjdk 17.0.20 (host metadata only; the application ran in its container)
+application_runtime_base_image=eclipse-temurin:17.0.13_11-jre-alpine
+application_jvm_flags=-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:MaxGCPauseMillis=200
+
+compose_project=xiyouji-perf-c3c11d0
+compose_files=docker-compose.yml + docker-compose.e2e.yml
+app_1_url=http://localhost:18081
+app_2_url=http://localhost:18082
+nginx_url=http://localhost:8080 (not part of the reported direct baseline)
+topology=k6 host -> app-1/app-2 -> shared MySQL and Redis
+traffic_path=direct to published application ports; Nginx bypassed
+
+app_1_limit=1.0 CPU, 768 MiB; reservation 0.25 CPU, 256 MiB
+app_2_limit=1.0 CPU, 768 MiB; reservation 0.25 CPU, 256 MiB
+mysql_image=mysql:8.0.39
+mysql_limit=1.0 CPU, 768 MiB
+redis_image=redis:7.2.5-alpine3.19
+redis_limit=0.5 CPU, 384 MiB
+redis_runtime_policy=AOF enabled; maxmemory 256 MiB; maxmemory-policy noeviction
+nginx_image=nginx:1.27.1-alpine
+nginx_limit=no explicit Compose resource limit
+prometheus_image=prom/prometheus:v2.54.1
+zipkin_image=openzipkin/zipkin:3.4.2
+grafana_image=grafana/grafana:11.2.0
+observability_limits=no explicit Compose resource limits
+
+load_profile=constant-arrival-rate
+direct_target_rates_tx_per_s=1,2,4,6,8,12
+direct_target_duration_per_stage=3m
+confirmation_target_rate_tx_per_s=5
+confirmation_repetitions=3
+confirmation_target_duration_per_run=5m
+pre_allocated_vus=32
+max_vus=128
+request_timeout=15s (script default)
+iteration_pause_seconds=0
+latency_thresholds=disabled
+
+resource_samples=resources/docker-stats.ndjson; nominal interval approximately 5 seconds
+app_1_observed_peak_during_12tps=CPU 106.57%; memory 767.9 MiB / 768 MiB
+secrets=not recorded; DB password, JWT secret, tokens, and expanded Compose environment are intentionally omitted
+
+metadata_capture_note=Host/tool metadata was inspected retrospectively on the same machine. Docker Engine server version, image IDs/digests, exact expanded configuration, and the original terminal transcript were not retained. The Engine was unavailable during report finalization, so missing values were not guessed.
+working_tree_note=The report directory itself was untracked while results were being finalized; no claim is made that the entire working tree was clean during every run.

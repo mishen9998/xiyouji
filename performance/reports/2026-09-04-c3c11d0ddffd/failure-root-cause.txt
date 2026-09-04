@@ -1,0 +1,84 @@
+12 transaction/s 探索档失败根因
+=================================
+
+范围
+----
+
+报告目录：performance/reports/2026-09-04-c3c11d0ddffd
+代码版本：c3c11d0ddffdffcb29378e836b7d7e05a360c3c0
+结果文件：direct/12tps/summary.json、direct/12tps/summary.md
+运行方式：宿主机 k6 直连 app-1:18081 与 app-2:18082，绕过 Nginx
+目标配置：12 transaction/s，3 分钟 constant-arrival-rate 探索档
+
+可观测现象
+----------
+
+- 实际完成速率：11.471 transaction/s
+- 完成事务：2141
+- 完整业务链路成功率：91.97%
+- HTTP 5xx：172
+- dropped iterations：20
+- HTTP 429：0
+- 非预期 HTTP 409：0
+- 跨实例状态不一致：0
+- 业务链路 P95：7596.00 ms（观测值，不是门槛或 SLA）
+- HTTP 请求 P95：894.90 ms（观测值，不是门槛或 SLA）
+
+运行时容器日志检查得到：app-1 恰好出现 172 条
+`IllegalStateException: 获取锁超时 key=xiyouji:lock:room:create`，与本档 172 个
+HTTP 5xx 一一对应；app-2 同一异常为 0。原始容器日志没有写入本报告目录，
+所以该计数属于运行时调查记录，而不是可由当前目录单独重算的证据。这是本轮报告
+需要披露的审计缺口，下一轮应把带时间窗的脱敏日志保存到 logs/。
+
+根因链路
+--------
+
+1. `xiyouji-application/src/main/java/com/xiyouji/service/room/RoomService.java`
+   的建房路径使用固定全局键 `xiyouji:lock:room:create`，所有房间创建都被同一把
+   分布式锁串行化；锁等待时间为 5 秒。
+2. `xiyouji-infrastructure/src/main/java/com/xiyouji/service/room/RedisDistributedLockService.java`
+   调用 `tryLock(waitTimeSec, TimeUnit.SECONDS)`；5 秒内未取得锁时抛出
+   `IllegalStateException`，消息包含“获取锁超时”。
+3. `xiyouji-bootstrap/src/main/java/com/xiyouji/exception/GlobalExceptionHandler.java`
+   的通用 `RuntimeException` 处理将该异常映射成 HTTP 500。
+4. 压测业务固定由 app-1 执行建房，因此锁超时只出现在 app-1；app-2 负责后续
+   跨实例读取、加入等步骤，这与日志的实例分布一致。
+5. constant-arrival-rate 持续注入事务。请求在全局锁前等待，延迟和在途 VU 增加；
+   达到执行器资源上限后出现 dropped iteration。
+
+资源采样补充观察
+----------------
+
+同一阶段的 `resources/docker-stats.ndjson` 记录到 app-1 CPU 峰值 106.57%，内存
+最高 767.9 MiB / 768 MiB。它说明当时 app-1 资源压力较高，但不能据此断言 CPU
+或内存是 172 个错误的唯一根因；HTTP 失败的直接证据仍是全局建房锁超时。
+
+影响与结论边界
+--------------
+
+- 该档位必须判定为失败，不能因总体 HTTP 失败率仍较低而标记为通过。
+- 不能把 8 transaction/s 称为“系统最大容量”；它只是一次 3 分钟干净探索结果。
+- 不能把 11.471 transaction/s 称为可承诺吞吐量，也不能由 transaction/s 换算
+  成并发用户数。
+- 本轮没有建立任何 P95 门槛或生产 SLA。
+
+建议修复顺序
+------------
+
+1. 先定义专门的锁等待超时异常，并映射为明确、可观测的 503（或团队约定的可重试
+   状态），避免把预期的资源竞争伪装成未知 500；同时为锁等待和超时添加指标。
+2. 从设计上移除全局建房锁。优先让 `RoomStore.createIfAbsent()` 使用 Redis 原子
+   `SET NX`（带 TTL）完成房间码唯一性声明；碰撞时生成新码并有限重试。
+3. 保留真正需要串行化的“单房间”操作，但把锁粒度缩小到 `room:<code>`，避免
+   不同房间之间相互阻塞。
+4. 增加并发建房测试：验证唯一性、TTL、幂等重放、碰撞重试和跨实例可见性；同时
+   覆盖锁超时的 HTTP 语义，防止再次退化成 500。
+5. 修复后在相同 commit 派生版本、相同机器、相同 Compose 限制和同一 k6 脚本下
+   重跑完整阶梯，并至少重复关键档位。保留 k6 逐点指标、容器日志、镜像 digest
+   和测试窗口资源曲线，再判断是否具备设置回归告警线的条件。
+
+未采用的结论
+------------
+
+本文件不宣称生产容量、生产级性能、支持 X 并发用户、P95 小于某个数值，也不将
+单机 Docker 结果外推到公网、TLS、跨主机或 Kubernetes 环境。

@@ -1,0 +1,155 @@
+# 等效复现命令（PowerShell）
+#
+# 重要：原始终端逐字记录没有保留。以下命令根据 commit、summary.json、
+# summary.md、运行笔记和 performance/README.md 重建，可复现相同测试配置，
+# 但不冒充原始 shell transcript。不要把真实密码或 JWT secret 写入报告。
+
+$project = 'xiyouji-perf-c3c11d0'
+$runDir = 'performance/reports/2026-09-04-c3c11d0ddffd'
+
+# 前置检查
+git rev-parse HEAD
+docker compose -p $project -f docker-compose.yml -f docker-compose.e2e.yml config --quiet
+
+# 使用仓库根目录下未提交的 .env 提供 DB_PASSWORD、JWT_SECRET 等值。
+# 启动独立性能项目，并等待所有健康检查通过。
+docker compose -p $project -f docker-compose.yml -f docker-compose.e2e.yml up -d --build --wait
+Invoke-RestMethod http://localhost:18081/actuator/health/readiness
+Invoke-RestMethod http://localhost:18082/actuator/health/readiness
+
+# 资源采样在单独 PowerShell 窗口运行；测试完成后按 Ctrl+C 停止。
+$statsFile = "$runDir/resources/docker-stats.ndjson"
+while ($true) {
+  $capturedAt = (Get-Date).ToUniversalTime().ToString('o')
+  $containerIds = docker ps `
+    --filter "label=com.docker.compose.project=$project" `
+    --format '{{.ID}}'
+  if (-not $containerIds) { throw '没有找到性能项目容器' }
+  docker stats --no-stream --format '{{json .}}' $containerIds |
+    ForEach-Object { "$capturedAt`t$_" } |
+    Add-Content -LiteralPath $statsFile
+  Start-Sleep -Seconds 5
+}
+
+# Smoke：只验证一条链路与清理逻辑，不形成性能结论。
+k6 run `
+  -e PROFILE=smoke `
+  -e VUS=1 `
+  -e ITERATIONS=1 `
+  -e APP_1_URL=http://localhost:18081 `
+  -e APP_2_URL=http://localhost:18082 `
+  -e FLOW_SUCCESS_TARGET=1 `
+  -e STEP_SUCCESS_TARGET=1 `
+  -e HTTP_FAILURE_TARGET=0 `
+  -e "SUMMARY_JSON=$runDir/smoke/summary.json" `
+  -e "SUMMARY_MD=$runDir/smoke/summary.md" `
+  performance/k6/business-flow.js
+
+# 预热：不并入正式汇总。若容器重启，应重新预热。
+k6 run `
+  -e PROFILE=load `
+  -e RATE=1 `
+  -e TIME_UNIT=1s `
+  -e DURATION=3m `
+  -e PRE_ALLOCATED_VUS=8 `
+  -e MAX_VUS=32 `
+  -e APP_1_URL=http://localhost:18081 `
+  -e APP_2_URL=http://localhost:18082 `
+  -e ITERATION_PAUSE_SECONDS=0 `
+  -e FLOW_SUCCESS_TARGET=0.99 `
+  -e STEP_SUCCESS_TARGET=0.99 `
+  -e HTTP_FAILURE_TARGET=0.01 `
+  -e "SUMMARY_JSON=$runDir/warmup/summary.json" `
+  -e "SUMMARY_MD=$runDir/warmup/summary.md" `
+  performance/k6/business-flow.js
+
+# 双实例直连阶梯：每档 3 分钟，档间冷却 30 秒。
+# RATE 是完整业务事务/秒，不是 HTTP QPS，也不是并发用户数。
+$rates = 1, 2, 4, 6, 8, 12
+foreach ($rate in $rates) {
+  $stageDir = "$runDir/direct/${rate}tps"
+  New-Item -ItemType Directory -Force -Path $stageDir | Out-Null
+
+  k6 run `
+    -e PROFILE=load `
+    -e "RATE=$rate" `
+    -e TIME_UNIT=1s `
+    -e DURATION=3m `
+    -e PRE_ALLOCATED_VUS=32 `
+    -e MAX_VUS=128 `
+    -e APP_1_URL=http://localhost:18081 `
+    -e APP_2_URL=http://localhost:18082 `
+    -e ITERATION_PAUSE_SECONDS=0 `
+    -e FLOW_SUCCESS_TARGET=0.99 `
+    -e STEP_SUCCESS_TARGET=0.99 `
+    -e HTTP_FAILURE_TARGET=0.01 `
+    -e "SUMMARY_JSON=$stageDir/summary.json" `
+    -e "SUMMARY_MD=$stageDir/summary.md" `
+    performance/k6/business-flow.js
+
+  if ($LASTEXITCODE -ne 0) {
+    Write-Warning "${rate} transaction/s 未通过；停止加压并分析失败结果。"
+    break
+  }
+  Start-Sleep -Seconds 30
+}
+
+# 本报告实际执行的是快速确认版：5 tx/s，3 次，每次 5 分钟。
+# 它不是 performance/README.md 中建议的 30 分钟长稳测试。
+# 确认运行前 Docker Engine 曾重启，因此先等待服务恢复并重新执行 1 tx/s、3 分钟预热；
+# 该摘要保存在 warmup-restart/，不并入正式结果。
+docker compose -p $project -f docker-compose.yml -f docker-compose.e2e.yml up -d --wait
+k6 run `
+  -e PROFILE=load `
+  -e RATE=1 `
+  -e TIME_UNIT=1s `
+  -e DURATION=3m `
+  -e PRE_ALLOCATED_VUS=8 `
+  -e MAX_VUS=32 `
+  -e APP_1_URL=http://localhost:18081 `
+  -e APP_2_URL=http://localhost:18082 `
+  -e ITERATION_PAUSE_SECONDS=0 `
+  -e FLOW_SUCCESS_TARGET=0.99 `
+  -e STEP_SUCCESS_TARGET=0.99 `
+  -e HTTP_FAILURE_TARGET=0.01 `
+  -e "SUMMARY_JSON=$runDir/warmup-restart/summary.json" `
+  -e "SUMMARY_MD=$runDir/warmup-restart/summary.md" `
+  performance/k6/business-flow.js
+
+1..3 | ForEach-Object {
+  $attempt = $_
+  $attemptDir = "$runDir/confirmation/run-$attempt"
+  New-Item -ItemType Directory -Force -Path $attemptDir | Out-Null
+
+  k6 run `
+    -e PROFILE=load `
+    -e RATE=5 `
+    -e TIME_UNIT=1s `
+    -e DURATION=5m `
+    -e PRE_ALLOCATED_VUS=32 `
+    -e MAX_VUS=128 `
+    -e APP_1_URL=http://localhost:18081 `
+    -e APP_2_URL=http://localhost:18082 `
+    -e ITERATION_PAUSE_SECONDS=0 `
+    -e FLOW_SUCCESS_TARGET=1 `
+    -e STEP_SUCCESS_TARGET=1 `
+    -e HTTP_FAILURE_TARGET=0 `
+    -e "SUMMARY_JSON=$attemptDir/summary.json" `
+    -e "SUMMARY_MD=$attemptDir/summary.md" `
+    performance/k6/business-flow.js
+
+  if ($LASTEXITCODE -ne 0) { throw "确认运行 $attempt 未通过" }
+}
+
+# 运行后检查逻辑房间残留。幂等键会按 TTL 自然过期。
+$redisContainer = docker ps `
+  --filter "label=com.docker.compose.project=$project" `
+  --filter 'label=com.docker.compose.service=redis' `
+  --format '{{.ID}}'
+if (-not $redisContainer) { throw '没有找到性能项目 Redis 容器' }
+docker exec $redisContainer redis-cli --scan --pattern 'room:*'
+
+# 本轮 Nginx 低速 E2E 被中断，没有可报告摘要；不要把它写成已完成结果。
+
+# 可选停止：不加 -v，保留独立项目的数据卷用于复查。
+docker compose -p $project -f docker-compose.yml -f docker-compose.e2e.yml down
