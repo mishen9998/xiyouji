@@ -147,7 +147,28 @@ common ← domain ← application ← infrastructure ← bootstrap
 
 ## 快速启动
 
-### Docker 双实例环境
+### Windows 一键演示（推荐）
+
+已安装 Docker Desktop 时，直接双击 [启动演示.bat](启动演示.bat)，或执行：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\demo.ps1 up
+```
+
+脚本会自动生成仅存在本机的随机密钥，启动 MySQL、Redis 和单实例应用，然后依次验证健康接口、前端首页、游客 JWT 以及单人会话的创建/回读/清理。任一环节失败都会返回非零状态并打印最近日志。
+
+常用操作：
+
+```powershell
+.\scripts\demo.ps1 status  # 查看状态
+.\scripts\demo.ps1 smoke   # 重跑业务验收
+.\scripts\demo.ps1 logs    # 跟踪应用日志
+.\scripts\demo.ps1 down    # 停止容器，保留数据卷
+```
+
+这条路径用于面试现场的快速启动与单人演示。双实例一致性与 WebSocket 黑盒验收使用下方完整环境。
+
+### Docker 双实例完整验收环境
 
 需要 Docker Desktop 或兼容的 Docker Engine。
 
@@ -226,6 +247,8 @@ Linux/macOS 将 `.\mvnw.cmd` 替换为 `./mvnw`。
 | 并发房间容量 | 已验证 20 个并发加入请求不会突破 5 人上限 |
 | Prometheus 规则 | 3 条规则通过 `promtool` 校验 |
 | Kubernetes 清单 | 6 个资源通过 kubeconform 离线 schema 校验 |
+| 本地精简演示 | 健康、首页、游客 JWT、单人会话创建/回读/清理全部通过 |
+| k6 业务基线 | 5 tx/s × 3 轮 × 5 分钟，4,502 笔完整事务，业务成功率 100% |
 
 > [!NOTE]
 > 以上是可复现的工程验收记录，不是生产环境 SLA 或性能结论。README 不展示当前覆盖率百分比；CI 已建立五模块聚合覆盖率非零回归门禁，具体阈值与校验逻辑见 [`check-jacoco-aggregate.mjs`](scripts/check-jacoco-aggregate.mjs)。
@@ -262,15 +285,9 @@ docker compose -p xiyouji-e2e -f docker-compose.yml -f docker-compose.e2e.yml do
 
 覆盖文件临时发布 `18081` 和 `18082`，使测试可以分别直连两个应用实例；正常访问仍只通过 Nginx 的 `8080` 端口。
 
-### 故障演练
+### 故障演练边界
 
-双实例环境启动后，可运行：
-
-```powershell
-.\scripts\distributed-failure-drill.ps1
-```
-
-脚本依次验证：停止 `app-1` 后由 `app-2` 继续提供服务、Redis 故障时应用退出就绪状态、Redis 恢复后应用恢复，以及 Prometheus 能否抓取两个实例。
+[故障演练脚本](scripts/distributed-failure-drill.ps1) 还需要解除对默认 Compose 项目名和容器名的假设，目前不纳入一键演示的通过证据。面试现场优先展示已自动验收的单人业务链路以及 CI 中的双实例 REST/STOMP 黑盒测试。
 
 ## CI
 
@@ -287,21 +304,19 @@ docker compose -p xiyouji-e2e -f docker-compose.yml -f docker-compose.e2e.yml do
 9. 上传 Surefire、JaCoCo 和 Playwright 验证产物。
 10. 配置密钥时执行可选 SonarQube 分析。
 
-## k6 当前状态
+## k6 真实业务基线
 
-[distributed-smoke.js](performance/k6/distributed-smoke.js)目前只是 Nginx 健康接口与实例路由的 smoke 模板：
+[business-flow.js](performance/k6/business-flow.js) 覆盖双游客登录、`app-1` 建房、`app-2` 跨实例读取/加入、双方选角与准备、房主开局、跨实例状态校验和最终清理。
 
-```bash
-k6 run \
-  -e BASE_URL=http://localhost:8080 \
-  -e VUS=20 \
-  -e DURATION=1m \
-  performance/k6/distributed-smoke.js
-```
+在固定本机 Docker 双实例环境中，目标 `5 transaction/s` 连续运行 3 轮、每轮 5 分钟：
 
-脚本中的阈值只用于 smoke 失败判定，不构成真实业务性能结论。目前尚未完成包含登录、创建房间、加入房间、状态修改和战斗操作的业务压测，因此 README 和简历中不声明业务 P95、吞吐量或容量上限。
+| 完整事务 | 业务成功 | 清理成功 | 状态不一致 | HTTP 5xx | dropped iteration |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 4,502 | 100% | 100% | 0 | 0 | 0 |
 
-后续会在固定机器配置、数据规模和并发模型后，输出可复现的 HTML/JSON 压测报告。
+目标 `12 transaction/s` 的探索档实际完成 `11.471 transaction/s`，出现 172 个 HTTP 5xx 和 20 个 dropped iteration。日志将 172 个 5xx 全部对应到 `app-1` 的全局 `room:create` 锁等待超时，因此后续优先将房间码唯一性改为 Redis 原子占位，去掉全局建房锁，同时保留房间粒度锁。
+
+完整结果、环境、复现命令与证据边界见 [本机 Docker 业务压测报告](performance/reports/2026-09-04-c3c11d0ddffd/report.md)。三次确认运行的延迟波动较大，因此这里不设置或声明 P95 门槛；上述结果是本机可复现基线，不是生产 SLA 或系统容量上限。
 
 ## Kubernetes 当前状态
 
@@ -322,11 +337,11 @@ docker run --rm \
 - [x] 建立 Compose、CI、跨实例黑盒 E2E 与 K8s 离线清单校验。
 - [x] 增加真实页面截图、Mermaid 架构图和技术取舍说明。
 - [x] 为 JaCoCo 聚合覆盖率建立非零门禁，并增加前端单元测试与 Playwright E2E。
-- [ ] 设计真实业务 k6 场景，固定环境并输出可复现报告。
+- [x] 设计真实业务 k6 场景，固定环境并输出可复现报告。
 - [ ] 拆分体积较大的 Service 和 Controller。
 - [ ] 逐步移除领域层与应用层的框架依赖。
 - [ ] 在真实 Kubernetes 集群验证部署、扩缩容、滚动升级与故障恢复。
 
 当前没有公网 Demo；前端自动化仍只覆盖关键路径，尚需扩展多人和失败场景；部分 Service/Controller 仍较大。公开分发前还应补充项目 LICENSE，以及插画、字体等素材的来源与授权说明。
 
-对于求职展示，本项目优先提供可运行代码、通过的 CI、复现命令和清晰的技术取舍，而不是继续叠加尚未形成实际价值的中间件。
+公网展示的安全上线步骤见 [VPS 精简部署指南](docs/vps-deployment.md)；可直接粘贴到简历的文案见 [简历项目经历](docs/resume-project-experience.md)。对于求职展示，本项目优先提供可运行代码、通过的 CI、复现命令和清晰的技术取舍，而不是继续叠加尚未形成实际价值的中间件。

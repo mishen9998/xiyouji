@@ -1,101 +1,73 @@
-#!/bin/bash
-# ========================================
-# 西游记云服务器一键部署脚本
-# 适用于宝塔面板 Linux 服务器
-# 使用方法: bash deploy-cloud.sh
-# ========================================
-set -e
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-echo "============================================"
-echo "  西游记云服务器部署脚本"
-echo "============================================"
-echo ""
+# Deploys the single-instance showcase stack from a fixed GHCR sha-* image tag.
+# Run this behind a host-level HTTPS/WSS reverse proxy; port 8080 stays on loopback.
 
-# 检查 Docker
-if ! command -v docker &> /dev/null; then
-    echo "[ERROR] Docker 未安装！请在宝塔面板软件商店安装 Docker管理器"
-    exit 1
-fi
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
-if ! docker compose version &> /dev/null; then
-    echo "[ERROR] Docker Compose 未安装！请安装 docker-compose-plugin"
-    exit 1
-fi
+ENV_FILE="${ENV_FILE:-.env.cloud}"
+COMPOSE_FILE="docker-compose-cloud.yml"
+PROJECT_NAME="${PROJECT_NAME:-xiyouji-cloud}"
 
-echo "[1/6] 检查环境... OK"
-echo "  Docker: $(docker --version)"
-echo "  Compose: $(docker compose version)"
-echo ""
+compose() {
+  docker compose --project-name "$PROJECT_NAME" --env-file "$ENV_FILE" --file "$COMPOSE_FILE" "$@"
+}
 
-# 镜像由根目录 Dockerfile 多阶段构建，不依赖宿主机预先生成 JAR。
-echo "[2/6] 使用 Docker 多阶段构建前端和五个 Maven 模块... OK"
-echo ""
+fail() {
+  echo "[ERROR] $*" >&2
+  if command -v docker >/dev/null 2>&1; then
+    compose ps 2>/dev/null || true
+    compose logs --tail=120 app 2>/dev/null || true
+  fi
+  exit 1
+}
 
-# 加载环境变量
-if [ -f ".env.cloud" ]; then
-    set -a
-    # shellcheck disable=SC1091
-    . ./.env.cloud
-    set +a
-    echo "[3/6] 加载环境变量... OK"
-else
-    echo "[ERROR] 未找到 .env.cloud；云端部署不允许使用默认密钥。"
-    exit 1
-fi
-PUBLIC_BASE_URL="${PUBLIC_BASE_URL:-http://localhost:8080}"
-echo ""
+command -v docker >/dev/null 2>&1 || fail "Docker is not installed."
+docker compose version >/dev/null 2>&1 || fail "Docker Compose v2 is not installed."
+[[ -f "$ENV_FILE" ]] || fail "Missing $ENV_FILE. Copy .env.cloud.example and replace every placeholder."
 
-# 停止旧容器
-echo "[4/6] 停止旧容器..."
-docker compose -f docker-compose-cloud.yml down 2>/dev/null || true
-echo ""
+read_env() {
+  sed -n "s/^$1=//p" "$ENV_FILE" | tail -n 1 | tr -d '\r'
+}
 
-# 构建并启动
-echo "[5/6] 构建并启动容器（首次约3-5分钟）..."
-docker compose -f docker-compose-cloud.yml up -d --build
-echo ""
+APP_IMAGE="$(read_env APP_IMAGE)"
+DB_PASSWORD="$(read_env DB_PASSWORD)"
+JWT_SECRET="$(read_env JWT_SECRET)"
+PUBLIC_BASE_URL="$(read_env PUBLIC_BASE_URL)"
+CORS_ORIGINS="$(read_env CORS_ORIGINS)"
+HTTP_BIND="$(read_env HTTP_BIND)"
+HTTP_PORT="$(read_env HTTP_PORT)"
 
-# 等待启动（2核2G服务器启动较慢，最多等待5分钟）
-echo "[6/6] 等待应用启动（最多5分钟，请耐心等待）..."
-MAX_WAIT=100  # 100次 × 3秒 = 300秒 = 5分钟
-for i in $(seq 1 $MAX_WAIT); do
-    HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/actuator/health 2>/dev/null)
-    if [ "$HEALTH" = "200" ]; then
-        echo ""
-        echo "============================================"
-        echo "  部署成功！"
-        echo "============================================"
-        echo ""
-        echo "  访问地址: ${PUBLIC_BASE_URL}"
-        echo "  健康检查: ${PUBLIC_BASE_URL}/actuator/health"
-        echo ""
-        echo "  容器状态:"
-        docker compose -f docker-compose-cloud.yml ps
-        echo ""
-        echo "  查看日志: docker compose -f docker-compose-cloud.yml logs -f"
-        echo "  停止服务: docker compose -f docker-compose-cloud.yml down"
-        echo "============================================"
-        exit 0
-    fi
-    # 每30次（约90秒）输出一次进度和容器状态
-    if [ $((i % 30)) -eq 0 ]; then
-        echo ""
-        echo "  已等待 $((i * 3)) 秒，容器状态:"
-        docker compose -f docker-compose-cloud.yml ps --format "table {{.Name}}\t{{.Status}}" 2>/dev/null || \
-            docker compose -f docker-compose-cloud.yml ps
-    fi
-    echo -n "."
-    sleep 3
-done
+[[ "$APP_IMAGE" == ghcr.io/*:sha-* ]] || fail "APP_IMAGE must use a fixed ghcr.io/...:sha-* tag."
+[[ "$APP_IMAGE" != *replace* ]] || fail "APP_IMAGE still contains a placeholder."
+[[ ${#DB_PASSWORD} -ge 20 && "$DB_PASSWORD" != *replace* && "$DB_PASSWORD" != *change-me* ]] || \
+  fail "DB_PASSWORD must be a non-placeholder value with at least 20 characters."
+[[ ${#JWT_SECRET} -ge 64 && "$JWT_SECRET" != *replace* && "$JWT_SECRET" != *change-me* ]] || \
+  fail "JWT_SECRET must be a non-placeholder value with at least 64 characters."
+[[ "$PUBLIC_BASE_URL" == https://* ]] || fail "PUBLIC_BASE_URL must be an HTTPS URL."
+[[ "$CORS_ORIGINS" == https://* && "$CORS_ORIGINS" != *example.com* ]] || \
+  fail "CORS_ORIGINS must contain the real HTTPS demo origin."
+[[ "$HTTP_BIND" == "127.0.0.1" ]] || fail "HTTP_BIND must stay on 127.0.0.1 for VPS deployment."
+[[ "$HTTP_PORT" =~ ^[0-9]{2,5}$ ]] || fail "HTTP_PORT must be a numeric TCP port."
 
-echo ""
-echo "[WARNING] 健康检查等待超时（5分钟），但容器可能仍在启动中"
-echo "  请手动执行以下命令确认状态："
-echo "    1. docker compose -f docker-compose-cloud.yml ps"
-echo "    2. curl http://localhost:8080/actuator/health"
-echo "    3. docker compose -f docker-compose-cloud.yml logs --tail=30 app"
-echo ""
-echo "  最近日志（最后30行）:"
-docker compose -f docker-compose-cloud.yml logs --tail=30 app 2>/dev/null || \
-    docker compose -f docker-compose-cloud.yml logs --tail=30
-exit 0
+echo "[1/5] Validating Compose configuration"
+compose config --quiet || fail "Compose configuration is invalid."
+
+echo "[2/5] Pulling the fixed commit image and runtime dependencies"
+compose pull || fail "Image pull failed. If the GHCR package is private, run docker login ghcr.io first."
+
+echo "[3/5] Starting MySQL, Redis and App"
+compose up -d --no-build --wait --wait-timeout 360 || fail "Containers did not become healthy."
+
+echo "[4/5] Verifying local health and frontend"
+curl --fail --silent --show-error --max-time 15 "http://127.0.0.1:${HTTP_PORT}/actuator/health" | grep -q '"status":"UP"' || \
+  fail "Health endpoint is not UP."
+curl --fail --silent --show-error --max-time 15 "http://127.0.0.1:${HTTP_PORT}/" >/dev/null || \
+  fail "Frontend entry page is unavailable."
+
+echo "[5/5] Deployment passed"
+compose ps
+echo "Public URL: $PUBLIC_BASE_URL"
+echo "Run the browser E2E from a trusted development machine after HTTPS/WSS is configured."

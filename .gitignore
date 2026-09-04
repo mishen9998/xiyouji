@@ -12,6 +12,7 @@ logs/
 # 环境变量文件（含真实密码，绝不提交）
 .env
 .env.cloud
+.env.demo
 .env.local
 .env.prod
 .env.*.local

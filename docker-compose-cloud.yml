@@ -1,8 +1,7 @@
 # ========================================
-# 西游记 - 云服务器精简部署版
-# 适用于 2核2G 宝塔面板服务器
-# 只保留核心容器：MySQL + Redis + 单实例App + Nginx
-# 关闭 Prometheus/Grafana/Zipkin/第二实例以节省内存
+# 西游记 - 单实例精简部署版
+# 本地快速演示：直接构建；VPS：拉取 CI 预构建镜像。
+# 只保留 MySQL + Redis + 单实例 App，不承诺高可用或零停机。
 # ========================================
 services:
   # ====== MySQL 数据库 ======
@@ -22,6 +21,11 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - xiyouji-net
 
@@ -37,12 +41,17 @@ services:
       timeout: 3s
       retries: 5
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - xiyouji-net
 
   # ====== Spring Boot 应用实例 ======
   app:
-    image: xiyouji:1.0.0
+    image: ${APP_IMAGE:-xiyouji:demo}
     build:
       context: .
       dockerfile: Dockerfile
@@ -58,6 +67,8 @@ services:
       - ENFORCE_JWT=true
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set in .env.cloud}
       - CORS_ORIGINS=${CORS_ORIGINS:?CORS_ORIGINS must be set in .env.cloud}
+      # The compact stack has no Zipkin container; avoid noisy failed-export warnings.
+      - MANAGEMENT_TRACING_SAMPLING_PROBABILITY=0.0
     depends_on:
       mysql:
         condition: service_healthy
@@ -70,8 +81,14 @@ services:
       retries: 5
       start_period: 180s
     ports:
-      - "8080:8080"
+      # VPS 默认只允许宿主机反向代理访问；本地 Demo 可在 .env.demo 中改为 0.0.0.0。
+      - "${HTTP_BIND:-127.0.0.1}:${HTTP_PORT:-8080}:8080"
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
     networks:
       - xiyouji-net
 

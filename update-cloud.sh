@@ -1,67 +1,8 @@
-#!/bin/bash
-# ========================================
-# 西游记云服务器 - 增量更新脚本
-# 仅更新应用JAR，不重新拉取MySQL/Redis镜像
-# 使用方法: bash update-cloud.sh
-# ========================================
-set -e
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-if [ ! -f ".env.cloud" ]; then
-    echo "[ERROR] 未找到 .env.cloud，无法安全更新。"
-    exit 1
-fi
-set -a
-# shellcheck disable=SC1091
-. ./.env.cloud
-set +a
-PUBLIC_BASE_URL="${PUBLIC_BASE_URL:-http://localhost:8080}"
-
-echo "============================================"
-echo "  西游记应用增量更新"
-echo "============================================"
-echo ""
-
-# 使用根目录 Dockerfile 重新构建，避免依赖宿主机 JAR 路径。
-echo "[1/4] 使用多阶段 Dockerfile 构建新镜像... OK"
-echo ""
-
-# 只重新构建并重启 app 容器（不影响 MySQL 和 Redis）
-echo "[2/4] 重新构建应用镜像..."
-docker compose -f docker-compose-cloud.yml build app
-echo ""
-
-echo "[3/4] 重启应用容器..."
-docker compose -f docker-compose-cloud.yml up -d app
-echo ""
-
-# 等待启动（最多5分钟）
-echo "[4/4] 等待应用启动（最多5分钟）..."
-MAX_WAIT=100
-for i in $(seq 1 $MAX_WAIT); do
-    HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/actuator/health 2>/dev/null)
-    if [ "$HEALTH" = "200" ]; then
-        echo ""
-        echo "============================================"
-        echo "  更新成功！"
-        echo "============================================"
-        echo ""
-        echo "  访问地址: ${PUBLIC_BASE_URL}"
-        echo ""
-        docker compose -f docker-compose-cloud.yml ps
-        echo "============================================"
-        exit 0
-    fi
-    if [ $((i % 30)) -eq 0 ]; then
-        echo ""
-        echo "  已等待 $((i * 3)) 秒，容器状态:"
-        docker compose -f docker-compose-cloud.yml ps --format "table {{.Name}}\t{{.Status}}" 2>/dev/null || \
-            docker compose -f docker-compose-cloud.yml ps
-    fi
-    echo -n "."
-    sleep 3
-done
-
-echo ""
-echo "[WARNING] 等待超时，请手动检查:"
-echo "  docker compose -f docker-compose-cloud.yml logs --tail=30 app"
-exit 0
+# Backward-compatible entry point. Updates now use the same fixed-image
+# deployment path; the former JAR-only package could not rebuild this image.
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+echo "update-cloud.sh now delegates to deploy-cloud.sh (fixed GHCR sha-* image tag)."
+exec bash "$SCRIPT_DIR/deploy-cloud.sh"
