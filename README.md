@@ -15,7 +15,7 @@
 
 ## 运行界面
 
-以下图片均由当前 Docker Compose 双实例环境实测生成，而非概念图。
+以下图片均由当前 Docker 环境实测生成，而非概念图。
 
 | 角色选择 | 双人房间 |
 | --- | --- |
@@ -24,6 +24,12 @@
 | 多人地图 | 多人战斗 |
 | --- | --- |
 | ![多人 Roguelike 地图](docs/assets/demo-multiplayer-map.webp) | ![多人卡牌战斗](docs/assets/demo-multiplayer-battle.webp) |
+
+| 新生成的地图节点插图 | 新生成的卡牌插图 |
+| --- | --- |
+| ![水墨金彩地图节点](docs/assets/demo-generated-art-map.webp) | ![水墨金彩牌组](docs/assets/demo-generated-art-deck.webp) |
+
+插图生成范围、提示词规范与验证结果见 [生成式插图替换记录](docs/generated-artwork.md)。
 
 当前尚未提供公网 Demo。启动本地环境后可访问：
 
