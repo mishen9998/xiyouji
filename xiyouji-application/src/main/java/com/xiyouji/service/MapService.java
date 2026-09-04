@@ -70,7 +70,9 @@ public class MapService {
                     int col = (int) ((i + 0.5) * 4.0 / nodeCount);
                     String id = "L" + layer + "-R" + row + "-C" + col;
                     String type = randomNodeType(rand);
-                    String name = GameConstants.PLACE_NAMES[(nameIdx + row + i) % GameConstants.PLACE_NAMES.length];
+                    String name = GameConstants.NODE_SHOP.equals(type)
+                            ? "土地庙"
+                            : GameConstants.PLACE_NAMES[(nameIdx + row + i) % GameConstants.PLACE_NAMES.length];
                     MapNode n = new MapNode(id, layer, row, col, type, name);
                     if (GameConstants.NODE_BATTLE.equals(type)) {
                         assignEnemy(n, false, layer);

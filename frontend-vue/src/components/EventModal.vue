@@ -1,24 +1,18 @@
 <!-- ====== 事件弹窗组件 ====== -->
 <template>
-  <div v-if="visible" class="modal-overlay" @click.self="onClose">
-    <div class="modal-box" :class="{ 'modal-large': isLargeModal }">
+  <div v-if="visible" class="modal-overlay" :class="{ 'temple-overlay': eventType === 'shop' }" @click.self="onBackdropClick">
+    <TempleShop
+      v-if="eventType === 'shop'"
+      :cards="shopCards"
+      :gold="currentGold"
+      :bought-indices="boughtIndices"
+      :price="shopPrice"
+      @buy="buyCard"
+      @forward="onContinue"
+    />
+    <div v-else class="modal-box" :class="{ 'modal-large': isLargeModal }">
       <h3>{{ title }}</h3>
       <p v-html="message"></p>
-
-      <!-- 商店卡牌购买列表 -->
-      <div v-if="eventType === 'shop' && shopCards.length" class="event-actions">
-        <button
-          v-for="(card, i) in shopCards"
-          :key="i"
-          class="btn-small shop-card-btn"
-          :disabled="boughtIndices.has(i) || currentGold < 50"
-          :class="{ bought: boughtIndices.has(i) }"
-          @click="buyCard(card, i)"
-        >
-          {{ card.emoji || '' }} {{ card.name }} 🪙50
-          <span v-if="boughtIndices.has(i)"> ✓</span>
-        </button>
-      </div>
 
       <!-- 篝火升级卡牌列表 -->
       <div v-if="eventType === 'bonfire'" class="bonfire-content">
@@ -84,6 +78,7 @@ import { useGameStore } from '@/stores/game'
 import { useUiStore } from '@/stores/ui'
 import { emperorRelicImgUrl, relicImgUrl } from '@/constants/images'
 import MiniCard from './MiniCard.vue'
+import TempleShop from './TempleShop.vue'
 import type { Card, Relic } from '@/types'
 
 const props = defineProps<{ visible: boolean; eventType: string }>()
@@ -104,6 +99,9 @@ const chosenRelicName = ref<string>('')
 const treasureRelic = ref<Relic | null>(null)
 
 const bonfireUpgradesLeft = computed(() => store.bonfireUpgradesLeft)
+const shopPrice = computed(() =>
+  store.player?.relics?.some(relic => relic.name === '通关文牒') ? 40 : 50
+)
 
 // 在 emperor / treasure 场景使用更大尺寸的 modal-box
 const isLargeModal = computed(() =>
@@ -137,14 +135,14 @@ async function handleEvent(et: string) {
       continueText.value = '打开宝箱'
       break
     case 'shop':
-      title.value = '🏪 商店'
-      message.value = '一位商人在这里摆摊…'
-      continueText.value = '离开商店'
+      title.value = '土地庙'
+      message.value = '香火照山门，选一张卡牌补充行囊。'
+      continueText.value = '继续前进'
       currentGold.value = store.player?.gold ?? 0
       const shopData = await store.handleEvent('browse')
       if (shopData?.shopCards) {
         shopCards.value = shopData.shopCards
-        message.value = '选择要购买的卡牌（50金币/张）· 当前金币: ' + currentGold.value
+        message.value = '每张卡牌需要供奉50金币。'
       }
       break
     case 'bonfire':
@@ -222,7 +220,7 @@ async function onContinue() {
 }
 
 async function buyCard(card: Card, index: number) {
-  if (currentGold.value < 50) {
+  if (currentGold.value < shopPrice.value) {
     ui.showToast('🪙 金币不足，无法购买')
     return
   }
@@ -232,7 +230,7 @@ async function buyCard(card: Card, index: number) {
     if (data.player) {
       currentGold.value = data.player.gold
     }
-    message.value = '选择要购买的卡牌（50金币/张）· 当前金币: ' + currentGold.value
+    message.value = '每张卡牌需要供奉50金币。'
     ui.showToast('✅ 购买成功：' + card.name)
   } else {
     ui.showToast('🪙 金币不足，购买失败')
@@ -253,6 +251,10 @@ async function doUpgrade(index: number) {
 
 function onClose() {
   emit('close')
+}
+
+function onBackdropClick() {
+  if (props.eventType !== 'shop') onClose()
 }
 </script>
 
@@ -275,6 +277,11 @@ function onClose() {
 
 .event-actions {
   margin-bottom: 16px;
+}
+
+.temple-overlay {
+  padding: 2vh 2vw;
+  background: rgba(4, 4, 12, 0.92);
 }
 
 .shop-card-btn {

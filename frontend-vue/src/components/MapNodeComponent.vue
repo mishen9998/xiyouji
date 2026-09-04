@@ -13,7 +13,7 @@
   >
     <img v-if="imgUrl" class="node-icon-img" :src="imgUrl" :alt="iconFallback" />
     <span v-else class="node-icon">{{ iconFallback }}</span>
-    <span class="node-name">{{ node.name || node.type }}</span>
+    <span class="node-name">{{ displayName }}</span>
   </div>
 </template>
 
@@ -33,6 +33,7 @@ const emit = defineEmits<{ move: [node: MapNode] }>()
 
 const imgUrl = computed(() => nodeImgUrl(props.node.type))
 const iconFallback = computed(() => NODE_ICON[props.node.type] || '❓')
+const displayName = computed(() => props.node.type === 'SHOP' ? '土地庙' : (props.node.name || props.node.type))
 
 function onClick() {
   if (props.node.accessible && !props.node.visited) {

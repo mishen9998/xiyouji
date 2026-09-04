@@ -80,25 +80,24 @@
     </div>
 
     <!-- 事件弹窗 -->
-    <div v-if="eventModalVisible" class="modal-overlay" @click.self="onEventClose">
-      <div class="modal-box">
+    <div
+      v-if="eventModalVisible"
+      class="modal-overlay"
+      :class="{ 'temple-overlay': currentEventType === 'shop' }"
+      @click.self="onEventBackdropClick"
+    >
+      <TempleShop
+        v-if="currentEventType === 'shop'"
+        :cards="shopCards"
+        :gold="myGold"
+        :bought-indices="boughtIndices"
+        :price="shopPrice"
+        @buy="buyCard"
+        @forward="onEventClose"
+      />
+      <div v-else class="modal-box">
         <h3>{{ eventTitle }}</h3>
         <p v-if="eventMessage" v-html="eventMessage"></p>
-
-        <!-- 商店 -->
-        <div v-if="currentEventType === 'shop' && shopCards.length" class="event-actions">
-          <button
-            v-for="(card, i) in shopCards"
-            :key="i"
-            class="btn-small shop-card-btn"
-            :disabled="boughtIndices.has(i) || myGold < 50"
-            :class="{ bought: boughtIndices.has(i) }"
-            @click="buyCard(card, i)"
-          >
-            {{ card.emoji || '' }} {{ card.name }} 🪙50
-            <span v-if="boughtIndices.has(i)"> ✓</span>
-          </button>
-        </div>
 
         <!-- 篝火 -->
         <div v-if="currentEventType === 'bonfire'" class="bonfire-content">
@@ -135,6 +134,7 @@ import { getCurrentUsername } from '@/api/room'
 import { EMOJI_MAP } from '@/constants/images'
 import type { MapNode, Card } from '@/types'
 import MapNodeComponent from '@/components/MapNodeComponent.vue'
+import TempleShop from '@/components/TempleShop.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -168,6 +168,13 @@ const myPlayer = computed(() => {
 })
 const myGold = computed(() => myPlayer.value?.gold || 0)
 const myDeck = computed(() => myPlayer.value?.deck || [])
+const shopPrice = computed(() =>
+  myPlayer.value?.relics?.some(relic => relic.name === '通关文牒') ? 40 : 50
+)
+
+function onEventBackdropClick() {
+  if (currentEventType.value !== 'shop') onEventClose()
+}
 const isHost = computed(() => {
   if (!room.value || !currentUserId.value) return false
   return room.value.hostUserId === currentUserId.value
@@ -269,12 +276,13 @@ async function handleEvent(et: string) {
       continueText.value = '继续'
       break
     case 'shop':
-      eventTitle.value = '🏪 商店'
+      eventTitle.value = '土地庙'
+      eventMessage.value = '香火照山门，选一张卡牌补充行囊。'
       try {
         const result = await roomStore.handleEvent('browse')
         if (result?.shopCards) shopCards.value = result.shopCards
       } catch { /* ignore */ }
-      continueText.value = '离开'
+      continueText.value = '继续前进'
       break
     case 'bonfire':
       eventTitle.value = '🔥 篝火'
@@ -522,6 +530,11 @@ watch([mapNodes, currentNode], () => {
   align-items: center;
   justify-content: center;
   z-index: 100;
+}
+
+.temple-overlay {
+  padding: 2vh 2vw;
+  background: rgba(4, 4, 12, 0.92);
 }
 
 .modal-box {

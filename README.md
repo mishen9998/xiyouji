@@ -29,6 +29,10 @@
 | --- | --- |
 | ![水墨金彩地图节点](docs/assets/demo-generated-art-map.webp) | ![水墨金彩牌组](docs/assets/demo-generated-art-deck.webp) |
 
+| 土地庙沉浸式卡牌商店 |
+| --- |
+| ![土地庙卡牌商店，展示卡面、费用、数值与购买交互](docs/assets/demo-temple-shop.webp) |
+
 插图生成范围、提示词规范与验证结果见 [生成式插图替换记录](docs/generated-artwork.md)。
 
 当前尚未提供公网 Demo。启动本地环境后可访问：

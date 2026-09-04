@@ -126,7 +126,7 @@ export const RELIC_IMG: Record<string, string> = {
   '八卦炉': 'relic_bagualu', '紫金铃': 'relic_zijinling', '袈裟': 'relic_jiasha',
   '通关文牒': 'relic_tongguanwendie', '人参果': 'relic_renshenguo', '避水珠': 'relic_bishuizhu',
   '风火轮': 'relic_fenghuolun', '照妖镜': 'relic_zhoyaojing', '甘露瓶': 'relic_ganluping',
-  '九齿钉耙': 'relic_jiuchidingpa', '降妖宝杖': 'relic_xiangyabaozhang', '定海神针': 'relic_dinghaishenzhen',
+  '九齿钉耙': 'relic_jiuchidingpa', '降妖宝杖': 'relic_xiangyabaozhang', '降魔宝杖': 'relic_xiangyabaozhang', '定海神针': 'relic_dinghaishenzhen',
   '锦襕袈裟': 'relic_jinlanjiasha',
   // 扩展宝物
   '芭蕉扇': 'relic_bajiaoshan', '九转金丹': 'relic_jiuzhuanjindan', '七星剑': 'relic_qixingjian',
@@ -147,7 +147,7 @@ export const NODE_IMG: Record<string, string> = {
 
 export const NODE_ICON: Record<string, string> = {
   BATTLE: '⚔️', BOSS: '👑', REST: '🏕️', TREASURE: '📦',
-  SHOP: '🏪', RANDOM: '❓', BONFIRE: '🔥', EMPEROR: '👑'
+  SHOP: '🏯', RANDOM: '❓', BONFIRE: '🔥', EMPEROR: '👑'
 }
 
 // 皇帝宝物图片：8件御赐宝物已纳入 RELIC_IMG，复用 relicImgUrl 返回路径
