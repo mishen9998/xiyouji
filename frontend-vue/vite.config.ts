@@ -83,7 +83,7 @@ export default defineConfig({
 
 /** 将浏览器百分号编码的中文 URL 安全地解析到插图根目录内。 */
 function illustrationPath(url: string): string | null {
-  const imageRoot = resolve(__dirname, '..', '插图')
+  const imageRoot = resolve(__dirname, '..', 'assets', 'images')
   try {
     const requestPath = decodeURIComponent(url.split('?', 1)[0].slice('/images/'.length))
     const candidate = resolve(imageRoot, requestPath)

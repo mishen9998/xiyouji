@@ -1,5 +1,7 @@
 # 生成式插图替换记录
 
+> 以下数量记录素材生成时的历史范围。2026-09-05 仓库整理后，图库源目录改为 `assets/images/`；移除了未被运行界面引用的 `node_emperor.jpg`、`debuff_weak.jpg`，并将三个重复头像合并到已有立绘。当前资源与保留参考图见 [美术目录说明](../assets/README.md)。
+
 ## 范围
 
 - 保留且未修改：人物头像、人物与敌人建模、`login_screen.jpg`、`map_background.png`。

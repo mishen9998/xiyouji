@@ -112,6 +112,25 @@ Redis 中保存权威运行状态。Pub/Sub 只传递“状态发生变化”的
 
 ## 模块设计
 
+仓库目录按用途组织，详细资料见 [文档索引](docs/README.md)：
+
+```text
+xiyouji/
+├── frontend-vue/             # Vue 页面、组件、状态与浏览器测试
+├── xiyouji-{common,domain,application,infrastructure,bootstrap}/
+├── assets/images/           # 游戏插图唯一源目录
+├── docs/                    # 使用说明、验收资料、截图
+│   └── archive/             # 历史设计稿与演示文稿
+├── 需求文档/                # Word 需求文档、开发日志、内容目录
+├── scripts/                 # 演示、集群和云端部署工具
+├── monitoring/              # Prometheus、Grafana、Sonar 配置
+├── nginx/                   # 双实例入口配置
+├── k8s/                     # Kubernetes 部署草案
+├── performance/             # k6 场景与保留的基线证据
+├── 启动演示.bat             # 本地双击入口（MySQL + Redis）
+└── 停止演示.bat             # 停止演示并保留数据卷
+```
+
 ```text
 xiyouji-parent
 ├── xiyouji-common
@@ -248,9 +267,9 @@ Linux/macOS 将 `.\mvnw.cmd` 替换为 `./mvnw`。
 | 验证项 | 结果 |
 | --- | --- |
 | 前端 TypeScript 检查与生产构建 | 通过 |
-| 前端 Vitest 单元测试 | 2 个全部通过 |
-| 前端 Playwright 浏览器 E2E | 2 个全部通过 |
-| Maven 测试 | 76 个全部通过，0 失败、0 错误、0 跳过 |
+| 前端 Vitest 单元测试 | 9 个全部通过（含完整动态图片映射检查） |
+| 前端 Playwright 浏览器 E2E | 4 个全部通过 |
+| Maven 测试 | 79 个全部通过，0 失败、0 错误、0 跳过 |
 | Testcontainers 集成测试 | 上述测试中包含 3 个 MySQL/Redis 容器集成测试 |
 | Compose 黑盒 E2E | 2 个全部通过 |
 | 跨实例通信 | 已验证共享房间状态与跨实例 STOMP 通知 |
@@ -297,7 +316,7 @@ docker compose -p xiyouji-e2e -f docker-compose.yml -f docker-compose.e2e.yml do
 
 ### 故障演练边界
 
-[故障演练脚本](scripts/distributed-failure-drill.ps1) 还需要解除对默认 Compose 项目名和容器名的假设，目前不纳入一键演示的通过证据。面试现场优先展示已自动验收的单人业务链路以及 CI 中的双实例 REST/STOMP 黑盒测试。
+旧故障演练脚本依赖已失效的固定容器名，已在仓库整理中移除。当前可复现的验收入口是 `scripts/demo.ps1 smoke` 与 CI 中的双实例 REST/STOMP 黑盒测试；历史设计稿不作为当前测试通过证据。
 
 ## CI
 

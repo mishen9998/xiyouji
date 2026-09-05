@@ -24,7 +24,7 @@ COPY xiyouji-domain/src xiyouji-domain/src
 COPY xiyouji-application/src xiyouji-application/src
 COPY xiyouji-infrastructure/src xiyouji-infrastructure/src
 COPY xiyouji-bootstrap/src xiyouji-bootstrap/src
-COPY 插图 插图
+COPY assets/images assets/images
 COPY --from=frontend-build /workspace/frontend-vue/dist/ frontend-vue/dist/
 
 # Tests run in CI before the image is built. Skip test compilation here as

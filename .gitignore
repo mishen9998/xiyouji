@@ -72,3 +72,8 @@ data/
 # GPG public key export (temp)
 gpg-public-key.txt
 .gh-config/
+
+# Office 编辑锁和 Python 临时缓存
+~$*
+__pycache__/
+*.pyc

@@ -16,6 +16,8 @@ mvnw text eol=lf
 *.ttf binary
 *.pdf binary
 *.pptx binary
+*.docx binary
 
 # Third-party minified documentation bundles are generated and not hand-edited.
-xiyouji-prd/_shared/js/*.min.js -whitespace
+docs/archive/**/_shared/js/*.min.js -whitespace
+docs/archive/_shared/js/*.min.js -whitespace

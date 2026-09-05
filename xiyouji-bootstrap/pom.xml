@@ -241,7 +241,7 @@
             </resource>
             <!-- 插图只在仓库中保留一份，打包时再复制到 JAR 的 /static/images。 -->
             <resource>
-                <directory>${project.basedir}/../插图</directory>
+                <directory>${project.basedir}/../assets/images</directory>
                 <targetPath>static/images</targetPath>
                 <filtering>false</filtering>
             </resource>

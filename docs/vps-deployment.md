@@ -33,7 +33,7 @@ chmod 600 .env.cloud
 ## 3. 部署
 
 ```bash
-bash deploy-cloud.sh
+bash scripts/deploy-cloud.sh
 ```
 
 脚本会校验密钥与镜像标签、拉取镜像、启动 MySQL/Redis/App，并验证健康接口与前端首页。任一步失败都会返回非零状态并打印应用日志。再次执行同一命令即可更新到 `.env.cloud` 指定的镜像。

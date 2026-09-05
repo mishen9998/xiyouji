@@ -51,4 +51,3 @@ export function removeGuestSaveSlot(sessionId: string) {
 export function guestSlotsAreFull(): boolean {
   return getGuestSaveSlots().length >= GUEST_SAVE_LIMIT
 }
-

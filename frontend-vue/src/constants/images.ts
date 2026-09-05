@@ -87,13 +87,13 @@ export const CHARACTER_DIR: Record<string, string> = {
   TANG_SANZANG: '唐三藏',
 }
 
-/** 角色选择页使用的头像文件（白龙马使用透明 PNG 头像）。 */
+/** 相对角色目录的头像路径；相同图片复用立绘，避免保存重复文件。 */
 export const CHARACTER_AVATAR: Record<string, string> = {
-  SUN_WUKONG: 'avatar_sunwukong.jpg',
-  ZHU_BAJIE: 'avatar_zhubajie.jpg',
-  SHA_SENG: 'avatar_shawujing.jpg',
-  BAI_LONGMA: 'bailongma.png',
-  TANG_SANZANG: 'avatar_tangsanzang.jpg',
+  SUN_WUKONG: '建模/full_sunwukong.jpg',
+  ZHU_BAJIE: '建模/full_zhubajie.jpg',
+  SHA_SENG: '建模/full_shaseng.jpg',
+  BAI_LONGMA: '头像/bailongma.png',
+  TANG_SANZANG: '头像/avatar_tangsanzang.jpg',
 }
 
 export const ENEMY_IMG: Record<string, string> = {
@@ -205,7 +205,7 @@ export function characterAvatarUrl(charClass: string): string | null {
   const characterDir = CHARACTER_DIR[charClass]
   const filename = CHARACTER_AVATAR[charClass]
   if (!characterDir || !filename) return null
-  return `/images/${characterDir}/头像/${filename}`
+  return `/images/${characterDir}/${filename}`
 }
 
 export function enemyImgUrl(name: string): string | null {
