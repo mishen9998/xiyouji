@@ -42,6 +42,9 @@ public class GameCharacter {
     private int hp;
     @Transient
     private int maxEnergy = 3;
+    /** 当前战斗开始时的临时能量加成，不跨战斗持久化或累加。 */
+    @Transient
+    private int battleStartEnergyBonus;
     @Transient
     private int energy;
     @Transient
@@ -78,6 +81,7 @@ public class GameCharacter {
     /** 初始化战斗状态 — HP继承上一场战斗的剩余值，不重置为满血 */
     public void initBattle() {
         // 不重置 maxHp 和 hp — HP 在战斗之间继承
+        this.battleStartEnergyBonus = 0;
         this.energy = maxEnergy;
         this.block = 0;
         // 力量/敏捷为战斗内属性，每场战斗重置（不跨战斗叠加）
@@ -96,7 +100,7 @@ public class GameCharacter {
 
     /** 回合开始 */
     public void startTurn() {
-        this.energy = maxEnergy + energyNextTurn;
+        this.energy = getCurrentMaxEnergy() + energyNextTurn;
         this.energyNextTurn = 0;
         this.block = 0;
         // 应用上回合累积的下回合抽牌加成
@@ -272,6 +276,19 @@ public class GameCharacter {
     public void setEmoji(String emoji) { this.emoji = emoji; }
     public int getMaxEnergy() { return maxEnergy; }
     public void setMaxEnergy(int maxEnergy) { this.maxEnergy = maxEnergy; }
+    /** 当前战斗有效的最大能量 = 基础能量 + 本场战斗临时加成。 */
+    public int getCurrentMaxEnergy() { return maxEnergy + battleStartEnergyBonus; }
+    public int getBattleStartEnergyBonus() { return battleStartEnergyBonus; }
+    /** 增加本场战斗开始时的额外能量，不修改跨战斗的基础最大能量。 */
+    public void addBattleStartEnergy(int amount) {
+        if (amount <= 0) return;
+        this.battleStartEnergyBonus += amount;
+        this.energy += amount;
+    }
+    /** 增加当前回合的临时能量，不修改最大能量。 */
+    public void addTurnStartEnergy(int amount) {
+        if (amount > 0) this.energy += amount;
+    }
     public int getEnergy() { return energy; }
     public void setEnergy(int energy) { this.energy = energy; }
     public int getGold() { return gold; }

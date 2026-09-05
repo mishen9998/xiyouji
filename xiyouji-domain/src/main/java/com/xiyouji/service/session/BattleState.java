@@ -110,7 +110,7 @@ public class BattleState {
 
         // 遗物效果：风火轮
         if (player.getRelics().stream().anyMatch(r -> "风火轮".equals(r.getName()))) {
-            player.setMaxEnergy(player.getMaxEnergy() + 1);
+            player.addTurnStartEnergy(1);
         }
 
         // 遗物效果：锦襕袈裟（唐三藏专属）— 每回合开始回复2点生命

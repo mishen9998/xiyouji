@@ -59,6 +59,27 @@ class GameCharacterTest {
     }
 
     @Test
+    @DisplayName("战斗开始额外能量按每场计算且不会跨战斗累加")
+    void testBattleStartEnergyBonus_doesNotAccumulateAcrossBattles() {
+        GameCharacter gc = createSampleCharacter();
+
+        gc.initBattle();
+        gc.addBattleStartEnergy(1);
+        assertEquals(3, gc.getMaxEnergy(), "基础最大能量应保持为 3");
+        assertEquals(4, gc.getCurrentMaxEnergy(), "本场有效最大能量应为 3+1");
+        assertEquals(4, gc.getEnergy(), "战斗开始应立即获得 3+1 点能量");
+
+        gc.setEnergy(0);
+        gc.startTurn();
+        assertEquals(4, gc.getEnergy(), "后续回合仍应按本场 3+1 点能量开始");
+
+        gc.initBattle();
+        assertEquals(3, gc.getMaxEnergy(), "下一场战斗的基础最大能量仍应为 3");
+        assertEquals(3, gc.getCurrentMaxEnergy(), "未重新触发遗物时不应继承上一场加成");
+        assertEquals(3, gc.getEnergy(), "下一场战斗应从基础 3 点能量开始");
+    }
+
+    @Test
     @DisplayName("takeDamage 正确扣除血量")
     void testTakeDamage_basic() {
         GameCharacter gc = createSampleCharacter();

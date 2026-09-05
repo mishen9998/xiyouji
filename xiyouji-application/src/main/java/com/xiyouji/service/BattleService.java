@@ -75,7 +75,6 @@ public class BattleService {
         // 初始化玩家战斗状态 — HP继承上一场战斗的剩余值
         GameCharacter player = session.getPlayer();
         player.initBattle();
-        player.setEnergy(player.getMaxEnergy());
 
         // ===== 遗物效果：硬编码的老宝物（应用到 battle.getEnemy() 而非 enemy 原始对象） =====
         Enemy battleEnemy = battle.getEnemy(); // ★ 使用 BattleState 中的副本
@@ -86,7 +85,7 @@ public class BattleService {
         }
         // 遗物效果：定海神针
         if (player.getRelics().stream().anyMatch(r -> GameConstants.RELIC_DINGHAI.equals(r.getName()))) {
-            player.setMaxEnergy(player.getMaxEnergy() + 1);
+            player.addBattleStartEnergy(1);
         }
         // 遗物效果：人参果
         if (player.getRelics().stream().anyMatch(r -> GameConstants.RELIC_RENSHENGUO.equals(r.getName()))) {
@@ -149,8 +148,7 @@ public class BattleService {
                     log.info("宝物[{}]触发: 玩家+{}金币", relic.getName(), gold);
                 } else if (p.startsWith("ENERGY:")) {
                     int en = Integer.parseInt(p.substring(7));
-                    player.setMaxEnergy(player.getMaxEnergy() + en);
-                    player.setEnergy(player.getEnergy() + en);
+                    player.addBattleStartEnergy(en);
                     log.info("宝物[{}]触发: 玩家+{}能量", relic.getName(), en);
                 } else if (p.startsWith("MAX_HP:")) {
                     int hpChange = Integer.parseInt(p.substring(7));
@@ -513,7 +511,7 @@ public class BattleService {
         playerInfo.put("maxHp", player.getMaxHp());
         playerInfo.put("block", player.getBlock());
         playerInfo.put("energy", player.getEnergy());
-        playerInfo.put("maxEnergy", player.getMaxEnergy());
+        playerInfo.put("maxEnergy", player.getCurrentMaxEnergy());
         playerInfo.put("strength", player.getStrength());
         playerInfo.put("dexterity", player.getDexterity());
         playerInfo.put("emoji", player.getEmoji() != null ? player.getEmoji() :

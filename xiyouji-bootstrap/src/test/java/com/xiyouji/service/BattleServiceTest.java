@@ -4,9 +4,11 @@ import com.xiyouji.model.Card;
 import com.xiyouji.model.Enemy;
 import com.xiyouji.model.GameCharacter;
 import com.xiyouji.model.MapNode;
+import com.xiyouji.model.Relic;
 import com.xiyouji.model.enums.CardType;
 import com.xiyouji.model.enums.CharacterClass;
 import com.xiyouji.model.enums.Rarity;
+import com.xiyouji.model.enums.RelicTier;
 import com.xiyouji.port.CardRepositoryPort;
 import com.xiyouji.port.EnemyRepositoryPort;
 import com.xiyouji.service.session.BattleState;
@@ -89,6 +91,39 @@ class BattleServiceTest {
         assertEquals(80, player.getHp(), "玩家 hp 应继承初始值");
 
         verify(gameService).saveSession(session);
+    }
+
+    @Test
+    @DisplayName("战斗开始额外能量不会跨战斗累加")
+    void testStartBattle_energyRelicIsPerBattleBonus() {
+        String sessionId = "test-energy-relic-session";
+        GameCharacter player = new GameCharacter();
+        player.setCharacterClass(CharacterClass.SUN_WUKONG);
+        player.setMaxHp(80);
+        player.setHp(80);
+        player.setMaxEnergy(3);
+        player.getRelics().add(new Relic("定海神针", "战斗开始时获得1点额外能量。", RelicTier.BOSS, null));
+
+        MapNode node = new MapNode("L1-R0-C0", 1, 0, 0, "BATTLE", "黑风山");
+        node.setEnemyId("1");
+        GameSession session = new GameSession(sessionId, player, List.of(node));
+        session.setCurrentNode(node);
+
+        Enemy template = new Enemy("小妖", 30, 10, 2, false, 1);
+        template.setId(1L);
+        template.setMovePattern(List.of("attack"));
+        when(gameService.getSession(sessionId)).thenReturn(session);
+        when(enemyRepo.findById(1L)).thenReturn(Optional.of(template));
+
+        battleService.startBattle(sessionId);
+        assertEquals(3, player.getMaxEnergy(), "遗物不应修改跨战斗基础最大能量");
+        assertEquals(4, player.getCurrentMaxEnergy(), "本场应为基础3+遗物1");
+        assertEquals(4, player.getEnergy(), "战斗开始应获得4点能量");
+
+        battleService.startBattle(sessionId);
+        assertEquals(3, player.getMaxEnergy(), "第二场基础最大能量仍应为3");
+        assertEquals(4, player.getCurrentMaxEnergy(), "第二场仍应重新计算为3+1，而不是继续累加");
+        assertEquals(4, player.getEnergy(), "第二场战斗开始仍应为4点能量");
     }
 
     @Test

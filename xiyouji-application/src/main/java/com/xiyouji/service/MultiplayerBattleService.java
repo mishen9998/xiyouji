@@ -856,7 +856,7 @@ public class MultiplayerBattleService {
             pInfo.put("maxHp", gc.getMaxHp());
             pInfo.put("block", gc.getBlock());
             pInfo.put("energy", gc.getEnergy());
-            pInfo.put("maxEnergy", gc.getMaxEnergy());
+            pInfo.put("maxEnergy", gc.getCurrentMaxEnergy());
             pInfo.put("strength", gc.getStrength());
             pInfo.put("dexterity", gc.getDexterity());
             pInfo.put("endedTurn", p.isEndedTurn());
