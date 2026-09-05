@@ -1,5 +1,8 @@
 # 西游记：西行之路
 
+当前公网 IP 演示：[打开游戏](http://114.132.55.119/)（HTTP/WS，建议游客模式）。
+新电脑启动与双人协作见 [团队开发说明](docs/team-development.md)，线上运行边界见 [IP 部署记录](docs/ip-deployment-20260906.md)。
+
 [![CI](https://github.com/mishen9998/xiyouji/actions/workflows/ci.yml/badge.svg?branch=codex%2Fmultimodule-distributed)](https://github.com/mishen9998/xiyouji/actions/workflows/ci.yml?query=branch%3Acodex%2Fmultimodule-distributed)
 
 基于 Spring Boot 3.4 与 Vue 3 的西游记 Roguelike 卡牌游戏，支持单人闯关和最多 5 人实时协作；后端采用五模块模块化单体，并完成 Redis 共享状态下的双实例一致性验证。
@@ -35,7 +38,7 @@
 
 插图生成范围、提示词规范与验证结果见 [生成式插图替换记录](docs/generated-artwork.md)。
 
-当前尚未提供公网 Demo。启动本地环境后可访问：
+已提供上述公网 IP Demo。启动本地环境后可访问：
 
 - 游戏页面：<http://localhost:8080>
 - Swagger UI：<http://localhost:8080/swagger-ui/index.html>
@@ -371,6 +374,6 @@ docker run --rm \
 - [ ] 逐步移除领域层与应用层的框架依赖。
 - [ ] 在真实 Kubernetes 集群验证部署、扩缩容、滚动升级与故障恢复。
 
-当前没有公网 Demo；前端自动化仍只覆盖关键路径，尚需扩展多人和失败场景；部分 Service/Controller 仍较大。公开分发前还应补充项目 LICENSE，以及插画、字体等素材的来源与授权说明。
+当前公网 Demo 使用单实例 HTTP/WS；前端自动化仍只覆盖关键路径，尚需扩展多人和失败场景；部分 Service/Controller 仍较大。公开分发前还应补充项目 LICENSE，以及插画、字体等素材的来源与授权说明。
 
 公网展示的安全上线步骤见 [VPS 精简部署指南](docs/vps-deployment.md)；可直接粘贴到简历的文案见 [简历项目经历](docs/resume-project-experience.md)。对于求职展示，本项目优先提供可运行代码、通过的 CI、复现命令和清晰的技术取舍，而不是继续叠加尚未形成实际价值的中间件。
