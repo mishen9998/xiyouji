@@ -102,7 +102,9 @@ class BattleServiceTest {
         player.setMaxHp(80);
         player.setHp(80);
         player.setMaxEnergy(3);
-        player.getRelics().add(new Relic("定海神针", "战斗开始时获得1点额外能量。", RelicTier.BOSS, null));
+        Relic energyRelic = new Relic("定海神针", "战斗开始时获得1点额外能量。", RelicTier.BOSS, null);
+        energyRelic.setEffect("BATTLE_START;ENERGY:1");
+        player.getRelics().add(energyRelic);
 
         MapNode node = new MapNode("L1-R0-C0", 1, 0, 0, "BATTLE", "黑风山");
         node.setEnemyId("1");

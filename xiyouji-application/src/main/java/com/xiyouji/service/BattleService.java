@@ -84,7 +84,13 @@ public class BattleService {
             player.setStrength(player.getStrength() + 2);
         }
         // 遗物效果：定海神针
-        if (player.getRelics().stream().anyMatch(r -> GameConstants.RELIC_DINGHAI.equals(r.getName()))) {
+        // 兼容旧数据：如果遗物已经通过 effect 字段声明 ENERGY，就交给下面的通用解析，避免重复触发。
+        boolean dinghaiHasConfiguredEnergy = player.getRelics().stream().anyMatch(r ->
+                GameConstants.RELIC_DINGHAI.equals(r.getName())
+                        && r.getEffect() != null
+                        && r.getEffect().contains("ENERGY:"));
+        if (!dinghaiHasConfiguredEnergy && player.getRelics().stream()
+                .anyMatch(r -> GameConstants.RELIC_DINGHAI.equals(r.getName()))) {
             player.addBattleStartEnergy(1);
         }
         // 遗物效果：人参果
