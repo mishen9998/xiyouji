@@ -82,10 +82,13 @@ function Ensure-DockerEngine {
 
     $desktopCandidates = @(
         (Join-Path $env:ProgramFiles 'Docker\Docker\Docker Desktop.exe'),
-        (if (${env:ProgramFiles(x86)}) { Join-Path ${env:ProgramFiles(x86)} 'Docker\Docker\Docker Desktop.exe' }),
         (Join-Path $env:LOCALAPPDATA 'Programs\DockerDesktop\Docker Desktop.exe'),
         (Join-Path $env:LOCALAPPDATA 'Programs\Docker\Docker\Docker Desktop.exe')
-    ) | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) }
+    )
+    if (${env:ProgramFiles(x86)}) {
+        $desktopCandidates += Join-Path ${env:ProgramFiles(x86)} 'Docker\Docker\Docker Desktop.exe'
+    }
+    $desktopCandidates = $desktopCandidates | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) }
     $desktop = $desktopCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
     if (-not $desktop) {
         throw 'Docker Engine is not running. Start Docker Desktop and retry.'
@@ -137,9 +140,12 @@ function Open-DemoBrowser {
 
     $browserCandidates = @(
         (Join-Path $env:ProgramFiles 'Google\Chrome\Application\chrome.exe'),
-        (if (${env:ProgramFiles(x86)}) { Join-Path ${env:ProgramFiles(x86)} 'Microsoft\Edge\Application\msedge.exe' }),
         (Join-Path $env:ProgramFiles 'Microsoft\Edge\Application\msedge.exe')
-    ) | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) }
+    )
+    if (${env:ProgramFiles(x86)}) {
+        $browserCandidates += Join-Path ${env:ProgramFiles(x86)} 'Microsoft\Edge\Application\msedge.exe'
+    }
+    $browserCandidates = $browserCandidates | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) }
 
     $browser = $browserCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
     if ($browser) {

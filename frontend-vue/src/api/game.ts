@@ -62,17 +62,58 @@ async function parseFailure(res: Response): Promise<never> {
 
 // ====== JWT Token 管理 ======
 const TOKEN_KEY = 'xiyouji_jwt_token'
+const AUTH_PROFILE_KEY = 'xiyouji_auth_profile'
+const GUEST_TOKEN_KEY = 'xiyouji_guest_jwt_token'
+const GUEST_PROFILE_KEY = 'xiyouji_guest_auth_profile'
+
+export interface AuthProfile {
+  account: string
+  username: string
+  role: string
+}
+
+export interface AuthResult extends AuthProfile {
+  token: string
+}
 
 function getToken(): string | null {
   try { return localStorage.getItem(TOKEN_KEY) } catch { return null }
 }
 
-function setToken(token: string) {
-  try { localStorage.setItem(TOKEN_KEY, token) } catch {}
+function getProfile(): AuthProfile | null {
+  try {
+    const raw = localStorage.getItem(AUTH_PROFILE_KEY)
+    return raw ? JSON.parse(raw) as AuthProfile : null
+  } catch { return null }
 }
 
-function clearToken() {
-  try { localStorage.removeItem(TOKEN_KEY) } catch {}
+function setAuth(result: AuthResult, rememberGuest = false) {
+  const profile: AuthProfile = {
+    account: result.account || result.username,
+    username: result.username,
+    role: result.role,
+  }
+  try {
+    localStorage.setItem(TOKEN_KEY, result.token)
+    localStorage.setItem(AUTH_PROFILE_KEY, JSON.stringify(profile))
+    if (rememberGuest) {
+      localStorage.setItem(GUEST_TOKEN_KEY, result.token)
+      localStorage.setItem(GUEST_PROFILE_KEY, JSON.stringify(profile))
+    }
+  } catch {}
+}
+
+function clearActiveAuth(purgeRememberedGuest = false) {
+  try {
+    const activeToken = localStorage.getItem(TOKEN_KEY)
+    const guestToken = localStorage.getItem(GUEST_TOKEN_KEY)
+    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(AUTH_PROFILE_KEY)
+    if (purgeRememberedGuest && activeToken && activeToken === guestToken) {
+      localStorage.removeItem(GUEST_TOKEN_KEY)
+      localStorage.removeItem(GUEST_PROFILE_KEY)
+    }
+  } catch {}
 }
 
 function isAuthFailure(status: number): boolean {
@@ -82,20 +123,11 @@ function isAuthFailure(status: number): boolean {
   return status === 401 || status === 403
 }
 
-/** 获取游客 Token（如果没有则自动登录） */
+/** 获取用户主动选择登录/注册/游客模式后保存的 Token。 */
 async function ensureToken(): Promise<string> {
   const cached = getToken()
   if (cached) return cached
-
-  // 自动游客登录
-  const res = await fetch(`${AUTH_API}/guest`, {
-    method: 'POST', headers: { 'X-Idempotency-Key': createIdempotencyKey() }
-  })
-  if (!res.ok) throw new Error('游客登录失败')
-  const data = await res.json()
-  const token: string = data.token
-  if (token) setToken(token)
-  return token
+  throw new Error('请先选择登录、注册或游客模式')
 }
 
 /** 带 Token 的请求头 */
@@ -120,19 +152,10 @@ export async function postJson(url: string, body?: unknown, options: CommandOpti
     body: body ? JSON.stringify(body) : undefined,
   })
 
-  // 401/403 时清除缓存 Token 并重试一次
+  // 登录已过期时返回认证错误，让界面回到登录页；不再静默创建新游客。
   if (isAuthFailure(res.status)) {
-    clearToken()
-    const retryHeaders = commandHeaders(await authHeaders(), commandOptions)
-    const retryRes = await fetch(url, {
-      method: 'POST',
-      headers: retryHeaders,
-      body: body ? JSON.stringify(body) : undefined,
-    })
-    if (!retryRes.ok) {
-      return parseFailure(retryRes)
-    }
-    return retryRes.json()
+    clearActiveAuth(true)
+    return parseFailure(res)
   }
 
   if (!res.ok) {
@@ -146,14 +169,8 @@ export async function getJson(url: string): Promise<any> {
   const res = await fetch(url, { headers })
 
   if (isAuthFailure(res.status)) {
-    clearToken()
-    const retryHeaders = await authHeaders()
-    const retryRes = await fetch(url, { headers: retryHeaders })
-    if (!retryRes.ok) {
-      const err = await retryRes.json().catch(() => ({}))
-      throw new Error(err.message || err.error || `HTTP ${retryRes.status}`)
-    }
-    return retryRes.json()
+    clearActiveAuth(true)
+    return parseFailure(res)
   }
 
   if (!res.ok) {
@@ -169,13 +186,8 @@ async function deleteJson(url: string, options: CommandOptions = {}): Promise<an
   const res = await fetch(url, { method: 'DELETE', headers })
 
   if (isAuthFailure(res.status)) {
-    clearToken()
-    const retryHeaders = commandHeaders(await authHeaders(), commandOptions)
-    const retryRes = await fetch(url, { method: 'DELETE', headers: retryHeaders })
-    if (!retryRes.ok) {
-      return parseFailure(retryRes)
-    }
-    return
+    clearActiveAuth(true)
+    return parseFailure(res)
   }
 
   if (!res.ok) {
@@ -185,32 +197,42 @@ async function deleteJson(url: string, options: CommandOptions = {}): Promise<an
 
 // ====== 认证 API ======
 export const authApi = {
-  async guestLogin(): Promise<{ token: string; username: string; role: string }> {
+  async guestLogin(): Promise<AuthResult> {
+    try {
+      const savedToken = localStorage.getItem(GUEST_TOKEN_KEY)
+      const savedProfileRaw = localStorage.getItem(GUEST_PROFILE_KEY)
+      if (savedToken && savedProfileRaw) {
+        const savedProfile = JSON.parse(savedProfileRaw) as AuthProfile
+        const result: AuthResult = { ...savedProfile, token: savedToken }
+        setAuth(result, true)
+        return result
+      }
+    } catch {}
     const res = await fetch(`${AUTH_API}/guest`, {
       method: 'POST', headers: { 'X-Idempotency-Key': createIdempotencyKey() }
     })
     if (!res.ok) throw new Error('游客登录失败')
-    const data = await res.json()
-    if (data.token) setToken(data.token)
+    const data = await res.json() as AuthResult
+    if (data.token) setAuth(data, true)
     return data
   },
 
-  async login(username: string, password: string): Promise<{ token: string; username: string; role: string }> {
+  async login(account: string, password: string): Promise<AuthResult> {
     const res = await fetch(`${AUTH_API}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Idempotency-Key': createIdempotencyKey() },
-      body: JSON.stringify({ username, password })
+      body: JSON.stringify({ account, password })
     })
     if (!res.ok) {
       const err = await res.json().catch(() => ({}))
       throw new Error(err.message || err.error || '登录失败')
     }
-    const data = await res.json()
-    if (data.token) setToken(data.token)
+    const data = await res.json() as AuthResult
+    if (data.token) setAuth(data)
     return data
   },
 
-  async register(username: string, password: string): Promise<{ token: string; username: string; role: string }> {
+  async register(account: string, username: string, password: string): Promise<AuthResult> {
     const res = await fetch(`${AUTH_API}/register`, {
       method: 'POST',
       headers: {
@@ -220,19 +242,23 @@ export const authApi = {
         // second account or surfacing a duplicate-user error.
         'X-Idempotency-Key': createIdempotencyKey(),
       },
-      body: JSON.stringify({ username, password })
+      body: JSON.stringify({ account, username, password })
     })
     if (!res.ok) {
       const err = await res.json().catch(() => ({}))
       throw new Error(err.message || err.error || '注册失败')
     }
-    const data = await res.json()
-    if (data.token) setToken(data.token)
+    const data = await res.json() as AuthResult
+    if (data.token) setAuth(data)
     return data
   },
 
   getToken,
-  clearToken,
+  getProfile,
+  // Switching identity keeps the remembered guest identity so its three save
+  // slots remain reachable. Authentication failures purge an invalid guest.
+  logout: () => clearActiveAuth(false),
+  clearToken: () => clearActiveAuth(true),
 }
 
 // ====== 游戏 API ======

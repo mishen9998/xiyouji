@@ -341,7 +341,7 @@ async function handleEndTurn() {
 
 function handleReturn() {
   roomStore.reset()
-  router.push('/')
+  router.push('/menu')
 }
 
 // ====== 宝物奖励相关 ======

@@ -4,7 +4,7 @@ cd /d "%~dp0"
 echo Starting Journey to the West. Keep this window open.
 echo The first launch may take several minutes; later launches are faster.
 echo.
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\demo.ps1" up -NoBuild
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\demo.ps1" up
 if errorlevel 1 (
   echo.
   echo Game startup failed. Read the error shown above.

@@ -38,8 +38,9 @@ public class AuthController {
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request,
                                                  @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
         String fingerprint = CommandGuard.fingerprint("POST", "/api/auth/register",
-                request.getUsername() + "|" + request.getPassword());
-        String scope = "auth:register:" + request.getUsername();
+                request.getAccount() + "|" + request.getUsername() + "|" + request.getPassword());
+        String account = request.getAccount() == null ? request.getUsername() : request.getAccount();
+        String scope = "auth:register:" + account;
         var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
         if (previous != null && previous.completed()) return ResponseEntity.ok(readResponse(previous.value()));
         try {

@@ -1,14 +1,31 @@
 // ====== 游戏全局状态 Store ======
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { gameApi } from '@/api/game'
+import { authApi, gameApi } from '@/api/game'
 import { useUiStore } from './ui'
+import {
+  addGuestSaveSlot,
+  getGuestSaveSlots,
+  guestSlotsAreFull,
+  removeGuestSaveSlot,
+  type GuestSaveSlot,
+} from './guestSaves'
 import type {
   CharacterClass, Player, MapNode as GameMapNode,
   BattleInfo, Rewards, GameState
 } from '@/types'
 
 const SESSION_KEY = 'xiyouji_session_id'
+
+export class GuestSaveLimitError extends Error {
+  readonly slots: GuestSaveSlot[]
+
+  constructor(slots: GuestSaveSlot[]) {
+    super('游客最多保留三个存档，请选择一个覆盖')
+    this.name = 'GuestSaveLimitError'
+    this.slots = slots
+  }
+}
 
 export const useGameStore = defineStore('game', () => {
   const uiStore = useUiStore()
@@ -32,21 +49,53 @@ export const useGameStore = defineStore('game', () => {
 
   // ====== Actions ======
 
+  function sessionStorageKey() {
+    const profile = authApi.getProfile()
+    if (!profile) return SESSION_KEY
+    const identity = profile.account || profile.username
+    return `${SESSION_KEY}:${profile.role}:${identity}`
+  }
+
   function saveSessionLocal() {
     if (sessionId.value) {
-      try { localStorage.setItem(SESSION_KEY, sessionId.value) } catch (e) { /* ignore */ }
+      try { localStorage.setItem(sessionStorageKey(), sessionId.value) } catch (e) { /* ignore */ }
     }
   }
 
   function clearSessionLocal() {
-    try { localStorage.removeItem(SESSION_KEY) } catch (e) { /* ignore */ }
+    try { localStorage.removeItem(sessionStorageKey()) } catch (e) { /* ignore */ }
   }
 
   function getSavedSessionId(): string | null {
-    try { return localStorage.getItem(SESSION_KEY) } catch (e) { return null }
+    try {
+      const scoped = localStorage.getItem(sessionStorageKey())
+      if (scoped) return scoped
+      // 兼容升级前只有一个全局存档指针的浏览器。
+      return localStorage.getItem(SESSION_KEY)
+    } catch (e) { return null }
   }
 
-  async function startNewGame(charClass: CharacterClass) {
+  async function startNewGame(charClass: CharacterClass, replaceSessionId?: string) {
+    const profile = authApi.getProfile()
+    const isGuest = profile?.role === 'GUEST'
+    const existingSlots = isGuest ? getGuestSaveSlots() : []
+    if (isGuest && guestSlotsAreFull() && !replaceSessionId) {
+      throw new GuestSaveLimitError(existingSlots)
+    }
+    if (replaceSessionId && !existingSlots.some(slot => slot.sessionId === replaceSessionId)) {
+      throw new Error('要覆盖的游客存档不存在')
+    }
+
+    let replacedVersion: number | null = null
+    if (replaceSessionId) {
+      try {
+        const previous = await gameApi.getState(replaceSessionId)
+        replacedVersion = previous.stateVersion ?? 0
+      } catch {
+        // 旧存档可能已过期；仍允许用新存档替换本地槽位。
+      }
+    }
+
     const data = await gameApi.newGame(charClass)
     sessionId.value = data.sessionId
     stateVersion.value = data.stateVersion ?? 0
@@ -59,6 +108,17 @@ export const useGameStore = defineStore('game', () => {
     inBattle.value = false
     battleInfo.value = null
     saveSessionLocal()
+
+    if (isGuest) {
+      addGuestSaveSlot({
+        sessionId: data.sessionId,
+        characterClass: charClass,
+        createdAt: new Date().toISOString(),
+      }, replaceSessionId)
+      if (replaceSessionId && replacedVersion !== null) {
+        try { await gameApi.deleteSession(replaceSessionId, replacedVersion) } catch { /* 新存档已成功，不回滚 */ }
+      }
+    }
   }
 
   async function refreshState() {
@@ -84,8 +144,8 @@ export const useGameStore = defineStore('game', () => {
     throw error
   }
 
-  async function loadSavedSession(): Promise<GameState | null> {
-    const savedId = getSavedSessionId()
+  async function loadSavedSession(requestedSessionId?: string): Promise<GameState | null> {
+    const savedId = requestedSessionId || getSavedSessionId()
     if (!savedId) return null
     try {
       const data: GameState = await gameApi.getState(savedId)
@@ -98,6 +158,7 @@ export const useGameStore = defineStore('game', () => {
       currentLayer.value = data.currentLayer || 1
       maxLayer.value = data.maxLayer || 3
       inBattle.value = data.inBattle
+      saveSessionLocal()
       return data
     } catch (e: any) {
       console.error('loadSavedSession error:', e)
@@ -119,15 +180,26 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  async function deleteSavedSession() {
-    const savedId = getSavedSessionId()
+  async function deleteSavedSession(requestedSessionId?: string) {
+    const savedId = requestedSessionId || getSavedSessionId()
     if (!savedId) return
+    let version = stateVersion.value
+    if (savedId !== sessionId.value) {
+      try {
+        const saved = await gameApi.getState(savedId)
+        version = saved.stateVersion ?? 0
+      } catch {
+        removeGuestSaveSlot(savedId)
+        return
+      }
+    }
     try {
-      await gameApi.deleteSession(savedId, stateVersion.value)
+      await gameApi.deleteSession(savedId, version)
     } catch (error) {
       await recoverFromConflict(error)
     }
-    clearSessionLocal()
+    removeGuestSaveSlot(savedId)
+    if (getSavedSessionId() === savedId) clearSessionLocal()
     if (sessionId.value === savedId) {
       sessionId.value = null
       stateVersion.value = 0
@@ -241,7 +313,7 @@ export const useGameStore = defineStore('game', () => {
     rewards.value = null
   }
 
-  function clearAll() {
+  function clearAll(preserveSavedSession = false) {
     sessionId.value = null
     selectedCharacter.value = null
     player.value = null
@@ -251,7 +323,7 @@ export const useGameStore = defineStore('game', () => {
     inBattle.value = false
     battleInfo.value = null
     rewards.value = null
-    clearSessionLocal()
+    if (!preserveSavedSession) clearSessionLocal()
   }
 
   return {
@@ -265,5 +337,6 @@ export const useGameStore = defineStore('game', () => {
     deleteSavedSession, moveToNode, startBattle, playCard, endTurn,
     chooseCardReward, nextLayer, handleEvent, upgradeCard,
     resetBattle, clearAll, getSavedSessionId, saveSessionLocal, clearSessionLocal,
+    getGuestSaveSlots,
   }
 })

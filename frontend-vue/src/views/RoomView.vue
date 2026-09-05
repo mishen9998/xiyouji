@@ -291,11 +291,11 @@ function handleBack() {
       cancelText: '取消',
       onOk: async () => {
         await roomStore.leaveRoom()
-        router.push('/')
+        router.push('/menu')
       },
     })
   } else {
-    router.push('/')
+    router.push('/menu')
   }
 }
 </script>

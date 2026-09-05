@@ -2,6 +2,11 @@
 <template>
   <div class="home">
     <div class="home-overlay"></div>
+    <div class="identity-bar" v-if="profile">
+      <span>{{ profile.username }}</span>
+      <small>{{ profile.role === 'GUEST' ? `游客 · ${guestSlotCount}/3 存档` : '注册用户' }}</small>
+      <button type="button" @click="switchIdentity">切换身份</button>
+    </div>
     <div class="home-content">
       <h1 class="title">西行之路</h1>
       <p class="subtitle">Journey to the West · Roguelike</p>
@@ -24,14 +29,35 @@
         </button>
       </div>
     </div>
+
+    <div v-if="showSlotPicker" class="modal-overlay" @click.self="showSlotPicker = false">
+      <section class="modal-box save-picker" aria-labelledby="save-picker-title">
+        <h3 id="save-picker-title">选择游客存档</h3>
+        <p>当前浏览器保存了 {{ guestSlots.length }} 个游客进度。</p>
+        <button
+          v-for="(slot, index) in guestSlots"
+          :key="slot.sessionId"
+          class="save-slot"
+          type="button"
+          @click="loadSlot(slot.sessionId)"
+        >
+          <b>存档 {{ index + 1 }}</b>
+          <span>{{ characterName(slot.characterClass) }}</span>
+          <small>{{ formatTime(slot.createdAt) }}</small>
+        </button>
+        <button class="btn-small" type="button" @click="showSlotPicker = false">取消</button>
+      </section>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { authApi } from '@/api/game'
 import { useGameStore } from '@/stores/game'
 import { useUiStore } from '@/stores/ui'
+import type { GuestSaveSlot } from '@/stores/guestSaves'
 import { EMOJI_MAP } from '@/constants/images'
 import type { GameState } from '@/types'
 
@@ -40,6 +66,24 @@ const gameStore = useGameStore()
 const uiStore = useUiStore()
 
 const loading = ref(false)
+const showSlotPicker = ref(false)
+const guestSlots = ref<GuestSaveSlot[]>(gameStore.getGuestSaveSlots())
+const profile = computed(() => authApi.getProfile())
+const guestSlotCount = computed(() => guestSlots.value.length)
+
+const characterNames: Record<string, string> = {
+  SUN_WUKONG: '孙悟空', ZHU_BAJIE: '猪八戒', SHA_SENG: '沙僧',
+  BAI_LONGMA: '白龙马', TANG_SANZANG: '唐三藏',
+}
+
+function characterName(characterClass: string) {
+  return characterNames[characterClass] || characterClass
+}
+
+function formatTime(value: string) {
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? '创建时间未知' : date.toLocaleString('zh-CN', { hour12: false })
+}
 
 function handleSinglePlayer() {
   router.push('/char-select')
@@ -50,15 +94,27 @@ function handleMultiplayer() {
 }
 
 async function handleLoadGame() {
-  const savedId = gameStore.getSavedSessionId()
+  if (profile.value?.role === 'GUEST') {
+    guestSlots.value = gameStore.getGuestSaveSlots()
+    if (guestSlots.value.length > 1) {
+      showSlotPicker.value = true
+      return
+    }
+  }
+  const savedId = guestSlots.value[0]?.sessionId || gameStore.getSavedSessionId()
   if (!savedId) {
     uiStore.showToast('没有找到存档')
     return
   }
 
+  await loadSlot(savedId)
+}
+
+async function loadSlot(savedId: string) {
+  showSlotPicker.value = false
   loading.value = true
   try {
-    const data: GameState | null = await gameStore.loadSavedSession()
+    const data: GameState | null = await gameStore.loadSavedSession(savedId)
     if (!data || !data.player) {
       uiStore.showToast('存档已失效或不存在')
       return
@@ -93,7 +149,8 @@ async function handleLoadGame() {
           okText: '确认删除',
           cancelText: '取消',
           onOk: async () => {
-            await gameStore.deleteSavedSession()
+            await gameStore.deleteSavedSession(savedId)
+            guestSlots.value = gameStore.getGuestSaveSlots()
             uiStore.showToast('存档已删除')
           },
         })
@@ -104,6 +161,12 @@ async function handleLoadGame() {
   } finally {
     loading.value = false
   }
+}
+
+async function switchIdentity() {
+  gameStore.clearAll(true)
+  authApi.logout()
+  await router.push('/')
 }
 
 function handleExit() {
@@ -140,6 +203,53 @@ function handleExit() {
   bottom: 0;
   background: rgba(15, 14, 23, 0.6);
 }
+
+.identity-bar {
+  position: absolute;
+  top: 20px;
+  right: 22px;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 10px;
+  align-items: center;
+  padding: 9px 11px 9px 15px;
+  border: 1px solid rgba(242, 169, 0, .22);
+  border-radius: 999px;
+  background: rgba(20, 17, 25, .76);
+  backdrop-filter: blur(8px);
+}
+.identity-bar span { color: #fff2cf; font-weight: 700; }
+.identity-bar small { grid-column: 1; color: var(--text-muted); font-size: 10px; }
+.identity-bar button {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  border: 0;
+  border-left: 1px solid rgba(255,255,255,.12);
+  padding-left: 10px;
+  background: transparent;
+  color: var(--gold);
+  cursor: pointer;
+}
+
+.save-picker { display: grid; gap: 10px; }
+.save-slot {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  border: 1px solid rgba(242,169,0,.2);
+  border-radius: 10px;
+  padding: 13px 14px;
+  background: rgba(255,255,255,.04);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+.save-slot:hover { border-color: var(--gold); background: rgba(242,169,0,.08); }
+.save-slot span { color: var(--gold); }
+.save-slot small { color: var(--text-muted); }
 
 .home-content {
   position: relative;

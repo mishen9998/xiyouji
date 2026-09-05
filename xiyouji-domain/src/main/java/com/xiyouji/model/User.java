@@ -14,6 +14,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** 唯一登录账号。旧数据由 Flyway 使用原 username 回填。 */
+    @Column(nullable = false, unique = true, length = 50)
+    private String account;
+
+    /** 玩家在界面和房间中显示的名称。 */
     @Column(nullable = false, unique = true)
     private String username;
 
@@ -32,6 +37,9 @@ public class User {
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public String getAccount() { return account; }
+    public void setAccount(String account) { this.account = account; }
 
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }

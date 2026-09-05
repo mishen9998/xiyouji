@@ -7,13 +7,24 @@ import jakarta.validation.constraints.NotBlank;
  */
 public class LoginRequest {
 
-    @NotBlank(message = "用户名不能为空")
+    /** 新版客户端使用 account 登录。 */
+    private String account;
+
+    /** 兼容旧客户端：未提供 account 时仍接受 username。 */
     private String username;
 
     @NotBlank(message = "密码不能为空")
     private String password;
 
     public LoginRequest() {
+    }
+
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
     }
 
     public String getUsername() {

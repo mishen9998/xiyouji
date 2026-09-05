@@ -48,7 +48,7 @@
 - 单人 Roguelike 闯关：五种角色、随机地图、卡牌战斗、奖励选择、牌组调整和多层推进。
 - 多人实时协作：房间创建/加入、唯一角色选择、准备状态、共享地图和多人战斗。
 - 单个房间最多 5 人，服务端使用状态版本约束并发修改。
-- 后端提供注册、登录和游客身份 API；当前前端默认自动获取游客 JWT。
+- 双击启动后先进入身份页，可选择注册、登录或游客模式；注册账户信息存入 MySQL，游客游戏状态存入 Redis，浏览器保留最多三个游客存档索引并支持选择覆盖。
 - 前端通过 REST 获取权威状态，通过 STOMP WebSocket 接收实时变化通知。
 
 ### 工程能力
@@ -159,7 +159,7 @@ common ← domain ← application ← infrastructure ← bootstrap
 
 ### Windows 一键演示（推荐）
 
-已安装 Docker Desktop 时，直接双击 [启动演示.bat](启动演示.bat)。它会优先使用已有镜像快速启动；第一次运行或本地没有镜像时才执行完整构建。修改代码后如需重新打包，双击 [重新构建游戏.bat](重新构建游戏.bat)。也可以执行：
+已安装 Docker Desktop 时，直接双击 [启动演示.bat](启动演示.bat)。它会构建并启动最新代码；第一次运行可能需要几分钟，后续会复用 Docker 构建缓存。也可以执行：
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\demo.ps1 up

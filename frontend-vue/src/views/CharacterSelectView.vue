@@ -14,7 +14,7 @@
     </Transition>
     <div class="character-shade" :class="{ visible: selectedCharacter }"></div>
 
-    <button type="button" class="btn-back" @click="router.push('/')">← 返回首页</button>
+    <button type="button" class="btn-back" @click="router.push('/menu')">← 返回首页</button>
 
     <h1 class="page-title">选择你的角色</h1>
 
@@ -55,14 +55,35 @@
     >
       {{ starting ? '正在进入...' : '开始西行' }}
     </button>
+
+    <div v-if="showOverwritePicker" class="modal-overlay overwrite-overlay" @click.self="showOverwritePicker = false">
+      <section class="modal-box overwrite-box" aria-labelledby="overwrite-title">
+        <h3 id="overwrite-title">三个游客存档已满</h3>
+        <p>请选择一个旧存档覆盖。新游戏创建成功后，旧存档才会被删除。</p>
+        <button
+          v-for="(slot, index) in fullGuestSlots"
+          :key="slot.sessionId"
+          class="overwrite-slot"
+          type="button"
+          :disabled="starting"
+          @click="replaceSlot(slot)"
+        >
+          <b>覆盖存档 {{ index + 1 }}</b>
+          <span>{{ characterLabel(slot.characterClass) }}</span>
+          <small>{{ formatTime(slot.createdAt) }}</small>
+        </button>
+        <button class="btn-small" type="button" :disabled="starting" @click="showOverwritePicker = false">取消</button>
+      </section>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useGameStore } from '@/stores/game'
+import { GuestSaveLimitError, useGameStore } from '@/stores/game'
 import { useUiStore } from '@/stores/ui'
+import type { GuestSaveSlot } from '@/stores/guestSaves'
 import type { CharacterClass } from '@/types'
 import { characterAvatarUrl } from '@/constants/images'
 
@@ -136,6 +157,8 @@ const characters: CharacterInfo[] = [
 const DEFAULT_CHARACTER: CharacterClass = 'SUN_WUKONG'
 const selected = ref<CharacterClass | null>(null)
 const starting = ref(false)
+const showOverwritePicker = ref(false)
+const fullGuestSlots = ref<GuestSaveSlot[]>([])
 const selectedCharacter = computed(() =>
   characters.find((character) => character.class === selected.value) ?? null,
 )
@@ -153,8 +176,38 @@ async function handleStart() {
     await gameStore.startNewGame(characterClass)
     await router.push('/map')
   } catch (error) {
+    if (error instanceof GuestSaveLimitError) {
+      fullGuestSlots.value = error.slots
+      showOverwritePicker.value = true
+      starting.value = false
+      return
+    }
     console.error('Start game failed:', error)
     uiStore.showToast('开始游戏失败，请重试')
+    starting.value = false
+  }
+}
+
+function characterLabel(characterClass: CharacterClass) {
+  return characters.find(character => character.class === characterClass)?.name || characterClass
+}
+
+function formatTime(value: string) {
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? '创建时间未知' : date.toLocaleString('zh-CN', { hour12: false })
+}
+
+async function replaceSlot(slot: GuestSaveSlot) {
+  const characterClass = selected.value ?? DEFAULT_CHARACTER
+  starting.value = true
+  try {
+    await gameStore.startNewGame(characterClass, slot.sessionId)
+    showOverwritePicker.value = false
+    await router.push('/map')
+  } catch (error) {
+    console.error('Replace guest save failed:', error)
+    uiStore.showToast('覆盖存档失败，旧存档仍然保留')
+  } finally {
     starting.value = false
   }
 }
@@ -392,6 +445,27 @@ async function handleStart() {
   letter-spacing: 4px;
   box-shadow: 0 6px 22px rgba(0, 0, 0, 0.32);
 }
+
+.overwrite-overlay { z-index: 20; }
+.overwrite-box { display: grid; gap: 10px; }
+.overwrite-slot {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(242, 169, 0, .22);
+  border-radius: 10px;
+  padding: 13px 14px;
+  background: rgba(255,255,255,.04);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+.overwrite-slot:hover:not(:disabled) { border-color: var(--gold); background: rgba(242,169,0,.09); }
+.overwrite-slot span { color: var(--gold); }
+.overwrite-slot small { color: var(--text-muted); }
+.overwrite-slot:disabled { opacity: .55; cursor: wait; }
 
 @media (max-width: 768px) {
   .page-title {

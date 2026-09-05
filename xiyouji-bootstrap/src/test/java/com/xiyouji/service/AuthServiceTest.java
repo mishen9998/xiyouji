@@ -82,9 +82,31 @@ class AuthServiceTest {
         assertEquals("newUser", response.getUsername());
         assertEquals("PLAYER", response.getRole());
         verify(userRepository).save(argThat(u ->
-                "newUser".equals(u.getUsername())
+                "newUser".equals(u.getAccount())
+                        && "newUser".equals(u.getUsername())
                         && "encodedPwd".equals(u.getPassword())
                         && "PLAYER".equals(u.getRole())));
+    }
+
+    @Test
+    @DisplayName("register 将登录账号和显示用户名分别持久化")
+    void register_separateAccountAndDisplayName_persistsBoth() {
+        RegisterRequest request = new RegisterRequest();
+        request.setAccount("pilgrim01");
+        request.setUsername("取经人");
+        request.setPassword("password123");
+
+        when(userRepository.existsByAccount("pilgrim01")).thenReturn(false);
+        when(userRepository.existsByUsername("取经人")).thenReturn(false);
+        when(passwordEncoder.encode("password123")).thenReturn("encodedPwd");
+        when(jwtUtil.generateToken("取经人", "PLAYER")).thenReturn("jwt-token");
+
+        AuthResponse response = authService.register(request);
+
+        assertEquals("pilgrim01", response.getAccount());
+        assertEquals("取经人", response.getUsername());
+        verify(userRepository).save(argThat(u ->
+                "pilgrim01".equals(u.getAccount()) && "取经人".equals(u.getUsername())));
     }
 
     @Test
@@ -94,7 +116,7 @@ class AuthServiceTest {
         request.setUsername("ghost");
         request.setPassword("anything");
 
-        when(userRepository.findByUsername("ghost")).thenReturn(Optional.empty());
+        when(userRepository.findByAccount("ghost")).thenReturn(Optional.empty());
 
         AuthenticationFailedException ex = assertThrows(AuthenticationFailedException.class,
                 () -> authService.login(request));
@@ -112,11 +134,12 @@ class AuthServiceTest {
         request.setPassword("wrongPwd");
 
         User user = new User();
+        user.setAccount("realUser");
         user.setUsername("realUser");
         user.setPassword("encodedCorrectPwd");
         user.setRole("PLAYER");
 
-        when(userRepository.findByUsername("realUser")).thenReturn(Optional.of(user));
+        when(userRepository.findByAccount("realUser")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("wrongPwd", "encodedCorrectPwd")).thenReturn(false);
 
         AuthenticationFailedException ex = assertThrows(AuthenticationFailedException.class,
@@ -135,11 +158,12 @@ class AuthServiceTest {
         request.setPassword("correctPwd");
 
         User user = new User();
+        user.setAccount("realUser");
         user.setUsername("realUser");
         user.setPassword("encodedCorrectPwd");
         user.setRole("PLAYER");
 
-        when(userRepository.findByUsername("realUser")).thenReturn(Optional.of(user));
+        when(userRepository.findByAccount("realUser")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("correctPwd", "encodedCorrectPwd")).thenReturn(true);
         when(jwtUtil.generateToken("realUser", "PLAYER")).thenReturn("jwt-login-token");
 

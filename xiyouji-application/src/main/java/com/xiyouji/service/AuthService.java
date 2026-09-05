@@ -36,18 +36,30 @@ public class AuthService {
     /**
      * 用户注册
      *
-     * @param request 注册请求（用户名 + 密码）
+     * @param request 注册请求（登录账号 + 显示用户名 + 密码）
      * @return 认证响应（含JWT token）
      * @throws UserAlreadyExistsException 如果用户名已存在
      */
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
+        String username = normalize(request.getUsername());
+        String account = normalize(request.getAccount());
+        // 兼容旧客户端：历史请求只提交 username。
+        if (account == null) account = username;
+
+        if (account == null || username == null) {
+            throw new AuthenticationFailedException("账号和用户名不能为空");
+        }
+        if (userRepository.existsByAccount(account)) {
+            throw new UserAlreadyExistsException("账号已存在");
+        }
+        if (userRepository.existsByUsername(username)) {
             throw new UserAlreadyExistsException("用户名已存在");
         }
 
         User user = new User();
-        user.setUsername(request.getUsername());
+        user.setAccount(account);
+        user.setUsername(username);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole("PLAYER");
         user.setCreatedAt(LocalDateTime.now());
@@ -60,16 +72,21 @@ public class AuthService {
     /**
      * 用户登录
      *
-     * @param request 登录请求（用户名 + 密码）
+     * @param request 登录请求（账号 + 密码）；旧客户端可继续使用 username 字段
      * @return 认证响应（含JWT token）
      * @throws AuthenticationFailedException 如果用户名不存在或密码错误
      */
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new AuthenticationFailedException("用户名或密码错误"));
+        String account = normalize(request.getAccount());
+        if (account == null) account = normalize(request.getUsername());
+        if (account == null) {
+            throw new AuthenticationFailedException("账号或密码错误");
+        }
+        User user = userRepository.findByAccount(account)
+                .orElseThrow(() -> new AuthenticationFailedException("账号或密码错误"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new AuthenticationFailedException("用户名或密码错误");
+            throw new AuthenticationFailedException("账号或密码错误");
         }
 
         String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
@@ -96,6 +113,7 @@ public class AuthService {
         AuthResponse response = new AuthResponse();
         response.setToken(token);
         response.setTokenType("Bearer");
+        response.setAccount(guestUsername);
         response.setUsername(guestUsername);
         response.setRole(guestRole);
         return response;
@@ -108,8 +126,15 @@ public class AuthService {
         AuthResponse response = new AuthResponse();
         response.setToken(token);
         response.setTokenType("Bearer");
+        response.setAccount(user.getAccount());
         response.setUsername(user.getUsername());
         response.setRole(user.getRole());
         return response;
+    }
+
+    private String normalize(String value) {
+        if (value == null) return null;
+        String normalized = value.trim();
+        return normalized.isEmpty() ? null : normalized;
     }
 }

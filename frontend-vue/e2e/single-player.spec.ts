@@ -1,7 +1,51 @@
 import { expect, test } from '@playwright/test'
 
-test('首页可以进入单人角色选择', async ({ page }) => {
+async function enterGuest(page: import('@playwright/test').Page) {
   await page.goto('/')
+  const guestResponse = page.waitForResponse((response) =>
+    response.url().includes('/api/auth/guest') && response.ok(),
+  )
+  await page.getByRole('button', { name: /游客模式/ }).click()
+  await guestResponse
+  await expect(page).toHaveURL(/\/menu$/)
+}
+
+test('身份页提供登录、注册三个字段并提交注册信息', async ({ page }) => {
+  await page.route('**/api/auth/register', async route => {
+    expect(route.request().postDataJSON()).toEqual({
+      account: 'pilgrim01',
+      username: '取经人',
+      password: 'secret123',
+    })
+    await route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        token: 'register-token', account: 'pilgrim01', username: '取经人', role: 'PLAYER',
+      }),
+    })
+  })
+
+  await page.goto('/')
+  const account = page.getByLabel('登录账号')
+  const username = page.getByLabel('显示用户名')
+  const password = page.getByLabel('密码')
+  await expect(account).toBeVisible()
+  await expect(username).toBeDisabled()
+  await expect(password).toBeVisible()
+
+  await page.getByRole('tab', { name: '注册' }).click()
+  await expect(username).toBeEnabled()
+  await account.fill('pilgrim01')
+  await username.fill('取经人')
+  await password.fill('secret123')
+  await page.getByRole('button', { name: '创建账号并进入' }).click()
+
+  await expect(page).toHaveURL(/\/menu$/)
+  await expect(page.getByText('取经人', { exact: true })).toBeVisible()
+})
+
+test('首页可以进入单人角色选择', async ({ page }) => {
+  await enterGuest(page)
 
   await expect(page.getByRole('heading', { name: '西行之路' })).toBeVisible()
   await page.getByRole('button', { name: /单人游戏/ }).click()
@@ -12,27 +56,27 @@ test('首页可以进入单人角色选择', async ({ page }) => {
 })
 
 test('游客选择角色后可以创建会话并进入地图', async ({ page }) => {
-  await page.goto('/char-select')
+  await enterGuest(page)
+  await page.getByRole('button', { name: /单人游戏/ }).click()
 
   const character = page.getByRole('button', { name: /孙悟空/ })
   await character.click()
   await expect(character).toHaveAttribute('aria-pressed', 'true')
 
-  const guestResponse = page.waitForResponse((response) =>
-    response.url().includes('/api/auth/guest') && response.ok(),
-  )
   const newGameResponse = page.waitForResponse((response) =>
     response.url().includes('/api/game/new') && response.ok(),
   )
 
   await page.getByRole('button', { name: '开始西行' }).click()
-  await Promise.all([guestResponse, newGameResponse])
+  await newGameResponse
 
   await expect(page).toHaveURL(/\/map$/)
   await expect(page.getByRole('button', { name: /牌组/ })).toBeVisible()
   await expect.poll(() => page.evaluate(() => ({
     token: localStorage.getItem('xiyouji_jwt_token'),
-    sessionId: localStorage.getItem('xiyouji_session_id'),
+    sessionId: Object.keys(localStorage)
+      .filter(key => key.startsWith('xiyouji_session_id:GUEST:'))
+      .map(key => localStorage.getItem(key))[0] || null,
   }))).toEqual({
     token: expect.any(String),
     sessionId: expect.any(String),

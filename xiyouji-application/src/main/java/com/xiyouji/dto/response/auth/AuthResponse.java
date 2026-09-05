@@ -7,6 +7,7 @@ public class AuthResponse {
 
     private String token;
     private String tokenType;
+    private String account;
     private String username;
     private String role;
 
@@ -15,6 +16,7 @@ public class AuthResponse {
     public AuthResponse(String token, String tokenType, String username, String role) {
         this.token = token;
         this.tokenType = tokenType;
+        this.account = username;
         this.username = username;
         this.role = role;
     }
@@ -26,6 +28,9 @@ public class AuthResponse {
 
     public String getTokenType() { return tokenType; }
     public void setTokenType(String tokenType) { this.tokenType = tokenType; }
+
+    public String getAccount() { return account; }
+    public void setAccount(String account) { this.account = account; }
 
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }

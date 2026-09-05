@@ -235,7 +235,7 @@ async function onEventClose() {
 }
 
 function goHome() {
-  router.push('/')
+  router.push('/menu')
 }
 
 // 没有当前节点时，从底部起点开始；进入路线后由 scrollToCurrentNode 居中角色。
@@ -275,12 +275,12 @@ onMounted(async () => {
       if (restored && restored.player) {
         // 恢复成功，继续渲染地图
       } else {
-        router.replace('/')
+        router.replace('/menu')
         return
       }
     } catch (e) {
       console.error('Restore session failed:', e)
-      router.replace('/')
+      router.replace('/menu')
       return
     }
   }

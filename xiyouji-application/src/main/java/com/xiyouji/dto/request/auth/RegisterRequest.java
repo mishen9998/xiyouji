@@ -8,6 +8,10 @@ import jakarta.validation.constraints.Size;
  */
 public class RegisterRequest {
 
+    /** 登录时使用的唯一账号；为空时兼容旧客户端并回退到 username。 */
+    @Size(min = 3, max = 50, message = "账号长度必须在3到50个字符之间")
+    private String account;
+
     @NotBlank(message = "用户名不能为空")
     @Size(min = 3, max = 20, message = "用户名长度必须在3到20个字符之间")
     private String username;
@@ -17,6 +21,14 @@ public class RegisterRequest {
     private String password;
 
     public RegisterRequest() {
+    }
+
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
     }
 
     public String getUsername() {

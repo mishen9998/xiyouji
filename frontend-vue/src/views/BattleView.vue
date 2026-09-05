@@ -226,7 +226,7 @@ async function onPlayCard(index: number) {
       showToast('⚠️ 游戏会话已失效，请重新开始')
       setTimeout(() => {
         clearAll()
-        router.push('/')
+        router.push('/menu')
       }, 1500)
       return
     }
@@ -270,7 +270,7 @@ async function onEndTurn() {
       showToast('⚠️ 游戏会话已失效，请重新开始')
       setTimeout(() => {
         clearAll()
-        router.push('/')
+        router.push('/menu')
       }, 1500)
       return
     }
@@ -310,7 +310,7 @@ function onNextLayer() {
 function onGameComplete() {
   resetBattle()
   clearAll()
-  router.push('/')
+  router.push('/menu')
 }
 
 onMounted(async () => {
@@ -331,7 +331,7 @@ onMounted(async () => {
       console.error('Restore session failed:', e)
     }
     // 无存档可用，回首页
-    router.push('/')
+    router.push('/menu')
     return
   }
 
