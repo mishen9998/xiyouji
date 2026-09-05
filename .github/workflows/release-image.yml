@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
   packages: write
 
 concurrency:
@@ -22,6 +23,25 @@ jobs:
     name: Build and publish GHCR image
     runs-on: ubuntu-latest
     steps:
+      - name: Require successful CI for the exact release commit
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'ci.yml',
+              head_sha: context.sha,
+              status: 'completed',
+              per_page: 100
+            });
+            const passed = runs.find(run => run.head_sha === context.sha && run.conclusion === 'success');
+            if (!passed) {
+              core.setFailed(`No successful CI for ${context.sha}. Run CI on this commit before publishing.`);
+            } else {
+              core.info(`Release verified by ${passed.html_url}`);
+            }
+
       - name: Checkout
         uses: actions/checkout@v6
 

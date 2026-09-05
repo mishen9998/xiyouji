@@ -1,3 +1,4 @@
+import { createCommandRetry } from '@/api/retryCommand'
 // ====== 游戏全局状态 Store ======
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
@@ -28,6 +29,7 @@ export class GuestSaveLimitError extends Error {
 }
 
 export const useGameStore = defineStore('game', () => {
+  const retryCommand = createCommandRetry()
   const uiStore = useUiStore()
   // ====== State ======
   const sessionId = ref<string | null>(null)
@@ -262,17 +264,28 @@ export const useGameStore = defineStore('game', () => {
   async function chooseCardReward(cardIndex: number) {
     if (!sessionId.value) return
     let data
-    try { data = await gameApi.chooseCardReward(sessionId.value, cardIndex, stateVersion.value) }
+    try { data = await retryCommand(`reward:${sessionId.value}:${currentNode.value?.id}:${cardIndex}`, key => gameApi.chooseCardReward(sessionId.value!, cardIndex, stateVersion.value, key)) }
     catch (error) { return recoverFromConflict(error) }
     stateVersion.value = data.stateVersion ?? stateVersion.value
     if (data.player) player.value = data.player
+    if (data.success && rewards.value) rewards.value.resolved = true
     return data
+  }
+
+  async function skipReward() {
+    if (!sessionId.value) throw new Error('游戏会话不存在')
+    try {
+      const data = await retryCommand(`skip:${sessionId.value}:${currentNode.value?.id}`, key => gameApi.skipReward(sessionId.value!, stateVersion.value, key))
+      stateVersion.value = data.stateVersion ?? stateVersion.value
+      if (rewards.value) rewards.value.resolved = true
+      return data
+    } catch (error) { return recoverFromConflict(error) }
   }
 
   async function nextLayer(): Promise<{ success: boolean; currentLayer?: number }> {
     if (!sessionId.value) return { success: false }
     let data
-    try { data = await gameApi.nextLayer(sessionId.value, stateVersion.value) }
+    try { data = await retryCommand(`next:${sessionId.value}`, key => gameApi.nextLayer(sessionId.value!, stateVersion.value, key)) }
     catch (error) { return recoverFromConflict(error) }
     stateVersion.value = data.stateVersion ?? stateVersion.value
     if (data.success) {
@@ -287,7 +300,7 @@ export const useGameStore = defineStore('game', () => {
   }) {
     if (!sessionId.value) return null
     let data
-    try { data = await gameApi.handleEvent(sessionId.value, action, params, stateVersion.value) }
+    try { data = await retryCommand(`event:${sessionId.value}:${currentNode.value?.id}:${action}:${JSON.stringify(params)}`, key => gameApi.handleEvent(sessionId.value!, action, params, stateVersion.value, key)) }
     catch (error) { return recoverFromConflict(error) }
     stateVersion.value = data.stateVersion ?? stateVersion.value
     if (data.player) player.value = data.player
@@ -298,12 +311,11 @@ export const useGameStore = defineStore('game', () => {
   async function upgradeCard(cardIndex: number) {
     if (!sessionId.value) return null
     let data
-    try { data = await gameApi.handleEvent(sessionId.value, 'upgrade', { cardIndex }, stateVersion.value) }
+    try { data = await retryCommand(`upgrade:${sessionId.value}:${currentNode.value?.id}:${cardIndex}`, key => gameApi.handleEvent(sessionId.value!, 'upgrade', { cardIndex }, stateVersion.value, key)) }
     catch (error) { return recoverFromConflict(error) }
     stateVersion.value = data.stateVersion ?? stateVersion.value
     if (data.bonfireUpgradesLeft !== undefined) bonfireUpgradesLeft.value = data.bonfireUpgradesLeft
     if (data.player) player.value = data.player
-    await refreshState()
     return data
   }
 
@@ -335,7 +347,7 @@ export const useGameStore = defineStore('game', () => {
     // actions
     startNewGame, refreshState, loadSavedSession, restoreBattleState,
     deleteSavedSession, moveToNode, startBattle, playCard, endTurn,
-    chooseCardReward, nextLayer, handleEvent, upgradeCard,
+    chooseCardReward, skipReward, nextLayer, handleEvent, upgradeCard,
     resetBattle, clearAll, getSavedSessionId, saveSessionLocal, clearSessionLocal,
     getGuestSaveSlots,
   }

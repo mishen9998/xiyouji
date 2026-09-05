@@ -388,9 +388,7 @@ public class BattleService {
         }
         // 防止重复领取奖励
         if (battle.isRewardsHandled()) {
-            Map<String, Object> empty = new HashMap<>();
-            empty.put("alreadyHandled", true);
-            return empty;
+            return rewardInfo(battle);
         }
         battle.setRewardsHandled(true);
 
@@ -449,7 +447,15 @@ public class BattleService {
             log.info("战斗失败: sessionId={}", sessionId);
         }
 
+        battle.setRewardSummary(new HashMap<>(result));
         gameService.saveSession(session);
+        return rewardInfo(battle);
+    }
+
+    private Map<String, Object> rewardInfo(BattleState battle) {
+        Map<String, Object> result = new HashMap<>(battle.getRewardSummary());
+        result.put("cardRewards", battle.getCardRewards() == null ? List.of() : battle.getCardRewards());
+        result.put("resolved", battle.isRewardsHandled() && battle.getCardRewards() == null);
         return result;
     }
 
@@ -461,6 +467,12 @@ public class BattleService {
             gameService.assertOwnerAndVersion(sessionId, userId, expectedVersion);
             GameSession session = gameService.getSession(sessionId);
             BattleState battle = session.getBattle();
+            if (battle == null || !battle.isVictory() || !battle.isRewardsHandled()) {
+                throw new InvalidActionException("当前没有战斗胜利奖励");
+            }
+            if (battle.getCardRewards() != null && (cardIndex < 0 || cardIndex >= battle.getCardRewards().size())) {
+                throw new InvalidActionException("无效的卡牌选择");
+            }
             Map<String, Object> result = new HashMap<>();
             if (battle != null && battle.getCardRewards() != null
                     && cardIndex >= 0 && cardIndex < battle.getCardRewards().size()) {
@@ -485,7 +497,10 @@ public class BattleService {
         return gameService.withSessionLock(sessionId, () -> {
             gameService.assertOwnerAndVersion(sessionId, userId, expectedVersion);
             GameSession session = gameService.getSession(sessionId);
-            if (session.getBattle() != null) session.getBattle().setCardRewards(null);
+            if (session.getBattle() == null || !session.getBattle().isVictory() || !session.getBattle().isRewardsHandled()) {
+                throw new InvalidActionException("当前没有战斗胜利奖励");
+            }
+            session.getBattle().setCardRewards(null);
             gameService.saveSession(session);
             return Map.of("success", true, "stateVersion", session.getStateVersion());
         });
@@ -509,6 +524,7 @@ public class BattleService {
         info.put("playerTurn", battle.isPlayerTurn());
         info.put("battleOver", battle.isBattleOver());
         info.put("victory", battle.isVictory());
+        if (battle.isRewardsHandled()) info.put("rewards", rewardInfo(battle));
 
         // 玩家信息
         Map<String, Object> playerInfo = new HashMap<>();

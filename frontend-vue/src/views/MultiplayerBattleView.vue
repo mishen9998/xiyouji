@@ -168,20 +168,21 @@
     <!-- 宝物选择界面（战斗胜利后） -->
     <div v-if="battle && battle.rewardsPhase && battle.victory" class="rewards-overlay">
       <div class="rewards-modal">
-        <h2 class="rewards-title">战斗胜利！选择你的宝物</h2>
+        <h2 class="rewards-title">战斗胜利！五张卡牌选一张</h2>
 
         <!-- 已领取状态 -->
         <div v-if="hasClaimed" class="claimed-status">
-          <p>✅ 已领取：{{ myClaimedCardName }}</p>
+          <p>{{ myClaimedCardName === '__SKIPPED__' ? '已跳过奖励' : '✅ 已领取：' + myClaimedCardName }}</p>
         </div>
 
-        <!-- 三张可选卡牌 -->
+        <!-- 五张可选卡牌 -->
         <div v-else-if="myRewards.length > 0" class="rewards-cards">
           <div
-            v-for="card in myRewards"
-            :key="card.name"
+            v-for="(card, index) in myRewards"
+            :key="index"
             class="reward-card"
-            @click="handleClaimReward(card.name)"
+            :class="{ selected: selectedReward === card.name }"
+            @click="selectReward(card.name)"
           >
             <div class="card-cost">⚡{{ card.cost }}</div>
             <div class="card-emoji">{{ card.emoji || '📜' }}</div>
@@ -194,19 +195,23 @@
           </div>
         </div>
 
+        <div v-if="!hasClaimed && currentUsername && battle.rewards?.[currentUsername]" class="reward-actions">
+          <button class="btn-primary" :disabled="rewardSubmitting || !selectedReward" @click="confirmReward(false)">继续前进</button>
+          <button class="btn-small" :disabled="rewardSubmitting" @click="confirmReward(true)">跳过奖励</button>
+        </div>
         <!-- 其他玩家领取状态 -->
         <div class="other-players-status">
           <div v-for="player in battle.players" :key="player.userId" class="player-status">
             <span class="player-status-emoji">{{ charEmoji(player.characterClass) }}</span>
             <span class="player-status-name">{{ player.username }}</span>
-            <span v-if="battle.claimedRewards && battle.claimedRewards[player.userId]" class="status-claimed">✅ 已领取</span>
-            <span v-else class="status-waiting">⏳ 等待中</span>
+            <span v-if="battle.claimedRewards && battle.claimedRewards[player.userId]" class="status-claimed">{{ battle.claimedRewards[player.userId] === '__SKIPPED__' ? '已跳过' : '✅ 已领取' }}</span>
+            <span v-else-if="battle.rewards?.[player.userId]" class="status-waiting">⏳ 等待中</span>
           </div>
         </div>
 
         <!-- 返回地图按钮 -->
         <div v-if="battle.rewardsHandled" class="next-floor-section">
-          <button v-if="roomStore.isHost" class="btn-next-floor" @click="handleNextFloor">
+          <button v-if="roomStore.isHost" class="btn-next-floor" :disabled="rewardSubmitting" @click="handleNextFloor">
             返回地图
           </button>
           <p v-else class="waiting-host">等待房主返回地图...</p>
@@ -293,6 +298,9 @@ onUnmounted(() => {
 watch(() => roomStore.room?.status, (status) => {
   if (status === 'IN_MAP') {
     router.push(`/room/${roomStore.roomCode}/map`)
+  } else if (status === 'FINISHED') {
+    uiStore.showToast('🎉 恭喜通关！')
+    router.push('/menu')
   } else if (status === 'WAITING') {
     router.push('/room')
   }
@@ -363,24 +371,30 @@ const myClaimedCardName = computed(() => {
   return battle.value.claimedRewards[currentUsername.value] ?? ''
 })
 
-// 领取宝物奖励
-async function handleClaimReward(cardName: string) {
+const selectedReward = ref('')
+const rewardSubmitting = ref(false)
+function selectReward(name: string) {
+  if (!rewardSubmitting.value && !hasClaimed.value) selectedReward.value = name
+}
+async function confirmReward(skip: boolean) {
+  if (rewardSubmitting.value || hasClaimed.value || (!skip && !selectedReward.value)) return
+  rewardSubmitting.value = true
   try {
-    await roomStore.claimReward(cardName)
-  } catch {
-    // 错误已在 store 中处理
-  }
+    if (skip) await roomStore.skipReward()
+    else await roomStore.claimReward(selectedReward.value)
+  } catch { /* Store displays the error; keep selection for retry. */ }
+  finally { rewardSubmitting.value = false }
 }
 
-// 返回地图（仅房主）
 async function handleNextFloor() {
+  if (rewardSubmitting.value) return
+  rewardSubmitting.value = true
   try {
-    await roomStore.nextFloor()
-    // 跳转到地图页面
-    router.push(`/room/${roomStore.roomCode}/map`)
-  } catch {
-    // 错误已在 store 中处理
-  }
+    const result = await roomStore.nextFloor()
+    if (!result) throw new Error('房间不存在')
+    await router.push(result.completed || roomStore.room?.status === 'FINISHED' ? '/menu' : `/room/${roomStore.roomCode}/map`)
+  } catch { /* Store displays the error. */ }
+  finally { rewardSubmitting.value = false }
 }
 
 // ====== 辅助方法 ======
@@ -406,6 +420,9 @@ function intentLabel(intent: string): string {
 </script>
 
 <style scoped>
+.reward-card.selected { outline: 3px solid #f2a900; }
+.reward-actions { display: flex; gap: 12px; justify-content: center; margin: 16px 0; }
+
 .mp-battle {
   width: 100%;
   height: 100vh;
@@ -836,6 +853,7 @@ function intentLabel(intent: string): string {
 }
 
 .rewards-cards {
+  flex-wrap: wrap;
   display: flex;
   gap: 16px;
   justify-content: center;

@@ -17,15 +17,15 @@
         <div class="card-grid reward-cards">
           <div
             v-for="(card, index) in cardRewards"
-            :key="card.id"
+            :key="index"
             class="reward-card-wrapper"
             :class="{ dimmed: rewardChosen && selectedRewardIndex !== index }"
           >
             <MiniCard
               :card="card"
-              :clickable="!rewardChosen"
+              :clickable="!rewardChosen && !continuing"
               :selected="selectedRewardIndex === index"
-              :disabled="rewardChosen && selectedRewardIndex !== index"
+              :disabled="continuing || rewardChosen"
               @click="onSelectReward(index)"
             />
           </div>
@@ -46,11 +46,12 @@
 
       <button
         class="btn-primary continue-btn"
-        :disabled="continuing"
-        @click="onContinue"
+        :disabled="continuing || (isVictory && !rewardChosen && selectedRewardIndex < 0)"
+        @click="onContinue(false)"
       >
-        {{ continuing ? '处理中...' : '继续' }}
+        {{ continuing ? '处理中...' : '继续前进' }}
       </button>
+      <button v-if="isVictory && !rewardChosen" class="btn-small" :disabled="continuing" @click="onContinue(true)">跳过奖励</button>
     </div>
   </div>
 </template>
@@ -76,9 +77,9 @@ const emit = defineEmits<{
 const gameStore = useGameStore()
 const { showToast } = useUiStore()
 const { battleInfo, rewards, currentNode } = storeToRefs(gameStore)
-const { nextLayer, chooseCardReward } = gameStore
+const { nextLayer, chooseCardReward, skipReward } = gameStore
 
-const rewardChosen = ref(false)
+const rewardChosen = computed(() => rewards.value?.resolved ?? false)
 const selectedRewardIndex = ref(-1)
 const continuing = ref(false)
 
@@ -109,34 +110,27 @@ watch(
   () => props.visible,
   (val) => {
     if (val) {
-      rewardChosen.value = false
       selectedRewardIndex.value = -1
       continuing.value = false
     }
   }
 )
 
-async function onSelectReward(index: number) {
-  if (rewardChosen.value) return
-  const card = cardRewards.value[index]
-  if (!card) return
+function onSelectReward(index: number) {
+  if (rewardChosen.value || continuing.value || !cardRewards.value[index]) return
   selectedRewardIndex.value = index
-  rewardChosen.value = true
-  try {
-    await chooseCardReward(index)
-    showToast(`✅ 已加入牌组: ${card.name}`)
-  } catch (e) {
-    console.error('Choose card reward failed:', e)
-    showToast('选择卡牌失败')
-  }
 }
 
-async function onContinue() {
+async function onContinue(skip = false) {
   if (continuing.value) return
+  if (isVictory.value && !rewardChosen.value && !skip && selectedRewardIndex.value < 0) return
   continuing.value = true
-  emit('continue')
   try {
-    if (isBossNode.value) {
+    if (isVictory.value && !rewardChosen.value) {
+      const data = skip ? await skipReward() : await chooseCardReward(selectedRewardIndex.value)
+      if (!data?.success) throw new Error('奖励提交失败，请重试')
+    }
+    if (isVictory.value && isBossNode.value) {
       const result = await nextLayer()
       if (result.success) {
         showToast(`🏯 进入第${result.currentLayer}层！`)
@@ -148,20 +142,24 @@ async function onContinue() {
     } else {
       emit('return-to-map')
     }
+    emit('continue')
+    emit('update:visible', false)
   } catch (e) {
     console.error('Continue failed:', e)
-    emit('return-to-map')
+    showToast('操作失败，请重试')
   } finally {
     continuing.value = false
-    emit('update:visible', false)
   }
 }
+
 </script>
 
 <style scoped>
 .result-modal {
   /* 放大弹窗，让三张卡牌有充足展示空间 */
-  min-width: 520px;
+  min-width: min(520px, 92vw);
+  max-height: 90vh;
+  overflow-y: auto;
   max-width: 880px;
   width: min(90vw, 880px);
 }
@@ -211,6 +209,9 @@ async function onContinue() {
 }
 
 .reward-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 18px;
 }
 

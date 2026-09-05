@@ -23,8 +23,9 @@
             v-for="(card, i) in deckCards"
             :key="i"
             :card="card"
-            :clickable="bonfireUpgradesLeft > 0"
-            :disabled="bonfireUpgradesLeft <= 0"
+            :clickable="bonfireUpgradesLeft > 0 && !submitting"
+            :selected="selectedUpgrade === i"
+            :disabled="bonfireUpgradesLeft <= 0 || submitting"
             @click="doUpgrade(i)"
           />
         </div>
@@ -67,7 +68,10 @@
       </div>
 
       <!-- 主按钮 -->
-      <button class="btn-primary" @click="onContinue">{{ continueText }}</button>
+      <button class="btn-primary" :disabled="submitting || (eventType === 'emperor' && !chosenRelicName)" @click="onContinue">
+        {{ submitting ? '处理中...' : selectedUpgrade >= 0 ? '继续前进（确认升级）' : continueText }}
+      </button>
+      <button v-if="eventType === 'bonfire' && selectedUpgrade >= 0" class="btn-small" :disabled="submitting" @click="selectedUpgrade = -1">取消选择</button>
     </div>
   </div>
 </template>
@@ -87,6 +91,9 @@ const emit = defineEmits<{ close: [] }>()
 const store = useGameStore()
 const ui = useUiStore()
 
+const submitting = ref(false)
+const selectedUpgrade = ref(-1)
+const emperorConfirmed = ref(false)
 const title = ref('')
 const message = ref('')
 const continueText = ref('继续')
@@ -117,6 +124,8 @@ watch(
 )
 
 async function handleEvent(et: string) {
+  selectedUpgrade.value = -1
+  emperorConfirmed.value = false
   boughtIndices.value = new Set()
   shopCards.value = []
   emperorChoices.value = []
@@ -160,7 +169,7 @@ async function handleEvent(et: string) {
       break
     case 'emperor': {
       title.value = '👑 唐太宗赐宝'
-      continueText.value = '继续前行'
+      continueText.value = '继续前进'
       message.value = '唐太宗李世民设宴相送，请稍候…'
       try {
         const emperorData = await store.handleEvent('view')
@@ -186,37 +195,45 @@ async function handleEvent(et: string) {
   }
 }
 
-async function chooseEmperorRelic(relic: Relic) {
-  if (chosenRelicName.value) return
-  const data = await store.handleEvent('choose', { relicName: relic.name })
-  if (data?.relic) {
-    chosenRelicName.value = relic.name
-    message.value = '🎉 ' + (data.message || '已选中: ' + relic.name)
-    ui.showToast('✅ 获得: ' + relic.name)
-    await store.refreshState()
-  } else if (data?.error) {
-    ui.showToast(data.error)
-  }
+function chooseEmperorRelic(relic: Relic) {
+  if (!submitting.value && !emperorConfirmed.value) chosenRelicName.value = relic.name
 }
 
 async function onContinue() {
+  if (submitting.value) return
   const et = props.eventType
-  if (et === 'rest') {
-    await store.handleEvent('rest')
-  } else if (et === 'treasure') {
-    if (continueText.value === '打开宝箱') {
+  if (et === 'emperor' && !chosenRelicName.value) return
+  submitting.value = true
+  try {
+    if (et === 'emperor' && !emperorConfirmed.value) {
+      const data = await store.handleEvent('choose', { relicName: chosenRelicName.value })
+      if (!data?.relic || data.error) throw new Error(data?.error || '领取宝物失败')
+      emperorConfirmed.value = true
+      ui.showToast('✅ 获得: ' + chosenRelicName.value)
+    } else if (et === 'bonfire' && selectedUpgrade.value >= 0) {
+      const data = await store.upgradeCard(selectedUpgrade.value)
+      if (!data || data.error) throw new Error(data?.error || '升级失败')
+      selectedUpgrade.value = -1
+      deckCards.value = store.player?.deck ?? []
+      ui.showToast('✅ 升级成功')
+      if (bonfireUpgradesLeft.value > 0) return
+    } else if (et === 'rest') {
+      const data = await store.handleEvent('rest')
+      if (data?.error) throw new Error(data.error)
+    } else if (et === 'treasure' && continueText.value === '打开宝箱') {
       const data = await store.handleEvent('open')
-      if (data?.relic) {
+      if (!data || data.error) throw new Error(data?.error || '打开宝箱失败')
+      if (data.relic) {
         treasureRelic.value = data.relic
         message.value = '🎉 获得遗物！'
       }
-      continueText.value = '继续前行'
+      continueText.value = '继续前进'
       return
     }
-  }
-  // 关闭并刷新
-  emit('close')
-  await store.refreshState()
+    emit('close')
+  } catch (e: any) {
+    ui.showToast(e?.message || '操作失败，请重试')
+  } finally { submitting.value = false }
 }
 
 async function buyCard(card: Card, index: number) {
@@ -238,24 +255,15 @@ async function buyCard(card: Card, index: number) {
   await store.refreshState()
 }
 
-async function doUpgrade(index: number) {
-  if (bonfireUpgradesLeft.value <= 0) return
-  const data = await store.upgradeCard(index)
-  if (data?.error) {
-    ui.showToast(data.error)
-  } else {
-    ui.showToast('✅ 升级成功！剩余升级次数: ' + store.bonfireUpgradesLeft)
-  }
-  deckCards.value = store.player?.deck ?? []
-}
-
-function onClose() {
-  emit('close')
+function doUpgrade(index: number) {
+  if (!submitting.value && bonfireUpgradesLeft.value > 0) selectedUpgrade.value = index
 }
 
 function onBackdropClick() {
-  if (props.eventType !== 'shop') onClose()
+  // Choices are only committed or dismissed through their explicit buttons.
+  if (!submitting.value && !['shop', 'emperor', 'bonfire'].includes(props.eventType)) emit('close')
 }
+
 </script>
 
 <style scoped>

@@ -1,120 +1,93 @@
-// ====== WebSocket STOMP 客户端封装 ======
-import { Client, type StompSubscription } from '@stomp/stompjs'
+// WebSocket transport. Room state is also reconciled by REST in the room store.
+import { Client, TickerStrategy } from '@stomp/stompjs'
 import type { RoomDTO, MultiplayerBattleInfo } from '@/types'
 import { getTokenForWs } from '@/api/room'
 
-/**
- * STOMP WebSocket 连接管理
- *
- * 连接：ws://{host}/ws?token={jwt}
- * 订阅频道：
- *   /topic/room/{code}        - 房间状态变化
- *   /topic/room/{code}/battle - 战斗状态变化
- */
 export function useStomp() {
   let client: Client | null = null
-  let roomSub: StompSubscription | null = null
-  let battleSub: StompSubscription | null = null
+  let cancelPending: (() => void) | null = null
+  let notifyConnection: ((connected: boolean) => void) | undefined
 
-  /**
-   * 连接 WebSocket 并订阅房间频道
-   *
-   * @param roomCode      房间码
-   * @param onRoomUpdate  房间状态更新回调
-   * @param onBattleUpdate 战斗状态更新回调
-   * @param onSystemMsg   系统消息回调
-   */
   async function connect(
     roomCode: string,
     onRoomUpdate: (room: RoomDTO) => void,
     onBattleUpdate: (battle: MultiplayerBattleInfo) => void,
     onSystemMsg?: (message: string) => void,
     onConnected?: () => void | Promise<void>,
+    onConnectionChange?: (connected: boolean) => void,
   ): Promise<void> {
-    const token = await getTokenForWs()
-    const protocol = location.protocol === 'https:' ? 'wss' : 'ws'
-    const wsUrl = `${protocol}://${location.host}/ws?token=${encodeURIComponent(token)}`
-
-    let resolveConnected: (() => void) | null = null
-    let rejectConnected: ((reason?: unknown) => void) | null = null
-    const connectedPromise = new Promise<void>((resolve, reject) => {
-      resolveConnected = resolve
-      rejectConnected = reject
+    disconnect()
+    notifyConnection = onConnectionChange
+    onConnectionChange?.(false)
+    let resolveFirst!: () => void
+    let rejectFirst!: (error: Error) => void
+    const firstConnection = new Promise<void>((resolve, reject) => {
+      resolveFirst = resolve
+      rejectFirst = reject
     })
-
-    const subscribe = () => {
-      roomSub?.unsubscribe()
-      battleSub?.unsubscribe()
-      roomSub = null
-      battleSub = null
-      // 订阅房间状态频道
-      roomSub = client!.subscribe(`/topic/room/${roomCode}`, (msg) => {
-        const data = JSON.parse(msg.body)
-        if (data.type === 'SYSTEM_MESSAGE' && data.message) {
-          onSystemMsg?.(data.message)
-        } else {
-          onRoomUpdate(data as RoomDTO)
-        }
-      })
-
-      // 订阅战斗状态频道
-      battleSub = client!.subscribe(`/topic/room/${roomCode}/battle`, (msg) => {
-        onBattleUpdate(JSON.parse(msg.body) as MultiplayerBattleInfo)
-      })
-    }
-
-    let firstConnect = true
-    client = new Client({
-      brokerURL: wsUrl,
+    // Return control to the lobby even if the server never completes the handshake.
+    const timeout = setTimeout(() => rejectFirst(new Error('实时连接超时，正在自动重连')), 8000)
+    cancelPending = () => { clearTimeout(timeout); rejectFirst(new Error('连接已取消')) }
+    const socket = new Client({
       reconnectDelay: 3000,
+      connectionTimeout: 7000,
       heartbeatIncoming: 10000,
       heartbeatOutgoing: 10000,
-
+      heartbeatStrategy: typeof Worker === 'undefined' ? TickerStrategy.Interval : TickerStrategy.Worker,
+      heartbeatToleranceMultiplier: 3,
+      discardWebsocketOnCommFailure: true,
+      beforeConnect: async () => {
+        const token = await getTokenForWs()
+        if (client !== socket) return
+        const protocol = location.protocol === 'https:' ? 'wss' : 'ws'
+        socket.brokerURL = `${protocol}://${location.host}/ws?token=${encodeURIComponent(token)}`
+      },
       onConnect: () => {
-        subscribe()
-        void onConnected?.()
-        if (firstConnect) {
-          firstConnect = false
-          resolveConnected?.()
-          resolveConnected = null
-          rejectConnected = null
-        }
+        if (client !== socket) return
+        // STOMP subscriptions belong to a connection; always recreate them after reconnect.
+        socket.subscribe(`/topic/room/${roomCode}`, msg => {
+          if (client !== socket) return
+          try {
+            const data = JSON.parse(msg.body)
+            if (data.type === 'SYSTEM_MESSAGE') onSystemMsg?.(data.message)
+            else onRoomUpdate(data as RoomDTO)
+          } catch (error) { console.warn('Invalid room update', error) }
+        })
+        socket.subscribe(`/topic/room/${roomCode}/battle`, msg => {
+          if (client !== socket) return
+          try { onBattleUpdate(JSON.parse(msg.body) as MultiplayerBattleInfo) }
+          catch (error) { console.warn('Invalid battle update', error) }
+        })
+        clearTimeout(timeout)
+        cancelPending = null
+        onConnectionChange?.(true)
+        resolveFirst()
+        Promise.resolve(onConnected?.()).catch(error => console.warn('Room reconciliation failed', error))
       },
-
-      onStompError: (frame) => {
-        console.error('STOMP error:', frame.headers['message'], frame.body)
-      },
-
-      onWebSocketError: (event) => {
-        console.error('WebSocket error:', event)
-        if (firstConnect) rejectConnected?.(event)
+      onWebSocketClose: () => { if (client === socket) onConnectionChange?.(false) },
+      onWebSocketError: () => { if (client === socket) onConnectionChange?.(false) },
+      onStompError: () => {
+        if (client !== socket) return
+        onConnectionChange?.(false)
+        clearTimeout(timeout)
+        rejectFirst(new Error('实时连接失败，正在重试'))
+        socket.forceDisconnect()
       },
     })
-
-    client.activate()
-    await connectedPromise
+    client = socket
+    socket.activate()
+    await firstConnection
   }
 
-  /** 断开连接 */
   function disconnect() {
-    if (roomSub) {
-      roomSub.unsubscribe()
-      roomSub = null
-    }
-    if (battleSub) {
-      battleSub.unsubscribe()
-      battleSub = null
-    }
-    if (client) {
-      client.deactivate()
-      client = null
-    }
+    cancelPending?.()
+    cancelPending = null
+    const previous = client
+    client = null
+    notifyConnection?.(false)
+    notifyConnection = undefined
+    if (previous) void previous.deactivate().catch(error => console.warn('Disconnect failed', error))
   }
 
-  /** 是否已连接 */
-  function isConnected(): boolean {
-    return client?.active ?? false
-  }
-
-  return { connect, disconnect, isConnected }
+  return { connect, disconnect, isConnected: () => client?.connected ?? false }
 }

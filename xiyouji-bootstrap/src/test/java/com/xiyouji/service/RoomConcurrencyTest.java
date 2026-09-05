@@ -58,6 +58,24 @@ class RoomConcurrencyTest {
                 () -> service.selectCharacter(code, "guest", CharacterClass.SUN_WUKONG));
     }
 
+    @Test
+    void existingPlayerCanReenterFullAndStartedRoomWithoutChangingState() {
+        RoomService service = newService();
+        String code = service.createRoom("host", "host").getCode();
+        for (int i = 0; i < 4; i++) service.joinRoom(code, "guest" + i, "guest" + i);
+        service.selectCharacter(code, "host", CharacterClass.SUN_WUKONG);
+        service.toggleReady(code, "host");
+        long version = service.getRoom(code).getStateVersion();
+        // A stale version from before the late join must not prevent reconnecting.
+        var restored = service.joinRoom(code, "host", "host", 0);
+        assertEquals(version, restored.getStateVersion());
+        assertEquals(5, restored.getPlayerCount());
+        assertEquals(true, restored.getPlayers().get(0).isReady());
+        service.getRoomEntity(code).setStatus(com.xiyouji.service.room.RoomStatus.IN_MAP);
+        assertEquals(com.xiyouji.service.room.RoomStatus.IN_MAP, service.joinRoom(code, "guest0", "guest0", 0).getStatus());
+        assertThrows(RuntimeException.class, () -> service.joinRoom(code, "outsider", "outsider"));
+    }
+
     private RoomService newService() {
         return new RoomService(
                 new InMemoryRoomStore(),

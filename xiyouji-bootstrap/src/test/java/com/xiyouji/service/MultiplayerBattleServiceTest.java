@@ -283,4 +283,35 @@ class MultiplayerBattleServiceTest {
         assertNotNull(info.get("enemy"));
         assertEquals(5, ((List<?>) info.get("players")).size());
     }
+
+    @Test
+    void victoryOffersFiveAndMixedClaimSkipCompletesWithoutDuplicateRewards() {
+        setupCharacterAndEnemyMocks();
+        Card reward = new Card("reward", "", CardType.ATTACK, Rarity.COMMON, null, 1);
+        when(cardRepo.findByCharacterClassOrCharacterClassIsNull(any())).thenReturn(List.of(reward));
+        MultiplayerBattleState state = battleService.startBattle(ROOM_CODE, HOST_ID);
+        state.getEnemy().setHp(1);
+        // Reward settlement must not depend on whether the shuffled first card is defense.
+        Card finishingAttack = new Card("finisher", "", CardType.ATTACK, Rarity.BASIC, null, 1);
+        finishingAttack.setDamage(6);
+        state.findPlayer("user_0").getCharacter().getHand().set(0, finishingAttack);
+        battleService.playCard(ROOM_CODE, "user_0", 0);
+        assertTrue(state.isVictory());
+        assertEquals(5, state.getRewards().size());
+        state.getRewards().values().forEach(cards -> assertEquals(5, cards.size()));
+        int before = state.findPlayer("user_0").getCharacter().getDeck().size();
+        battleService.claimReward(ROOM_CODE, "user_0", "reward");
+        assertEquals(before + 1, state.findPlayer("user_0").getCharacter().getDeck().size());
+        assertFalse(state.isRewardsHandled());
+        for (int i = 1; i < 5; i++) {
+            String user = "user_" + i;
+            int size = state.findPlayer(user).getCharacter().getDeck().size();
+            battleService.skipReward(ROOM_CODE, user, -1, null);
+            assertEquals(size, state.findPlayer(user).getCharacter().getDeck().size());
+            assertEquals("__SKIPPED__", state.getClaimedRewards().get(user));
+        }
+        assertTrue(state.isRewardsHandled());
+        assertThrows(InvalidActionException.class, () -> battleService.claimReward(ROOM_CODE, "user_0", "reward"));
+        assertEquals(before + 1, state.findPlayer("user_0").getCharacter().getDeck().size());
+    }
 }

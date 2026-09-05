@@ -603,7 +603,7 @@ public class MultiplayerBattleService {
     // ===== 奖励与楼层推进 =====
 
     /**
-     * 战斗胜利后为每个存活玩家生成3张随机卡牌奖励
+     * 战斗胜利后为每个存活玩家生成5张随机卡牌奖励
      * 奖励数量 = 存活玩家数（每人3选1）
      */
     private void generateRewards(MultiplayerBattleState state) {
@@ -616,33 +616,18 @@ public class MultiplayerBattleService {
         state.setRewards(rewards);
         state.setRewardsPhase(true);
         state.setRewardsHandled(false);
-        state.addLog("战斗胜利！每位存活玩家可从3张卡牌中选择1张");
+        state.addLog("战斗胜利！每位存活玩家可从5张卡牌中选择1张");
         log.info("Rewards generated: room={}, alivePlayers={}", state.getRoomCode(), rewards.size());
     }
 
-    /** 为指定角色生成3张随机卡牌（非基础卡，优先该职业+通用） */
+    /** 为指定角色生成5张随机卡牌（非基础卡，优先该职业+通用） */
     private List<Card> generateRewardCards(CharacterClass charClass) {
-        // 获取该职业可用卡牌 + 通用卡牌
-        List<Card> pool = new ArrayList<>(cardRepo.findByCharacterClassOrCharacterClassIsNull(charClass));
-        // 排除基础卡（挥棒、格挡）
-        pool.removeIf(c -> "挥棒".equals(c.getName()) || "格挡".equals(c.getName()));
-        // 打乱并取前3张
-        Collections.shuffle(pool, random);
-        List<Card> result = new ArrayList<>();
-        for (int i = 0; i < Math.min(3, pool.size()); i++) {
-            result.add(pool.get(i).copy());
-        }
-        // 如果池子不足3张，补充基础卡
-        while (result.size() < 3) {
-            List<Card> fallback = cardRepo.findByName("挥棒");
-            if (!fallback.isEmpty()) result.add(fallback.get(0).copy());
-            else break;
-        }
-        return result;
+        return CardRewardSampler.draw(cardRepo.findByCharacterClassOrCharacterClassIsNull(charClass),
+                charClass, GameConstants.CARD_REWARD_COUNT, random);
     }
 
     /**
-     * 玩家领取奖励（从3张中选1张加入牌组）
+     * 玩家领取奖励（从5张中选1张加入牌组）
      */
     public MultiplayerBattleState claimReward(String roomCode, String userId, String cardName) {
         return claimReward(roomCode, userId, cardName, null);
@@ -656,8 +641,18 @@ public class MultiplayerBattleService {
 
     public MultiplayerBattleState claimReward(String roomCode, String userId, String cardName,
                                               long expectedVersion, String idempotencyKey) {
-        String key = commandKey("claim-reward", roomCode, userId, idempotencyKey);
-        String fingerprint = CommandGuard.fingerprint("POST", "/multiplayer/battle/" + roomCode + "/claim-reward", cardName);
+        return resolveReward(roomCode, userId, cardName, false, expectedVersion, idempotencyKey);
+    }
+
+    public MultiplayerBattleState skipReward(String roomCode, String userId,
+                                              long expectedVersion, String idempotencyKey) {
+        return resolveReward(roomCode, userId, null, true, expectedVersion, idempotencyKey);
+    }
+
+    private MultiplayerBattleState resolveReward(String roomCode, String userId, String cardName,
+                                                 boolean skip, long expectedVersion, String idempotencyKey) {
+        String key = commandKey(skip ? "skip-reward" : "claim-reward", roomCode, userId, idempotencyKey);
+        String fingerprint = CommandGuard.fingerprint("POST", "/multiplayer/battle/" + roomCode + (skip ? "/skip-reward" : "/claim-reward"), cardName);
         IdempotencyStore.Entry entry = begin(key, fingerprint);
         if (entry != null && entry.completed()) {
             MultiplayerBattleState existing = battleStore.get(roomCode);
@@ -676,12 +671,12 @@ public class MultiplayerBattleService {
                 throw new InvalidActionException("你已经领取过奖励了");
             }
             List<Card> options = state.getRewards().get(userId);
-            if (options == null || options.isEmpty()) {
+            if (options == null || (!skip && options.isEmpty())) {
                 throw new InvalidActionException("你没有可领取的奖励");
             }
 
             // 找到选择的卡牌
-            Card chosen = options.stream()
+            Card chosen = skip ? null : options.stream()
                     .filter(c -> c.getName().equals(cardName))
                     .findFirst()
                     .orElseThrow(() -> new InvalidActionException("无效的卡牌选择: " + cardName));
@@ -691,17 +686,17 @@ public class MultiplayerBattleService {
             if (player == null) {
                 throw new InvalidActionException("你不在该战斗中");
             }
-            player.getCharacter().addCard(chosen.copy());
+            if (chosen != null) player.getCharacter().addCard(chosen.copy());
 
-            state.getClaimedRewards().put(userId, cardName);
-            state.addLog(player.getUsername() + " 选择了卡牌: " + cardName);
+            state.getClaimedRewards().put(userId, skip ? "__SKIPPED__" : cardName);
+            state.addLog(player.getUsername() + (skip ? " 跳过了卡牌奖励" : " 选择了卡牌: " + cardName));
 
             // 检查是否所有人都领取完毕
             boolean allClaimed = state.getRewards().keySet().stream()
                     .allMatch(uid -> state.getClaimedRewards().containsKey(uid));
             if (allClaimed) {
                 state.setRewardsHandled(true);
-                state.addLog("所有玩家已领取奖励，房主可进入下一层");
+                state.addLog("所有玩家已处理奖励，房主可进入下一层");
             }
 
             battleStore.save(state);
@@ -731,7 +726,8 @@ public class MultiplayerBattleService {
         String fingerprint = CommandGuard.fingerprint("POST", "/multiplayer/battle/" + roomCode + "/next-floor", "");
         IdempotencyStore.Entry entry = begin(key, fingerprint);
         if (entry != null && entry.completed()) {
-            return Map.of("message", "操作已完成");
+            return Map.of("message", "操作已完成", "completed",
+                    roomService.getRoomEntity(roomCode).getStatus() == com.xiyouji.service.room.RoomStatus.FINISHED);
         }
         try {
             Map<String, Object> result = withRoomLock(roomCode, () -> {

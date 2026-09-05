@@ -98,7 +98,10 @@ public class GameController {
         result.put("lastEvent", session.getLastEvent());
         result.put("currentLayer", session.getCurrentLayer());
         result.put("maxLayer", session.getMaxLayer());
-        result.put("inBattle", session.getBattle() != null && !session.getBattle().isBattleOver());
+        result.put("inBattle", session.getBattle() != null && (!session.getBattle().isBattleOver()
+                || session.getBattle().getCardRewards() != null
+                || (session.getBattle().isVictory() && session.getCurrentNode() != null
+                    && "BOSS".equals(session.getCurrentNode().getType()))));
         return result;
     }
 

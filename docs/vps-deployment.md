@@ -9,7 +9,7 @@
 3. 记录输出镜像的 `sha-<short-sha>` 标签，例如 `ghcr.io/mishen9998/xiyouji:sha-1a2b3c4`。
 4. 确认 GHCR Package 可被 VPS 拉取：公开展示可将 Package 设为 Public，私有部署则先在 VPS 执行 `docker login ghcr.io`。
 
-发布工作流只负责构建和发布镜像；发布前应以同一提交的绿色 CI 为准。
+发布工作流会检查同一提交是否存在成功的 CI，再构建和发布镜像。CI 支持手动触发；如果版本标签所在提交尚无绿色 CI，应先运行 CI。正式部署建议记录并使用 GHCR 的 `@sha256:...` 镜像 digest，部署脚本同时支持固定 `sha-*` 标签和 digest。
 
 ## 2. 准备 VPS
 
@@ -70,6 +70,10 @@ npm run test:e2e --prefix frontend-vue
 然后用普通窗口和无痕窗口完成一次多人房间验收，确认 HTTPS、WSS、跨窗口状态更新和游戏开局正常。
 
 ## 安全与能力边界
+
+宝塔已有 HTTPS 站点可参考 [反向代理片段](baota-proxy.conf.example)，合并到该站点的 server 配置，保留原证书设置；先检查配置并 reload，再验证 HTTPS 页面和 WSS 握手。不要覆盖其他站点或把片段直接当作完整 nginx.conf。
+
+升级前执行 [备份和隔离恢复](backup-restore.md)，并记录实际恢复结果。
 
 - 单 App 更新会有短暂停机，不声明高可用或零停机。
 - 对外禁用 Actuator 详情、Swagger 和 API Docs；健康检查由容器内部执行。

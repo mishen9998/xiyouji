@@ -206,4 +206,51 @@ class BattleServiceTest {
 
         verify(gameService).saveSession(session);
     }
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.CsvSource({"false,1", "true,1", "true,3"})
+    void rewardsSurviveRepeatedSettlementAndReloadAndAreConsumedOnce(boolean boss, int layer) {
+        GameCharacter player = new GameCharacter();
+        player.setCharacterClass(CharacterClass.SUN_WUKONG);
+        player.setHp(80); player.setMaxHp(80);
+        GameSession session = new GameSession("rewards", player, List.of());
+        BattleState battle = new BattleState(new Enemy("enemy", 10, 1, 0, boss, layer));
+        battle.setBattleOver(true); battle.setVictory(true);
+        session.setBattle(battle);
+        session.setCurrentLayer(layer);
+        Card card = new Card("reward", "", CardType.ATTACK, Rarity.COMMON, null, 1);
+        when(gameService.getSession("rewards")).thenReturn(session);
+        when(gameService.getCardRewards("rewards", 5)).thenReturn(List.of(card, card, card, card, card));
+        doAnswer(inv -> ((java.util.function.Supplier<?>) inv.getArgument(1)).get())
+            .when(gameService).withSessionLock(eq("rewards"), any());
+        var first = battleService.handleBattleEnd("rewards");
+        int gold = player.getGold();
+        assertEquals(first, battleService.handleBattleEnd("rewards"));
+        assertEquals(gold, player.getGold());
+        assertEquals(first, battleService.getBattleInfo("rewards").get("rewards"));
+        int before = player.getDeck().size();
+        battleService.chooseCardReward("rewards", 2, -1, null);
+        battleService.chooseCardReward("rewards", 2, -1, null);
+        assertEquals(before + 1, player.getDeck().size());
+        var restored = (java.util.Map<?, ?>) battleService.getBattleInfo("rewards").get("rewards");
+        assertEquals(true, restored.get("resolved"));
+        assertEquals(List.of(), restored.get("cardRewards"));
+        verify(gameService, times(1)).getCardRewards("rewards", 5);
+    }
+
+    @Test
+    void defeatDoesNotGenerateRewards() {
+        GameCharacter player = new GameCharacter();
+        GameSession session = new GameSession("defeat", player, List.of());
+        BattleState battle = new BattleState();
+        battle.setBattleOver(true);
+        session.setBattle(battle);
+        when(gameService.getSession("defeat")).thenReturn(session);
+        doAnswer(inv -> ((java.util.function.Supplier<?>) inv.getArgument(1)).get())
+            .when(gameService).withSessionLock(eq("defeat"), any());
+        assertEquals(false, battleService.handleBattleEnd("defeat").get("victory"));
+        verify(gameService, never()).getCardRewards(anyString(), anyInt());
+        assertThrows(com.xiyouji.exception.InvalidActionException.class,
+            () -> battleService.skipReward("defeat", -1, null));
+    }
 }

@@ -10,6 +10,7 @@ xiyouji-bootstrap/src/main/resources/static/images
 output
 tmp
 data
+backups
 .trae-html-share-packages
 *.log
 *.zip

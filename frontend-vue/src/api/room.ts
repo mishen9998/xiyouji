@@ -86,7 +86,11 @@ export const multiplayerBattleApi = {
     return postJson(`${BATTLE_API}/${roomCode}/claim-reward`, { cardName }, { expectedStateVersion, idempotencyKey })
   },
 
-  nextFloor(roomCode: string, expectedStateVersion: number, idempotencyKey?: string): Promise<MultiplayerBattleInfo> {
+  skipReward(roomCode: string, expectedStateVersion: number, idempotencyKey?: string): Promise<MultiplayerBattleInfo> {
+    return postJson(`${BATTLE_API}/${roomCode}/skip-reward`, undefined, { expectedStateVersion, idempotencyKey })
+  },
+
+  nextFloor(roomCode: string, expectedStateVersion: number, idempotencyKey?: string): Promise<{ completed?: boolean; message?: string }> {
     return postJson(`${BATTLE_API}/${roomCode}/next-floor`, undefined, { expectedStateVersion, idempotencyKey })
   },
 }
@@ -103,7 +107,8 @@ export function getCurrentUsername(): string | null {
     const token = localStorage.getItem('xiyouji_jwt_token')
     if (!token) return null
     const payload = token.split('.')[1]
-    const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')))
+    const bytes = Uint8Array.from(atob(payload.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0))
+    const decoded = JSON.parse(new TextDecoder().decode(bytes))
     return decoded.sub || decoded.username || null
   } catch {
     return null

@@ -40,7 +40,8 @@ CORS_ORIGINS="$(read_env CORS_ORIGINS)"
 HTTP_BIND="$(read_env HTTP_BIND)"
 HTTP_PORT="$(read_env HTTP_PORT)"
 
-[[ "$APP_IMAGE" == ghcr.io/*:sha-* ]] || fail "APP_IMAGE must use a fixed ghcr.io/...:sha-* tag."
+[[ "$APP_IMAGE" =~ ^ghcr\.io/[a-z0-9._/-]+(:sha-[a-f0-9]{7,40}|@sha256:[a-f0-9]{64})$ ]] || \
+  fail "APP_IMAGE must use a ghcr.io/...:sha-<commit> tag or @sha256:<digest>."
 [[ "$APP_IMAGE" != *replace* ]] || fail "APP_IMAGE still contains a placeholder."
 [[ ${#DB_PASSWORD} -ge 20 && "$DB_PASSWORD" != *replace* && "$DB_PASSWORD" != *change-me* ]] || \
   fail "DB_PASSWORD must be a non-placeholder value with at least 20 characters."

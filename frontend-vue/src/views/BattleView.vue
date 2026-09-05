@@ -336,7 +336,7 @@ onMounted(async () => {
   }
 
   // 已有 sessionId：无战斗信息（从地图进入）或上一场已结束则启动新战斗
-  if (!battleInfo.value || battleInfo.value?.battleOver) {
+  if (!battleInfo.value) {
     try {
       await startBattle()
     } catch (e) {

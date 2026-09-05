@@ -92,7 +92,7 @@ public class MultiplayerBattleController {
     }
 
     @PostMapping("/{roomCode}/claim-reward")
-    @Operation(summary = "领取战斗奖励", description = "从3张卡牌中选1张加入牌组")
+    @Operation(summary = "领取战斗奖励", description = "从5张卡牌中选1张加入牌组")
     public Map<String, Object> claimReward(@PathVariable String roomCode,
                                             @RequestBody Map<String, String> body,
                                             @RequestHeader("X-Idempotency-Key") String idempotencyKey,
@@ -104,6 +104,15 @@ public class MultiplayerBattleController {
         }
         log.info("Claim reward: room={}, user={}, card={}", roomCode, userId, cardName);
         battleService.claimReward(roomCode, userId, cardName, expectedVersion, idempotencyKey);
+        return battleService.getBattleInfo(roomCode);
+    }
+
+    @PostMapping("/{roomCode}/skip-reward")
+    @Operation(summary = "跳过战斗卡牌奖励")
+    public Map<String, Object> skipReward(@PathVariable String roomCode,
+            @RequestHeader("X-Idempotency-Key") String idempotencyKey,
+            @RequestHeader("X-Expected-State-Version") long expectedVersion) {
+        battleService.skipReward(roomCode, currentUserId(), expectedVersion, idempotencyKey);
         return battleService.getBattleInfo(roomCode);
     }
 

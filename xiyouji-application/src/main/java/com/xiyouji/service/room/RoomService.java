@@ -95,6 +95,8 @@ public class RoomService {
         // 加分布式锁：防止两玩家同时加入突破 5 人上限（检查 isFull 与 add 必须原子）
         return lockService.executeWithLock(RoomLockKeys.forRoom(code), 5, () -> {
             Room room = getRoomOrThrow(code);
+            // Re-entering after a refresh is a read, even when the room is full or already playing.
+            if (room.hasPlayer(userId)) return toDTO(room);
             checkVersion(code, room, expectedVersion);
 
             if (room.getStatus() != RoomStatus.WAITING) {
@@ -102,9 +104,6 @@ public class RoomService {
             }
             if (room.isFull()) {
                 throw new InvalidActionException("房间已满（5人）");
-            }
-            if (room.hasPlayer(userId)) {
-                throw new InvalidActionException("你已在该房间内");
             }
 
             RoomPlayer player = new RoomPlayer(userId, username);

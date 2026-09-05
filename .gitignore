@@ -67,6 +67,7 @@ tmp/
 
 # 本地运行时数据
 data/
+backups/
 .uploads/
 
 # GPG public key export (temp)

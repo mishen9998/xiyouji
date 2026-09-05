@@ -166,6 +166,9 @@ public class MapService {
      * @throws InvalidActionException 节点不存在或无法到达
      */
     public MapNode moveToNode(GameSession session, String nodeId) {
+        if (session.getBattle() != null && session.getBattle().getCardRewards() != null) {
+            throw new InvalidActionException("请先选择或跳过战斗奖励");
+        }
         MapNode target = session.getMap().stream()
                 .filter(n -> n.getId().equals(nodeId))
                 .findFirst()
@@ -180,6 +183,7 @@ public class MapService {
                 .filter(n -> n.isAccessible() && !n.isVisited())
                 .forEach(n -> n.setAccessible(false));
 
+        session.setBattle(null);
         target.setVisited(true);
         session.setCurrentNode(target);
         session.getPlayer().setFloor(target.getLayer());
@@ -210,6 +214,10 @@ public class MapService {
      * @return true表示成功进入下一层，false表示已通关
      */
     public boolean advanceToNextLayer(GameSession session) {
+        if (session.getBattle() != null && session.getBattle().getCardRewards() != null) {
+            throw new InvalidActionException("请先选择或跳过战斗奖励");
+        }
+        session.setBattle(null);
         int nextLayer = session.getCurrentLayer() + 1;
         if (nextLayer > session.getMaxLayer()) {
             log.info("玩家通关: sessionId={}", session.getSessionId());

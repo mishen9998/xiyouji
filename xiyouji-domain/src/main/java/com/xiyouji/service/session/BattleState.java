@@ -17,6 +17,9 @@ public class BattleState {
     private boolean battleOver;
     private boolean victory;
     private boolean rewardsHandled;
+    private Map<String, Object> rewardSummary = new HashMap<>();
+    public Map<String, Object> getRewardSummary() { return rewardSummary; }
+    public void setRewardSummary(Map<String, Object> value) { rewardSummary = value; }
     private List<Card> cardRewards;  // 战斗胜利后的卡牌奖励列表（供 chooseCardReward 使用）
     private List<String> combatLog;
     private int cardsPlayedThisTurn;

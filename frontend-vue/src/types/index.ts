@@ -95,6 +95,7 @@ export interface BattleInfo {
 }
 
 export interface Rewards {
+  resolved?: boolean
   goldReward?: number
   cardRewards?: Card[]
   relicReward?: Relic | null
@@ -142,6 +143,7 @@ export interface EventResponse {
 }
 
 export interface CardRewardChooseResponse {
+  success: boolean
   stateVersion?: number
   player?: Player
   chosenCard?: string

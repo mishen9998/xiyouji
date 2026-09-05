@@ -48,6 +48,7 @@
         </div>
       </div>
 
+      <p class="connection-status" role="status">{{ roomStore.connected ? '实时连接正常' : '实时连接恢复中，房间状态自动同步' }}</p>
       <!-- 玩家列表 -->
       <div class="player-slots">
         <div
@@ -82,7 +83,8 @@
             class="char-card-mini"
             :class="{
               selected: myPlayer?.characterClass === char.class,
-              taken: isCharTaken(char.class)
+              taken: isCharTaken(char.class),
+              pending: actionPending
             }"
             @click="handleSelectChar(char.class)"
           >
@@ -95,10 +97,11 @@
 
       <!-- 操作按钮 -->
       <div class="action-bar">
-        <button class="btn-secondary" @click="handleLeave">退出房间</button>
+        <button class="btn-secondary" :disabled="actionPending" @click="handleLeave">退出房间</button>
         <button
           v-if="myPlayer && !myPlayer.ready"
           class="btn-primary"
+          :disabled="actionPending"
           @click="handleReady"
         >
           准备
@@ -106,6 +109,7 @@
         <button
           v-else-if="myPlayer && myPlayer.ready"
           class="btn-secondary"
+          :disabled="actionPending"
           @click="handleReady"
         >
           取消准备
@@ -113,6 +117,7 @@
         <button
           v-if="roomStore.isHost && roomStore.canStart"
           class="btn-primary btn-start-battle"
+          :disabled="actionPending"
           @click="handleStartGame"
         >
           🗺️ 开始游戏
@@ -151,6 +156,7 @@ const roomStore = useRoomStore()
 const uiStore = useUiStore()
 
 const loading = ref(false)
+const actionPending = ref(false)
 const joinCode = ref('')
 
 // 角色信息（与 CharacterSelectView 一致）
@@ -173,10 +179,12 @@ const currentUsername = ref<string | null>(null)
 
 onMounted(async () => {
   currentUsername.value = getCurrentUsername()
-  // 如果已经在房间中，检查是否进入战斗
-  if (roomStore.room?.status === 'IN_BATTLE') {
-    router.push(`/room/${roomStore.roomCode}/battle`)
+  if (!roomStore.room) {
+    loading.value = true
+    try { await roomStore.restoreRoom() } finally { loading.value = false }
   }
+  if (roomStore.room?.status === 'IN_BATTLE') router.push(`/room/${roomStore.roomCode}/battle`)
+  else if (roomStore.room?.status === 'IN_MAP') router.push(`/room/${roomStore.roomCode}/map`)
 })
 
 // 监听房间状态变化，进入战斗
@@ -219,15 +227,17 @@ function getCharName(cc: CharacterClass | null): string {
 
 // ====== 大厅操作 ======
 async function handleCreate() {
+  if (loading.value) return
   loading.value = true
   try {
     await roomStore.createRoom()
-  } finally {
+  } catch { /* Store displays the error. */ } finally {
     loading.value = false
   }
 }
 
 async function handleJoin() {
+  if (loading.value) return
   if (joinCode.value.length !== 8) {
     uiStore.showToast('请输入8位房间码')
     return
@@ -245,32 +255,39 @@ async function handleJoin() {
 
 // ====== 等待室操作 ======
 async function handleSelectChar(charClass: CharacterClass) {
+  if (actionPending.value) return
   if (isCharTaken(charClass)) {
     uiStore.showToast('该角色已被其他玩家选择')
     return
   }
-  await roomStore.selectCharacter(charClass)
+  await runAction(() => roomStore.selectCharacter(charClass))
 }
 
 async function handleReady() {
+  if (actionPending.value) return
   if (!myPlayer.value?.characterClass) {
     uiStore.showToast('请先选择角色再准备')
     return
   }
-  await roomStore.toggleReady()
+  await runAction(() => roomStore.toggleReady())
 }
 
 async function handleLeave() {
-  await roomStore.leaveRoom()
+  await runAction(() => roomStore.leaveRoom())
+}
+
+async function runAction(action: () => Promise<unknown>) {
+  if (actionPending.value) return
+  actionPending.value = true
+  try { await action() } catch { /* Store displays the error; controls remain usable. */ }
+  finally { actionPending.value = false }
 }
 
 async function handleStartGame() {
-  try {
-    await roomStore.startGame()
-    router.push(`/room/${roomStore.roomCode}/map`)
-  } catch {
-    // 错误已在 store 中处理
-  }
+  await runAction(async () => {
+    const result = await roomStore.startGame()
+    if (result.status === 'IN_MAP') await router.push(`/room/${roomStore.roomCode}/map`)
+  })
 }
 
 function copyCode() {
@@ -290,7 +307,7 @@ function handleBack() {
       okText: '退出房间',
       cancelText: '取消',
       onOk: async () => {
-        await roomStore.leaveRoom()
+        await runAction(() => roomStore.leaveRoom())
         router.push('/menu')
       },
     })
@@ -301,6 +318,8 @@ function handleBack() {
 </script>
 
 <style scoped>
+.connection-status { color: var(--text-secondary); text-align: center; margin: 12px 0; }
+.char-card-mini.pending { pointer-events: none; opacity: 0.6; }
 .room-view {
   width: 100%;
   height: 100vh;

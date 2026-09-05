@@ -211,10 +211,8 @@ public class GameService {
         GameSession session = getSession(sessionId);
         List<Card> allAvailable = cardRepo.findByCharacterClassOrCharacterClassIsNull(
                 session.getPlayer().getCharacterClass());
-        Collections.shuffle(allAvailable);
-        // ★ 使用 new ArrayList 包装，避免 subList 返回 ArrayList$SubList
-        // 该内部类无默认构造器，会导致 Redis JSON 反序列化失败，会话丢失
-        return new ArrayList<>(allAvailable.subList(0, Math.min(count, allAvailable.size())));
+        return CardRewardSampler.draw(allAvailable, session.getPlayer().getCharacterClass(), count,
+                java.util.concurrent.ThreadLocalRandom.current());
     }
 
     @Transactional

@@ -108,7 +108,7 @@
               v-for="(card, i) in myDeck"
               :key="i"
               class="mini-card"
-              :class="{ disabled: bonfireUpgradesLeft <= 0 }"
+              :class="{ disabled: bonfireUpgradesLeft <= 0 || eventSubmitting, selected: selectedUpgrade === i }"
               @click="doUpgrade(i)"
             >
               <span>{{ card.emoji || '' }} {{ card.name }}</span>
@@ -119,7 +119,8 @@
         <!-- 休息 -->
         <button v-if="currentEventType === 'rest'" class="btn-primary" @click="doRest">休息回血</button>
 
-        <button class="btn-primary" @click="onEventClose">{{ continueText }}</button>
+        <button class="btn-primary" :disabled="eventSubmitting" @click="onEventClose">{{ selectedUpgrade >= 0 ? '继续前进（确认升级）' : continueText }}</button>
+        <button v-if="selectedUpgrade >= 0" class="btn-small" :disabled="eventSubmitting" @click="selectedUpgrade = -1">取消选择</button>
       </div>
     </div>
   </div>
@@ -146,6 +147,8 @@ const MAP_WIDTH = Math.max(360, Math.round((typeof window !== 'undefined' ? wind
 const COL_WIDTH = MAP_WIDTH / 4
 
 // 本地状态
+const eventSubmitting = ref(false)
+const selectedUpgrade = ref(-1)
 const eventModalVisible = ref(false)
 const currentEventType = ref('')
 const eventTitle = ref('')
@@ -173,7 +176,7 @@ const shopPrice = computed(() =>
 )
 
 function onEventBackdropClick() {
-  if (currentEventType.value !== 'shop') onEventClose()
+  if (!eventSubmitting.value && !['shop', 'bonfire'].includes(currentEventType.value)) onEventClose()
 }
 const isHost = computed(() => {
   if (!room.value || !currentUserId.value) return false
@@ -255,6 +258,7 @@ async function onMoveNode(node: MapNode) {
 }
 
 async function handleEvent(et: string) {
+  selectedUpgrade.value = -1
   boughtIndices.value = new Set()
   shopCards.value = []
   eventMessage.value = ''
@@ -323,22 +327,26 @@ async function buyCard(card: Card, index: number) {
   } catch { /* ignore */ }
 }
 
-async function doUpgrade(cardIndex: number) {
-  if (bonfireUpgradesLeft.value <= 0) return
-  try {
-    const result = await roomStore.handleEvent('upgrade', { cardIndex })
-    if (result?.bonfireUpgradesLeft !== undefined) {
-      bonfireUpgradesLeft.value = result.bonfireUpgradesLeft
-    }
-    if (result?.message) {
-      ui.showToast(result.message)
-    }
-  } catch { /* ignore */ }
+function doUpgrade(cardIndex: number) {
+  if (!eventSubmitting.value && bonfireUpgradesLeft.value > 0) selectedUpgrade.value = cardIndex
 }
 
 async function onEventClose() {
-  eventModalVisible.value = false
-  await roomStore.refreshRoomState()
+  if (eventSubmitting.value) return
+  eventSubmitting.value = true
+  try {
+    if (currentEventType.value === 'bonfire' && selectedUpgrade.value >= 0) {
+      const result = await roomStore.handleEvent('upgrade', { cardIndex: selectedUpgrade.value })
+      if (!result || result.error) throw new Error(result?.error || '升级失败')
+      selectedUpgrade.value = -1
+      bonfireUpgradesLeft.value = result.bonfireUpgradesLeft ?? room.value?.bonfireUpgradesLeft ?? 0
+      if (result.message) ui.showToast(result.message)
+      if (bonfireUpgradesLeft.value > 0) return
+    }
+    await roomStore.refreshRoomState()
+    eventModalVisible.value = false
+  } catch (e: any) { ui.showToast(e?.message || '操作失败，请重试') }
+  finally { eventSubmitting.value = false }
 }
 
 function goRoom() {
@@ -397,6 +405,7 @@ watch([mapNodes, currentNode], () => {
 </script>
 
 <style scoped>
+.mini-card.selected { outline: 3px solid #f2a900; }
 .map-screen {
   display: flex;
   flex-direction: column;
