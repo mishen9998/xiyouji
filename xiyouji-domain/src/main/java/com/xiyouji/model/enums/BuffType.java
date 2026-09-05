@@ -6,7 +6,8 @@ package com.xiyouji.model.enums;
 public enum BuffType {
     STRENGTH("力量", true),       // +攻击力
     WEAK("虚弱", false),         // -25%攻击伤害
-    VULNERABLE("易伤", false),   // +50%受到伤害
+    // 技术枚举值保留 VULNERABLE，兼容已有存档和效果字段；玩家展示名称按 9.5 需求统一为“脆弱”。
+    VULNERABLE("脆弱", false),    // 受到伤害 +50%
     BLOCK("格挡", true),         // 护盾
     DEXTERITY("敏捷", true),     // +防御
     POISON("中毒", false),       // 每回合扣血

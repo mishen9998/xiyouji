@@ -373,7 +373,7 @@ function footer(slide, pageNum) {
     { text: "战斗有限状态机", options: { breakLine: true, bold: true, color: C.goldLight } },
     { text: "回合管理+敌人AI循环模式", options: { breakLine: true, color: C.muted, fontSize: 10 } },
     { text: "伤害公式", options: { breakLine: true, bold: true, color: C.goldLight } },
-    { text: "(基础+力量)×虚弱×易伤系数", options: { breakLine: true, color: C.muted, fontSize: 10 } },
+    { text: "(基础+力量)×虚弱×脆弱系数", options: { breakLine: true, color: C.muted, fontSize: 10 } },
     { text: "Buff系统", options: { breakLine: true, bold: true, color: C.goldLight } },
     { text: "Map merge()叠加+tickBuffs()衰减", options: { color: C.muted, fontSize: 10 } },
   ], { x: CONTENT_X + 0.2, y: 2.1, w: 3.9, h: 2.9, fontSize: 12, fontFace: FONT_BODY, paraSpaceAfter: 2 });
@@ -393,7 +393,7 @@ function footer(slide, pageNum) {
     { text: "击败小怪也掉卡，5张候选", options: { breakLine: true, color: C.muted, fontSize: 10 } },
     { text: "篝火限升2次", options: { breakLine: true, bold: true, color: C.goldLight } },
     { text: "bonfireUpgradesLeft追踪", options: { breakLine: true, color: C.muted, fontSize: 10 } },
-    { text: "易伤即时生效", options: { breakLine: true, bold: true, color: C.goldLight } },
+    { text: "脆弱即时生效", options: { breakLine: true, bold: true, color: C.goldLight } },
     { text: "debuff移至伤害计算之前", options: { breakLine: true, color: C.muted, fontSize: 10 } },
     { text: "遗物战斗触发", options: { breakLine: true, bold: true, color: C.goldLight } },
     { text: "作用于battle.getEnemy()副本", options: { color: C.muted, fontSize: 10 } },
@@ -425,7 +425,7 @@ function footer(slide, pageNum) {
       "龙威（白龙马专属）",
       "大乘佛法（唐三藏专属）",
       "修复：遗物战斗开始效果未触发",
-      "修复：易伤未影响同回合攻击",
+      "修复：脆弱未影响同回合攻击",
     ]},
     { batch: "第三批", count: "12张", checkpoint: "烈焰掌", color: C.gold, items: [
       "烈焰掌 · 铜皮铁骨 · 毒雾弥漫",
@@ -874,7 +874,7 @@ function footer(slide, pageNum) {
   const bugs = [
     { id: "01", desc: "copy()未复制id致手牌误删", fix: "引用相等(==)替代equals()" },
     { id: "02", desc: "力量跨战叠加不重置", fix: "initBattle()归零" },
-    { id: "03", desc: "易伤未影响同回合攻击", fix: "debuff移至伤害计算前" },
+    { id: "03", desc: "脆弱未影响同回合攻击", fix: "debuff移至伤害计算前" },
     { id: "04", desc: "遗物战斗开始效果未触发", fix: "作用于battle.getEnemy()副本" },
     { id: "05", desc: "JPA实体序列化Redis失败", fix: "移除4个@Cacheable" },
     { id: "06", desc: "BAT文件中文乱码", fix: "纯英文脚本+系统mvn" },

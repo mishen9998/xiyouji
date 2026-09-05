@@ -126,7 +126,7 @@ public class BattleService {
                 } else if (p.startsWith("VULNERABLE:")) {
                     int turns = Integer.parseInt(p.substring(11));
                     battleEnemy.addBuff(BuffType.VULNERABLE, turns);
-                    log.info("宝物[{}]触发: 敌人+{}层易伤", relic.getName(), turns);
+                    log.info("宝物[{}]触发: 敌人+{}层脆弱", relic.getName(), turns);
                 } else if (p.startsWith("DAMAGE:")) {
                     int dmg = Integer.parseInt(p.substring(7));
                     battleEnemy.takeDamage(dmg);
@@ -238,7 +238,7 @@ public class BattleService {
         if ("龙爪".equals(card.getName()) && battle.isSkillUsedThisTurn()) {
             extraDmg = 5;
         }
-        // 致命一击：对易伤目标三倍
+        // 致命一击：对脆弱目标三倍
         if ("致命一击".equals(card.getName())
                 && battle.getEnemy().getBuffs().containsKey(BuffType.VULNERABLE)
                 && battle.getEnemy().getBuffs().get(BuffType.VULNERABLE) > 0) {
@@ -248,7 +248,7 @@ public class BattleService {
         if ("破甲击".equals(card.getName()) && battle.getEnemy().getBlock() > 0) {
             extraDmg = card.getDamage(); // base + extra = base*2
         }
-        // 金箍棒法：对易伤目标伤害翻倍
+        // 金箍棒法：对脆弱目标伤害翻倍
         if ("金箍棒法".equals(card.getName())
                 && battle.getEnemy().getBuffs().containsKey(BuffType.VULNERABLE)
                 && battle.getEnemy().getBuffs().get(BuffType.VULNERABLE) > 0) {

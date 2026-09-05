@@ -241,7 +241,7 @@ public class MultiplayerBattleService {
             }
 
             // 调用 GameCharacter.playCard 执行卡牌效果
-            // 包含：扣能量、施加debuff到敌人、计算伤害（含力量/易伤/虚弱）、格挡、抽牌、治疗等
+            // 包含：扣能量、施加 debuff 到敌人、计算伤害（含力量/脆弱/虚弱）、格挡、抽牌、治疗等
             boolean success = gc.playCard(card, state.getEnemy());
             if (!success) {
                 throw new InvalidActionException("出牌失败");

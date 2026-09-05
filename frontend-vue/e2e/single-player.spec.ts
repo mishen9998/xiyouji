@@ -54,7 +54,7 @@ test('土地庙支持查看卡牌、返回商店、购买并继续前进', async
   const shopCards = [
     card,
     { ...card, id: 102, name: '筋斗云', type: 'DEFENSE', cost: 1, damage: 0, block: 10, drawCards: 1, description: '获得10点格挡，下回合多抽1张牌。' },
-    { ...card, id: 103, name: '火眼金睛', cost: 2, damage: 3, description: '造成3点伤害，施加1层易伤。' },
+    { ...card, id: 103, name: '火眼金睛', cost: 2, damage: 3, description: '造成3点伤害，施加1层脆弱。' },
     { ...card, id: 104, name: '大闹天宫', cost: 2, damage: 15, description: '造成15点伤害。消耗。' },
     { ...card, id: 105, name: '七十二变', type: 'SKILL', cost: 1, damage: 0, drawCards: 1, description: '施加2层虚弱，抽1张牌。' },
   ]

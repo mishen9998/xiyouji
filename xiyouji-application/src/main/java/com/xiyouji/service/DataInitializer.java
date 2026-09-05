@@ -62,6 +62,8 @@ public class DataInitializer {
         syncCardNextTurnEffects();
         // 同步扩展敌人emoji字段（用于无图时头像回退显示）
         syncEnemyEmojis();
+        // 9.5 文案迁移：兼容 Flyway 未启用的开发环境与已有演示数据库
+        syncVulnerableDisplayName();
     }
 
     /** 增量迁移：添加唐三藏角色、卡牌、遗物到已有数据库 */
@@ -121,7 +123,7 @@ public class DataInitializer {
         mkb("身外身","获得4点力量。抽2张牌。消耗。",CardType.POWER,Rarity.RARE,CharacterClass.SUN_WUKONG,1,0,0,0,0, 4,0,0,0,0,0,2);
         mkb("三十六变","获得10点格挡。回复5点生命值。",CardType.DEFENSE,Rarity.UNCOMMON,CharacterClass.ZHU_BAJIE,2,0,10,0,3, 0,0,0,0,0,5,0);
         mkb("净坛使者","获得2点力量。获得2点敏捷。",CardType.POWER,Rarity.RARE,CharacterClass.ZHU_BAJIE,2,0,0,0,0, 2,2,0,0,0,0,0);
-        mkb("降魔阵","造成6点伤害。获得6点格挡。施加1层易伤。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.SHA_SENG,1,6,6,3,2, 0,0,1,0,0,0,0);
+        mkb("降魔阵","造成6点伤害。获得6点格挡。施加1层脆弱。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.SHA_SENG,1,6,6,3,2, 0,0,1,0,0,0,0);
         mkb("琉璃盏","回复8点生命值。获得8点格挡。消耗。",CardType.SKILL,Rarity.RARE,CharacterClass.SHA_SENG,1,0,8,0,3, 0,0,0,0,0,8,0);
         mkb("龙息","造成6点伤害。施加1层虚弱。抽1张牌。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.BAI_LONGMA,1,6,0,3,0, 0,0,0,1,0,0,1);
         mkb("水遁","获得9点格挡。抽1张牌。",CardType.DEFENSE,Rarity.UNCOMMON,CharacterClass.BAI_LONGMA,1,0,9,0,3, 0,0,0,0,0,0,1);
@@ -136,7 +138,7 @@ public class DataInitializer {
     private void migrateSecondBatchCards() {
         mkb("怒目金刚","造成9点伤害。施加1层虚弱。",CardType.ATTACK,Rarity.UNCOMMON,null,1,9,0,4,0, 0,0,0,1,0,0,0);
         mkb("金刚经","获得7点格挡。抽1张牌。",CardType.DEFENSE,Rarity.COMMON,null,1,0,7,0,3, 0,0,0,0,0,0,1);
-        mkb("迷魂术","施加2层易伤。抽1张牌。",CardType.SKILL,Rarity.UNCOMMON,null,1,0,0,0,0, 0,0,2,0,0,0,1);
+        mkb("迷魂术","施加2层脆弱。抽1张牌。",CardType.SKILL,Rarity.UNCOMMON,null,1,0,0,0,0, 0,0,2,0,0,0,1);
         mkb("破甲击","造成5点伤害。对有格挡的敌人伤害翻倍。",CardType.ATTACK,Rarity.UNCOMMON,null,1,5,0,3,0, 0,0,0,0,0,0,0);
         mkb("法天象地","造成18点伤害。消耗。",CardType.ATTACK,Rarity.RARE,CharacterClass.SUN_WUKONG,3,18,0,6,0, 0,0,0,0,0,0,0);
         mkb("哮天犬","造成4点伤害。抽2张牌。",CardType.ATTACK,Rarity.COMMON,CharacterClass.SUN_WUKONG,1,4,0,2,0, 0,0,0,0,0,0,2);
@@ -145,7 +147,7 @@ public class DataInitializer {
         mkb("降妖宝杖·真","造成15点伤害。获得5点格挡。消耗。",CardType.ATTACK,Rarity.RARE,CharacterClass.SHA_SENG,2,15,5,5,2, 0,0,0,0,0,0,0);
         mkb("龙战于野","造成12点伤害。获得3点格挡。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.BAI_LONGMA,1,12,3,4,2, 0,0,0,0,0,0,0);
         mkb("佛光普照","回复6点生命值。获得5点格挡。施加1层虚弱。",CardType.SKILL,Rarity.UNCOMMON,CharacterClass.TANG_SANZANG,1,0,5,0,3, 0,0,0,1,0,6,0);
-        mkb("紧箍咒·禁","造成3点伤害。施加2层虚弱和1层易伤。",CardType.ATTACK,Rarity.RARE,CharacterClass.TANG_SANZANG,1,3,0,2,0, 0,0,1,2,0,0,0);
+        mkb("紧箍咒·禁","造成3点伤害。施加2层虚弱和1层脆弱。",CardType.ATTACK,Rarity.RARE,CharacterClass.TANG_SANZANG,1,3,0,2,0, 0,0,1,2,0,0,0);
         log.info("第二批扩展卡牌迁移完成，新增12张");
     }
 
@@ -179,7 +181,7 @@ public class DataInitializer {
         mkb("金身罗汉","获得3点敏捷。获得2点力量。",CardType.POWER,Rarity.RARE,CharacterClass.SHA_SENG,2,0,0,0,0, 2,3,0,0,0,0,0);
 
         // ====== 白龙马（1张） ======
-        mkb("龙卷风暴","造成10点伤害。施加1层易伤。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.BAI_LONGMA,2,10,0,4,0, 0,0,1,0,0,0,0);
+        mkb("龙卷风暴","造成10点伤害。施加1层脆弱。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.BAI_LONGMA,2,10,0,4,0, 0,0,1,0,0,0,0);
 
         // ====== 唐三藏（1张） ======
         // 般若波罗蜜：消耗
@@ -209,7 +211,7 @@ public class DataInitializer {
         mkb("净坛使者","获得2点力量。获得2点敏捷。",CardType.POWER,Rarity.RARE,CharacterClass.ZHU_BAJIE,2,0,0,0,0, 2,2,0,0,0,0,0);
 
         // ====== 沙僧扩展 ======
-        mkb("降魔阵","造成6点伤害。获得6点格挡。施加1层易伤。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.SHA_SENG,1,6,6,3,2, 0,0,1,0,0,0,0);
+        mkb("降魔阵","造成6点伤害。获得6点格挡。施加1层脆弱。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.SHA_SENG,1,6,6,3,2, 0,0,1,0,0,0,0);
         mkb("琉璃盏","回复8点生命值。获得8点格挡。消耗。",CardType.SKILL,Rarity.RARE,CharacterClass.SHA_SENG,1,0,8,0,3, 0,0,0,0,0,8,0);
 
         // ====== 白龙马扩展 ======
@@ -226,7 +228,7 @@ public class DataInitializer {
         // 通用
         mkb("怒目金刚","造成9点伤害。施加1层虚弱。",CardType.ATTACK,Rarity.UNCOMMON,null,1,9,0,4,0, 0,0,0,1,0,0,0);
         mkb("金刚经","获得7点格挡。抽1张牌。",CardType.DEFENSE,Rarity.COMMON,null,1,0,7,0,3, 0,0,0,0,0,0,1);
-        mkb("迷魂术","施加2层易伤。抽1张牌。",CardType.SKILL,Rarity.UNCOMMON,null,1,0,0,0,0, 0,0,2,0,0,0,1);
+        mkb("迷魂术","施加2层脆弱。抽1张牌。",CardType.SKILL,Rarity.UNCOMMON,null,1,0,0,0,0, 0,0,2,0,0,0,1);
         mkb("破甲击","造成5点伤害。对有格挡的敌人伤害翻倍。",CardType.ATTACK,Rarity.UNCOMMON,null,1,5,0,3,0, 0,0,0,0,0,0,0);
         // 孙悟空
         mkb("法天象地","造成18点伤害。消耗。",CardType.ATTACK,Rarity.RARE,CharacterClass.SUN_WUKONG,3,18,0,6,0, 0,0,0,0,0,0,0);
@@ -240,7 +242,7 @@ public class DataInitializer {
         mkb("龙战于野","造成12点伤害。获得3点格挡。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.BAI_LONGMA,1,12,3,4,2, 0,0,0,0,0,0,0);
         // 唐三藏
         mkb("佛光普照","回复6点生命值。获得5点格挡。施加1层虚弱。",CardType.SKILL,Rarity.UNCOMMON,CharacterClass.TANG_SANZANG,1,0,5,0,3, 0,0,0,1,0,6,0);
-        mkb("紧箍咒·禁","造成3点伤害。施加2层虚弱和1层易伤。",CardType.ATTACK,Rarity.RARE,CharacterClass.TANG_SANZANG,1,3,0,2,0, 0,0,1,2,0,0,0);
+        mkb("紧箍咒·禁","造成3点伤害。施加2层虚弱和1层脆弱。",CardType.ATTACK,Rarity.RARE,CharacterClass.TANG_SANZANG,1,3,0,2,0, 0,0,1,2,0,0,0);
 
         // ====== 第三批扩展卡牌（12张） ======
         // 通用
@@ -259,7 +261,7 @@ public class DataInitializer {
         mkb("降妖钵盂","施加2层虚弱。回复5点生命值。",CardType.SKILL,Rarity.UNCOMMON,CharacterClass.SHA_SENG,1,0,0,0,0, 0,0,0,2,0,5,0);
         mkb("金身罗汉","获得3点敏捷。获得2点力量。",CardType.POWER,Rarity.RARE,CharacterClass.SHA_SENG,2,0,0,0,0, 2,3,0,0,0,0,0);
         // 白龙马
-        mkb("龙卷风暴","造成10点伤害。施加1层易伤。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.BAI_LONGMA,2,10,0,4,0, 0,0,1,0,0,0,0);
+        mkb("龙卷风暴","造成10点伤害。施加1层脆弱。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.BAI_LONGMA,2,10,0,4,0, 0,0,1,0,0,0,0);
         // 唐三藏
         mkb("般若波罗蜜","回复15点生命值。获得5点格挡。抽2张牌。消耗。",CardType.SKILL,Rarity.RARE,CharacterClass.TANG_SANZANG,2,0,5,0,3, 0,0,0,0,0,15,2);
     }
@@ -291,6 +293,29 @@ public class DataInitializer {
                 c.setExhaust(true);
                 cr.save(c);
             }
+        }
+    }
+
+    /** 将已有数据库中的玩家可见术语统一为“脆弱”。技术效果字段 VULNERABLE 不变。 */
+    private void syncVulnerableDisplayName() {
+        int cardCount = 0;
+        for (Card card : cr.findAll()) {
+            if (card.getDescription() != null && card.getDescription().contains("易伤")) {
+                card.setDescription(card.getDescription().replace("易伤", "脆弱"));
+                cr.save(card);
+                cardCount++;
+            }
+        }
+        int relicCount = 0;
+        for (Relic relic : rr.findAll()) {
+            if (relic.getDescription() != null && relic.getDescription().contains("易伤")) {
+                relic.setDescription(relic.getDescription().replace("易伤", "脆弱"));
+                rr.save(relic);
+                relicCount++;
+            }
+        }
+        if (cardCount > 0 || relicCount > 0) {
+            log.info("9.5 文案迁移完成：{} 张卡牌、{} 件宝物已将易伤改为脆弱", cardCount, relicCount);
         }
     }
 
@@ -357,10 +382,10 @@ public class DataInitializer {
         mk("格挡","获得5点格挡。",CardType.DEFENSE,Rarity.BASIC,null,1,0,5,0,3);
         mkb("蓄力","获得2点力量。",CardType.SKILL,Rarity.BASIC,null,1,0,0,0,0, 2,0,0,0,0,0,0);
         mk("闪避","获得6点格挡。",CardType.DEFENSE,Rarity.BASIC,null,1,0,6,0,3);
-        mk("金箍棒法","造成8点伤害。对易伤目标伤害翻倍。",CardType.ATTACK,Rarity.COMMON,CharacterClass.SUN_WUKONG,1,8,0,4,0);
+        mk("金箍棒法","造成8点伤害。对脆弱目标伤害翻倍。",CardType.ATTACK,Rarity.COMMON,CharacterClass.SUN_WUKONG,1,8,0,4,0);
         mkb("七十二变","施加2层虚弱。抽1张牌。",CardType.SKILL,Rarity.COMMON,CharacterClass.SUN_WUKONG,1,0,0,0,0, 0,0,0,2,0,0,1);
         mk("筋斗云","获得10点格挡。下回合多抽1张牌。",CardType.DEFENSE,Rarity.COMMON,CharacterClass.SUN_WUKONG,2,0,10,0,3);
-        mkb("火眼金睛","造成3点伤害。施加1层易伤。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.SUN_WUKONG,2,3,0,2,0, 0,0,1,0,0,0,0);
+        mkb("火眼金睛","造成3点伤害。施加1层脆弱。",CardType.ATTACK,Rarity.UNCOMMON,CharacterClass.SUN_WUKONG,2,3,0,2,0, 0,0,1,0,0,0,0);
         mk("大闹天宫","造成15点伤害。消耗。",CardType.ATTACK,Rarity.RARE,CharacterClass.SUN_WUKONG,2,15,0,5,0);
         mkb("毫毛分身","获得3点力量。抽3张牌。消耗。",CardType.POWER,Rarity.RARE,CharacterClass.SUN_WUKONG,2,0,0,0,0, 3,0,0,0,0,0,3);
         mk("九齿钉耙","造成5点伤害。获得3点格挡。",CardType.ATTACK,Rarity.COMMON,CharacterClass.ZHU_BAJIE,1,5,3,2,2);
@@ -393,8 +418,8 @@ public class DataInitializer {
         mkb("突刺","造成7点伤害。抽1张牌。",CardType.ATTACK,Rarity.UNCOMMON,null,1,7,0,3,0, 0,0,0,0,0,0,1);
         mkb("冥想","获得2点敏捷。回复3点生命值。",CardType.SKILL,Rarity.UNCOMMON,null,1,0,0,0,0, 0,2,0,0,0,3,0);
         mk("金钟罩","获得15点格挡。消耗。",CardType.DEFENSE,Rarity.RARE,null,2,0,15,0,5);
-        mkb("天雷破","造成20点伤害。施加1层易伤。",CardType.ATTACK,Rarity.RARE,null,3,20,0,5,0, 0,0,1,0,0,0,0);
-        mk("致命一击","造成5点伤害。对易伤目标造成三倍伤害。",CardType.ATTACK,Rarity.RARE,null,2,5,0,5,0);
+        mkb("天雷破","造成20点伤害。施加1层脆弱。",CardType.ATTACK,Rarity.RARE,null,3,20,0,5,0, 0,0,1,0,0,0,0);
+        mk("致命一击","造成5点伤害。对脆弱目标造成三倍伤害。",CardType.ATTACK,Rarity.RARE,null,2,5,0,5,0);
         mkb("仙丹","回复10点生命值。获得2点力量。消耗。",CardType.SKILL,Rarity.RARE,null,1,0,0,0,0, 2,0,0,0,0,10,0);
         mkb("毒镖","造成3点伤害。施加3层中毒。",CardType.ATTACK,Rarity.COMMON,null,1,3,0,2,0, 0,0,0,0,3,0,0);
         mk("横扫千军","造成8点伤害。攻击所有敌人。",CardType.ATTACK,Rarity.UNCOMMON,null,2,8,0,3,0);
@@ -509,7 +534,7 @@ public class DataInitializer {
         rl("人参果","每场战斗开始时回复5点生命值。",RelicTier.RARE,null);
         rl("避水珠","受到伤害时，获得1点格挡。",RelicTier.COMMON,null);
         rl("风火轮","每回合额外获得1点能量。",RelicTier.BOSS,null);
-        rl("照妖镜","战斗开始时，对敌人施加1层易伤。",RelicTier.COMMON,null);
+        rl("照妖镜","战斗开始时，对敌人施加1层脆弱。",RelicTier.COMMON,null);
         rl("甘露瓶","在休息点可以升级一张卡牌。",RelicTier.RARE,null);
         // 扩展宝物
         addExtraRelics();
@@ -542,7 +567,7 @@ public class DataInitializer {
         rle("金刚琢","受到伤害时，获得2点格挡。",RelicTier.UNCOMMON,null,"💍","ON_DAMAGE;BLOCK:2");
         rle("炼妖壶","每击杀一个敌人，最大生命值+3。",RelicTier.UNCOMMON,null,"🫖","ON_KILL;MAX_HP:3");
         rle("镇妖塔","每打出4张防御牌，获得1点敏捷。",RelicTier.UNCOMMON,null,"🗼","COMBO_DEFENSE:4;DEXTERITY:1");
-        rle("捆仙绳","战斗开始时，对敌人施加1层虚弱和1层易伤。",RelicTier.UNCOMMON,null,"🪢","BATTLE_START;ENEMY_DEBUFF;WEAK:1;VULNERABLE:1");
+        rle("捆仙绳","战斗开始时，对敌人施加1层虚弱和1层脆弱。",RelicTier.UNCOMMON,null,"🪢","BATTLE_START;ENEMY_DEBUFF;WEAK:1;VULNERABLE:1");
     }
 
     /** 增量同步：为51个扩展敌人补充emoji字段（用于无图时的头像回退显示） */

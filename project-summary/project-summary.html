@@ -270,7 +270,7 @@ footer p { color: var(--muted); font-size: 0.85rem; }
 <div class="timeline-item">
   <div class="timeline-time">2026-07-22 14:35</div>
   <div class="timeline-title">存档加载修复 + Buff 图标系统 <span class="tag tag-feat">Feature</span></div>
-  <div class="timeline-desc">修复 Pinia 响应式丢失导致存档加载失败（使用 store.confirmVisible 替代解构值）。实现完整 Buff 图标系统：后端将力量/敏捷作为永久 Buff 返回，前端 BuffBar 组件展示 28x28px 图标 —— 金色边框表示永久效果（力量/敏捷），红/绿背景表示临时效果（虚弱/易伤/中毒），附带剩余回合数。</div>
+  <div class="timeline-desc">修复 Pinia 响应式丢失导致存档加载失败（使用 store.confirmVisible 替代解构值）。实现完整 Buff 图标系统：后端将力量/敏捷作为永久 Buff 返回，前端 BuffBar 组件展示 28x28px 图标 —— 金色边框表示永久效果（力量/敏捷），红/绿背景表示临时效果（虚弱/脆弱/中毒），附带剩余回合数。</div>
 </div>
 
 <div class="timeline-item">
@@ -293,8 +293,8 @@ footer p { color: var(--muted); font-size: 0.85rem; }
 
 <div class="timeline-item">
   <div class="timeline-time">2026-07-22 18:27</div>
-  <div class="timeline-title">第二批卡牌 + 易伤/宝物 Bug 修复 <span class="tag tag-feat">Feature</span> <span class="tag tag-fix">Bug Fix</span></div>
-  <div class="timeline-desc">修复两项关键 Bug：1）易伤当回合攻击牌未吃到收益 —— 将 debuff 施加移到伤害计算之前；2）宝物战斗开始效果未生效 —— 应用到 BattleState 中的敌人副本而非原始模板对象，添加完整的 effect 字段解析。新增第二批 12 张扩展卡牌（怒目金刚、金刚经、迷魂术等）及配套 AI 生成插图。</div>
+  <div class="timeline-title">第二批卡牌 + 脆弱/宝物 Bug 修复 <span class="tag tag-feat">Feature</span> <span class="tag tag-fix">Bug Fix</span></div>
+  <div class="timeline-desc">修复两项关键 Bug：1）脆弱当回合攻击牌未吃到收益 —— 将 debuff 施加移到伤害计算之前；2）宝物战斗开始效果未生效 —— 应用到 BattleState 中的敌人副本而非原始模板对象，添加完整的 effect 字段解析。新增第二批 12 张扩展卡牌（怒目金刚、金刚经、迷魂术等）及配套 AI 生成插图。</div>
 </div>
 
 <div class="timeline-item">
@@ -405,20 +405,20 @@ stateDiagram-v2
 <h3>伤害计算公式</h3>
 <div class="card">
 <p style="font-family: 'IBMPlexMono', monospace; font-size: 1.1rem; text-align: center; color: var(--accent);">
-最终伤害 = (基础伤害 + 力量) × 虚弱系数 × 易伤系数 - 格挡
+最终伤害 = (基础伤害 + 力量) × 虚弱系数 × 脆弱系数 - 格挡
 </p>
 <p style="text-align: center; color: var(--muted); font-size: 0.85rem;">
-虚弱系数 = 0.75（有虚弱时） | 易伤系数 = 1.5（有易伤时）
+虚弱系数 = 0.75（有虚弱时） | 脆弱系数 = 1.5（有脆弱时）
 </p>
 </div>
 
 <div class="callout">
 <div class="callout-title">关键修复</div>
-<p>易伤/虚弱/中毒的施加必须在伤害计算<mark class="key">之前</mark>完成，否则同回合打出的易伤牌后续攻击牌无法吃到易伤收益。修复方式：在 <code>GameCharacter.playCard()</code> 中将 debuff 施加（第 160-162 行）移到伤害计算（第 164-170 行）之前。</p>
+<p>脆弱/虚弱/中毒的施加必须在伤害计算<mark class="key">之前</mark>完成，否则同回合打出的脆弱牌后续攻击牌无法吃到脆弱收益。修复方式：在 <code>GameCharacter.playCard()</code> 中将 debuff 施加（第 160-162 行）移到伤害计算（第 164-170 行）之前。</p>
 </div>
 
 <h3>Buff/Debuff 系统</h3>
-<p>Buff 和 Debuff 使用 <code>Map&lt;BuffType, Integer&gt;</code> 存储，通过 <code>merge()</code> 实现叠加，<code>tickBuffs()</code> 实现回合衰减。分为两类：永久效果（力量、敏捷）和临时效果（虚弱、易伤、中毒），前端以不同视觉风格区分。</p>
+<p>Buff 和 Debuff 使用 <code>Map&lt;BuffType, Integer&gt;</code> 存储，通过 <code>merge()</code> 实现叠加，<code>tickBuffs()</code> 实现回合衰减。分为两类：永久效果（力量、敏捷）和临时效果（虚弱、脆弱、中毒），前端以不同视觉风格区分。</p>
 
 <h3>程序化地图生成</h3>
 <p>地图采用程序化生成，21 个节点构成蛇形路径，战斗节点概率 45%，敌人难度按 7 级线性递增。玩家从起点出发，沿路径前进，每个节点触发不同事件类型（战斗/Boss/篝火/宝箱/商店/随机事件）。</p>
@@ -448,7 +448,7 @@ stateDiagram-v2
 </figure>
 
 <h3>卡牌体系</h3>
-<p>卡牌按稀有度分为基础、普通、罕见、稀有四个等级，按类型分为攻击、防御、技能、能力四种。每张卡牌可包含伤害、格挡、力量/敏捷加成、虚弱/易伤/中毒施加、回血、抽牌、下回合效果等多种属性。卡牌可通过篝火升级（+3 伤害/格挡），部分卡牌具有消耗（Exhaust）机制。</p>
+<p>卡牌按稀有度分为基础、普通、罕见、稀有四个等级，按类型分为攻击、防御、技能、能力四种。每张卡牌可包含伤害、格挡、力量/敏捷加成、虚弱/脆弱/中毒施加、回血、抽牌、下回合效果等多种属性。卡牌可通过篝火升级（+3 伤害/格挡），部分卡牌具有消耗（Exhaust）机制。</p>
 
 <figure class="chart-figure">
 <figcaption>图 4：卡牌按角色分布</figcaption>
@@ -477,7 +477,7 @@ stateDiagram-v2
 </div>
 
 <h3>宝物遗物系统</h3>
-<p>宝物分为开局遗物（角色专属）和探索获取遗物两类。遗物效果通过 <code>effect</code> 字段配置，支持 BATTLE_START（战斗开始）、TURN_START（回合开始）、ATTACK_BONUS（攻击加成）、ON_KILL（击杀触发）等触发时机。包括紧箍咒（+2力量）、定海神针（+1能量）、照妖镜（敌人易伤）、七星剑（攻击+伤害）、九转金丹（每回合回血）、炼妖壶（击杀回血）等 27 件遗物。</p>
+<p>宝物分为开局遗物（角色专属）和探索获取遗物两类。遗物效果通过 <code>effect</code> 字段配置，支持 BATTLE_START（战斗开始）、TURN_START（回合开始）、ATTACK_BONUS（攻击加成）、ON_KILL（击杀触发）等触发时机。包括紧箍咒（+2力量）、定海神针（+1能量）、照妖镜（敌人脆弱）、七星剑（攻击+伤害）、九转金丹（每回合回血）、炼妖壶（击杀回血）等 27 件遗物。</p>
 </section>
 
 <!-- ===== 5. 架构演进 ===== -->
@@ -621,8 +621,8 @@ flowchart TB
 </div>
 
 <div class="card">
-<h4>3. 易伤当回合无效 <span class="tag tag-fix">Bug Fix</span></h4>
-<p><strong>现象</strong>：打出易伤牌后，同回合后续攻击牌未吃到易伤加成。</p>
+<h4>3. 脆弱当回合无效 <span class="tag tag-fix">Bug Fix</span></h4>
+<p><strong>现象</strong>：打出脆弱牌后，同回合后续攻击牌未吃到脆弱加成。</p>
 <p><strong>根因</strong>：debuff 施加在伤害计算之后执行。</p>
 <p><strong>方案</strong>：在 <code>playCard()</code> 中将 debuff 施加移到伤害计算之前。</p>
 </div>

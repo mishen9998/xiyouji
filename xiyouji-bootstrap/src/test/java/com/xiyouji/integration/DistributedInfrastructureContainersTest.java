@@ -85,6 +85,9 @@ class DistributedInfrastructureContainersTest {
                 assertThat(result.next()).isTrue();
                 assertThat(result.getString("version")).isEqualTo("2");
                 assertThat(result.getBoolean("success")).isTrue();
+                assertThat(result.next()).isTrue();
+                assertThat(result.getString("version")).isEqualTo("3");
+                assertThat(result.getBoolean("success")).isTrue();
             }
         }
     }

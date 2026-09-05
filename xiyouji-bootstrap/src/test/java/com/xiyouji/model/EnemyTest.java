@@ -47,16 +47,17 @@ class EnemyTest {
     }
 
     @Test
-    @DisplayName("takeDamage 易伤增加 50% 伤害")
+    @DisplayName("takeDamage 脆弱增加 50% 伤害")
     void testTakeDamage_amplifiedByVulnerable() {
         Enemy enemy = createSampleEnemy(); // hp=100
+        assertEquals("脆弱", BuffType.VULNERABLE.getDisplayName(), "9.5 规则的玩家展示名称应为脆弱");
         enemy.addBuff(BuffType.VULNERABLE, 2);
 
-        // 基础伤害 20，易伤 +50% = 30
+        // 基础伤害 20，脆弱 +50% = 30
         int actualDamage = enemy.takeDamage(20);
 
-        assertEquals(70, enemy.getHp(), "易伤下 20 伤害变为 30，hp 应为 70（100 - 30）");
-        assertEquals(30, actualDamage, "易伤下实际伤害应为 30（20 * 1.5）");
+        assertEquals(70, enemy.getHp(), "脆弱下 20 伤害变为 30，hp 应为 70（100 - 30）");
+        assertEquals(30, actualDamage, "脆弱下实际伤害应为 30（20 * 1.5）");
     }
 
     @Test

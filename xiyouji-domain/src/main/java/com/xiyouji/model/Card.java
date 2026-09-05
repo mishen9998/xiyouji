@@ -39,7 +39,7 @@ public class Card {
     private int healAmount;         // 回血
     private int strengthBonus;      // 力量加成
     private int dexterityBonus;     // 敏捷加成
-    private int vulnerableTurns;    // 施加易伤回合
+    private int vulnerableTurns;    // 施加脆弱回合（数据库字段保持兼容）
     private int weakTurns;          // 施加虚弱回合
     private int poisonAmount;       // 中毒层数
     private int drawNextTurn;       // 下回合额外抽牌数

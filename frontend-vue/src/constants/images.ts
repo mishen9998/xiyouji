@@ -173,11 +173,11 @@ export const TYPE_LABELS: Record<string, string> = {
 }
 
 export const DEBUFF_NAMES: Record<string, boolean> = {
-  '虚弱': true, '易伤': true, '中毒': true, '灼烧': true, '冰冻': true
+  '虚弱': true, '脆弱': true, '中毒': true, '灼烧': true, '冰冻': true
 }
 
 export const BUFF_ICONS: Record<string, string> = {
-  '力量': '💪', '敏捷': '🌀', '虚弱': '😵‍💫', '易伤': '📉',
+  '力量': '💪', '敏捷': '🌀', '虚弱': '😵‍💫', '脆弱': '📉',
   '中毒': '☠️', '灼烧': '🔥', '冰冻': '🧊', '护盾': '🛡️',
   '力量增益': '💪', '敏捷增益': '🌀'
 }

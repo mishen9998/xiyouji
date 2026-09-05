@@ -99,15 +99,15 @@ INSERT INTO cards (name, description, type, rarity, character_class, cost, damag
 ('蓄力', '获得2点力量。', 'SKILL', 'BASIC', NULL, 1, 0, 0, 0, 0, 0, NULL, '💪'),
 -- 后续卡牌会在DataInitializer中动态加载
 ('闪避', '获得6点格挡。', 'DEFENSE', 'BASIC', NULL, 1, 0, 6, 0, 0, 3, '灵活闪避', '💨'),
-('精准打击', '造成4点伤害。施加1层易伤。', 'ATTACK', 'BASIC', NULL, 1, 4, 0, 0, 2, 0, NULL, '🎯'),
+('精准打击', '造成4点伤害。施加1层脆弱。', 'ATTACK', 'BASIC', NULL, 1, 4, 0, 0, 2, 0, NULL, '🎯'),
 ('旋风斩', '对所有敌人造成4点伤害。', 'ATTACK', 'BASIC', NULL, 2, 4, 0, 0, 2, 0, NULL, '🌪️');
 
 -- 孙悟空专属卡牌
 INSERT INTO cards (name, description, type, rarity, character_class, cost, damage, block, draw_cards, damage_upgrade, flavor_text, emoji) VALUES
-('金箍棒法', '造成8点伤害。如果目标有易伤，造成12点伤害。', 'ATTACK', 'COMMON', 'SUN_WUKONG', 1, 8, 0, 0, 4, '如意金箍棒，一万三千五百斤！', '🔱'),
+('金箍棒法', '造成8点伤害。如果目标有脆弱，造成12点伤害。', 'ATTACK', 'COMMON', 'SUN_WUKONG', 1, 8, 0, 0, 4, '如意金箍棒，一万三千五百斤！', '🔱'),
 ('七十二变', '使敌人虚弱2回合。抽1张牌。', 'SKILL', 'COMMON', 'SUN_WUKONG', 1, 0, 0, 1, 0, '变成苍蝇、变成大树、变成……', '🔄'),
 ('筋斗云', '获得10点格挡。下回合多抽1张牌。', 'DEFENSE', 'COMMON', 'SUN_WUKONG', 2, 0, 10, 0, 3, '一个跟头就是十万八千里。', '☁️'),
-('火眼金睛', '造成3点伤害3次。施加1层易伤。', 'ATTACK', 'UNCOMMON', 'SUN_WUKONG', 2, 3, 0, 0, 2, '在老君炉里炼出来的！', '👁️');
+('火眼金睛', '造成3点伤害3次。施加1层脆弱。', 'ATTACK', 'UNCOMMON', 'SUN_WUKONG', 2, 3, 0, 0, 2, '在老君炉里炼出来的！', '👁️');
 
 -- 猪八戒专属卡牌
 INSERT INTO cards (name, description, type, rarity, character_class, cost, damage, block, draw_cards, damage_upgrade, flavor_text, emoji) VALUES
@@ -137,8 +137,8 @@ INSERT INTO cards (name, description, type, rarity, character_class, cost, damag
 ('突刺', '造成7点伤害。抽1张牌。', 'ATTACK', 'UNCOMMON', NULL, 1, 7, 0, 3, 0, NULL, '🗡️'),
 ('冥想', '获得2点敏捷。回复3点生命值。', 'SKILL', 'UNCOMMON', NULL, 1, 0, 0, 0, 0, NULL, '🧘'),
 ('金钟罩', '获得15点格挡。消耗。', 'DEFENSE', 'RARE', NULL, 2, 0, 15, 0, 5, NULL, '🔔'),
-('天雷破', '造成20点伤害。施加1层易伤。', 'ATTACK', 'RARE', NULL, 3, 20, 0, 5, 0, NULL, '⚡'),
-('致命一击', '造成5点伤害。如果目标有易伤，造成三倍伤害。', 'ATTACK', 'RARE', NULL, 2, 5, 0, 5, 0, NULL, '💀'),
+('天雷破', '造成20点伤害。施加1层脆弱。', 'ATTACK', 'RARE', NULL, 3, 20, 0, 5, 0, NULL, '⚡'),
+('致命一击', '造成5点伤害。如果目标有脆弱，造成三倍伤害。', 'ATTACK', 'RARE', NULL, 2, 5, 0, 5, 0, NULL, '💀'),
 ('仙丹', '回复10点生命值。获得2点力量。消耗。', 'SKILL', 'RARE', NULL, 1, 0, 0, 0, 0, NULL, '✨');
 
 -- 敌人数据
@@ -171,5 +171,5 @@ INSERT INTO relics (name, description, tier, character_class, emoji, effect) VAL
 ('人参果', '每场战斗开始时回复5点生命值。', 'RARE', NULL, '🍒', 'BATTLE_START;HEAL:5'),
 ('避水珠', '受到伤害时，获得1点格挡。', 'COMMON', NULL, '💧', 'ON_DAMAGE;BLOCK:1'),
 ('风火轮', '每回合获得额外1点能量。', 'BOSS', NULL, '🔥', 'TURN_START;ENERGY:1'),
-('照妖镜', '战斗开始时，对敌人施加1层易伤。', 'COMMON', NULL, '🪞', 'BATTLE_START;ENEMY_DEBUFF;VULNERABLE:1'),
+('照妖镜', '战斗开始时，对敌人施加1层脆弱。', 'COMMON', NULL, '🪞', 'BATTLE_START;ENEMY_DEBUFF;VULNERABLE:1'),
 ('甘露瓶', '在休息点可以升级一张卡牌，不需要篝火。', 'RARE', NULL, '🧴', 'REST_UPGRADE');

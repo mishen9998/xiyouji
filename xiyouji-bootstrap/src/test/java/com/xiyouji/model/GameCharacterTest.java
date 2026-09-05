@@ -214,12 +214,12 @@ class GameCharacterTest {
     }
 
     @Test
-    @DisplayName("takeDamage 易伤状态增加50%伤害")
+    @DisplayName("takeDamage 脆弱状态增加50%伤害")
     void testTakeDamage_vulnerable() {
         GameCharacter gc = createSampleCharacter();
         gc.getBuffs().put(com.xiyouji.model.enums.BuffType.VULNERABLE, 2);
         int lost = gc.takeDamage(10);
-        assertEquals(15, lost, "易伤下10点伤害应为15");
+        assertEquals(15, lost, "脆弱下10点伤害应为15");
         assertEquals(65, gc.getHp(), "hp 应为 80-15=65");
     }
 }

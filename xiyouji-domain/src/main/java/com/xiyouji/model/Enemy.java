@@ -87,7 +87,7 @@ public class Enemy {
         if (damage <= 0) return 0;
         int actualDamage = damage;
 
-        // 易伤效果：+50%伤害
+        // 脆弱效果：受到伤害 +50%
         if (buffs.containsKey(BuffType.VULNERABLE) && buffs.get(BuffType.VULNERABLE) > 0) {
             actualDamage = (int)(actualDamage * 1.5);
         }

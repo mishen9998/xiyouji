@@ -155,8 +155,8 @@ public class GameCharacter {
         strength += card.getStrengthBonus();
         dexterity += card.getDexterityBonus();
 
-        // ★ 先施加Debuff，再计算伤害 — 这样同回合后续攻击牌能吃到易伤收益
-        // 易伤/虚弱/中毒在伤害计算前施加到目标身上
+        // ★ 先施加 Debuff，再计算伤害 — 这样同回合后续攻击牌能吃到脆弱收益
+        // 脆弱/虚弱/中毒在伤害计算前施加到目标身上
         if (card.getVulnerableTurns() > 0) target.addBuff(BuffType.VULNERABLE, card.getVulnerableTurns());
         if (card.getWeakTurns() > 0) target.addBuff(BuffType.WEAK, card.getWeakTurns());
         if (card.getPoisonAmount() > 0) target.addBuff(BuffType.POISON, card.getPoisonAmount());
