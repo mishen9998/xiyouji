@@ -101,7 +101,8 @@ class BattleServiceTest {
         player.setCharacterClass(CharacterClass.SUN_WUKONG);
         player.setMaxHp(80);
         player.setHp(80);
-        player.setMaxEnergy(3);
+        // 模拟旧版本已把上一场 +1 错误写入基础 maxEnergy=4 的会话。
+        player.setMaxEnergy(4);
         Relic energyRelic = new Relic("定海神针", "战斗开始时获得1点额外能量。", RelicTier.BOSS, null);
         energyRelic.setEffect("BATTLE_START;ENERGY:1");
         player.getRelics().add(energyRelic);

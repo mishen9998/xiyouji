@@ -74,6 +74,8 @@ public class BattleService {
 
         // 初始化玩家战斗状态 — HP继承上一场战斗的剩余值
         GameCharacter player = session.getPlayer();
+        // 兼容旧会话：旧版本曾把战斗内遗物加成写入 maxEnergy，进入新战斗时恢复基础值。
+        player.setMaxEnergy(GameConstants.MAX_ENERGY);
         player.initBattle();
 
         // ===== 遗物效果：硬编码的老宝物（应用到 battle.getEnemy() 而非 enemy 原始对象） =====
