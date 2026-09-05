@@ -159,7 +159,7 @@ common ← domain ← application ← infrastructure ← bootstrap
 
 ### Windows 一键演示（推荐）
 
-已安装 Docker Desktop 时，直接双击 [启动演示.bat](启动演示.bat)，或执行：
+已安装 Docker Desktop 时，直接双击 [启动演示.bat](启动演示.bat)。它会优先使用已有镜像快速启动；第一次运行或本地没有镜像时才执行完整构建。修改代码后如需重新打包，双击 [重新构建游戏.bat](重新构建游戏.bat)。也可以执行：
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\demo.ps1 up

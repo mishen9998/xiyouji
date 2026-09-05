@@ -81,9 +81,11 @@ function Ensure-DockerEngine {
     }
 
     $desktopCandidates = @(
+        (Join-Path $env:ProgramFiles 'Docker\Docker\Docker Desktop.exe'),
+        (if (${env:ProgramFiles(x86)}) { Join-Path ${env:ProgramFiles(x86)} 'Docker\Docker\Docker Desktop.exe' }),
         (Join-Path $env:LOCALAPPDATA 'Programs\DockerDesktop\Docker Desktop.exe'),
         (Join-Path $env:LOCALAPPDATA 'Programs\Docker\Docker\Docker Desktop.exe')
-    )
+    ) | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) }
     $desktop = $desktopCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
     if (-not $desktop) {
         throw 'Docker Engine is not running. Start Docker Desktop and retry.'
@@ -101,6 +103,52 @@ function Ensure-DockerEngine {
         }
     }
     throw 'Docker Engine did not become ready within 180 seconds.'
+}
+
+function Get-DemoImageName {
+    $match = Get-Content -LiteralPath $EnvFile | Where-Object { $_ -match '^APP_IMAGE=(.+)$' } | Select-Object -First 1
+    if ($match -and $match -match '^APP_IMAGE=(.+)$') {
+        return $Matches[1].Trim()
+    }
+    return 'xiyouji:demo'
+}
+
+function Test-DemoImageExists {
+    $previousPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = 'SilentlyContinue'
+        & docker image inspect (Get-DemoImageName) *> $null
+        return $LASTEXITCODE -eq 0
+    } catch {
+        return $false
+    } finally {
+        $ErrorActionPreference = $previousPreference
+    }
+}
+
+function Open-DemoBrowser {
+    try {
+        Start-Process -FilePath $BaseUrl | Out-Null
+        Write-Host "Opened the game in your default browser." -ForegroundColor Green
+        return
+    } catch {
+        Write-Warning "The default browser could not be opened: $($_.Exception.Message)"
+    }
+
+    $browserCandidates = @(
+        (Join-Path $env:ProgramFiles 'Google\Chrome\Application\chrome.exe'),
+        (if (${env:ProgramFiles(x86)}) { Join-Path ${env:ProgramFiles(x86)} 'Microsoft\Edge\Application\msedge.exe' }),
+        (Join-Path $env:ProgramFiles 'Microsoft\Edge\Application\msedge.exe')
+    ) | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) }
+
+    $browser = $browserCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+    if ($browser) {
+        Start-Process -FilePath $browser -ArgumentList $BaseUrl | Out-Null
+        Write-Host "Opened the game in $browser" -ForegroundColor Green
+        return
+    }
+
+    Write-Warning "No browser could be opened automatically. Open $BaseUrl manually."
 }
 
 function Assert-PortAvailable {
@@ -197,10 +245,16 @@ try {
             Write-Step 'Validating the demo configuration'
             Invoke-Compose config --quiet
 
-            Write-Step 'Building and starting MySQL, Redis and the application'
-            if ($NoBuild) {
+            $useCachedImage = $NoBuild -and (Test-DemoImageExists)
+            if ($NoBuild -and -not $useCachedImage) {
+                Write-Host 'No local demo image was found. This is the first launch, so a full build is required.' -ForegroundColor Yellow
+            }
+
+            if ($useCachedImage) {
+                Write-Step 'Starting MySQL, Redis and the application from the cached image'
                 Invoke-Compose up -d --no-build --wait --wait-timeout 600
             } else {
+                Write-Step 'Building and starting MySQL, Redis and the application (first launch may take several minutes)'
                 Invoke-Compose up -d --build --wait --wait-timeout 600
             }
             Invoke-DemoSmoke
@@ -208,7 +262,7 @@ try {
             Write-Host "`nDemo is ready: $BaseUrl" -ForegroundColor Green
             Write-Host "Swagger: $BaseUrl/swagger-ui/index.html" -ForegroundColor Green
             if (-not $NoBrowser) {
-                Start-Process $BaseUrl | Out-Null
+                Open-DemoBrowser
             }
         }
         'smoke' {
