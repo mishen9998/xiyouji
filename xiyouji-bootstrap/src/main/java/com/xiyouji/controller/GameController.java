@@ -1,6 +1,6 @@
 package com.xiyouji.controller;
 
-import com.xiyouji.dto.PlayerSummaryAssembler;
+import com.xiyouji.dto.GameSessionAssembler;
 import com.xiyouji.dto.request.EventRequest;
 import com.xiyouji.dto.request.MoveRequest;
 import com.xiyouji.dto.request.NewGameRequest;
@@ -37,19 +37,19 @@ public class GameController {
 
     private final GameService gameService;
     private final GameEventProcessor eventProcessor;
-    private final PlayerSummaryAssembler playerSummaryAssembler;
+    private final GameSessionAssembler sessionAssembler;
     private final IdempotentCommandRunner idempotent;
     private final CurrentUserResolver currentUser;
     private final CharacterClassParser characterClassParser;
 
     public GameController(GameService gameService, GameEventProcessor eventProcessor,
-                          PlayerSummaryAssembler playerSummaryAssembler,
+                          GameSessionAssembler sessionAssembler,
                           IdempotentCommandRunner idempotent,
                           CurrentUserResolver currentUser,
                           CharacterClassParser characterClassParser) {
         this.gameService = gameService;
         this.eventProcessor = eventProcessor;
-        this.playerSummaryAssembler = playerSummaryAssembler;
+        this.sessionAssembler = sessionAssembler;
         this.idempotent = idempotent;
         this.currentUser = currentUser;
         this.characterClassParser = characterClassParser;
@@ -72,14 +72,11 @@ public class GameController {
                 () -> {
                     String sessionId = UUID.randomUUID().toString().substring(0, 8);
                     GameSession session = gameService.newGame(sessionId, characterClass, username);
-                    Map<String, Object> result = newGameResponse(session, sessionId);
                     log.info("New game created successfully, sessionId: {}", sessionId);
-                    return result;
+                    return sessionAssembler.newGame(sessionId, session);
                 },
-                previous -> {
-                    GameSession existing = gameService.getSessionForUser(previous.value(), username);
-                    return newGameResponse(existing, previous.value());
-                });
+                previous -> sessionAssembler.newGame(previous.value(),
+                        gameService.getSessionForUser(previous.value(), username)));
     }
 
     /** 获取游戏状态 */
@@ -88,21 +85,7 @@ public class GameController {
     public Map<String, Object> gameState(@PathVariable String sessionId) {
         log.debug("Fetching game state for session: {}", sessionId);
         GameSession session = gameService.getSessionForUser(sessionId, currentUser.username());
-        Map<String, Object> result = new HashMap<>();
-        result.put("sessionId", sessionId);
-        result.put("stateVersion", session.getStateVersion());
-        result.put("player", playerSummaryAssembler.toPlayerSummary(session.getPlayer()));
-        result.put("map", session.getMap());
-        result.put("currentNode", session.getCurrentNode());
-        result.put("mapOpen", session.isMapOpen());
-        result.put("lastEvent", session.getLastEvent());
-        result.put("currentLayer", session.getCurrentLayer());
-        result.put("maxLayer", session.getMaxLayer());
-        result.put("inBattle", session.getBattle() != null && (!session.getBattle().isBattleOver()
-                || session.getBattle().getCardRewards() != null
-                || (session.getBattle().isVictory() && session.getCurrentNode() != null
-                    && "BOSS".equals(session.getCurrentNode().getType()))));
-        return result;
+        return sessionAssembler.fullState(sessionId, session);
     }
 
     /** 删除会话（删除存档） */
@@ -141,17 +124,12 @@ public class GameController {
         return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
                 () -> {
                     MapNode node = gameService.moveToNode(sessionId, nodeId, expectedVersion, username);
-                    Map<String, Object> result = new HashMap<>();
-                    result.put("node", node);
-                    result.put("eventType", node.domainEventType());
-                    result.put("stateVersion", gameService.getSession(sessionId).getStateVersion());
-                    return result;
+                    return sessionAssembler.moveResult(node,
+                            gameService.getSession(sessionId).getStateVersion());
                 },
                 previous -> {
                     GameSession existing = gameService.getSessionForUser(sessionId, username);
-                    return Map.of("node", existing.getCurrentNode(),
-                            "eventType", existing.getCurrentNode().domainEventType(),
-                            "stateVersion", existing.getStateVersion());
+                    return sessionAssembler.moveResult(existing.getCurrentNode(), existing.getStateVersion());
                 });
     }
 
@@ -169,22 +147,15 @@ public class GameController {
                 () -> {
                     boolean success = gameService.advanceToNextLayer(sessionId, expectedVersion, username);
                     GameSession session = gameService.getSessionForUser(sessionId, username);
-                    Map<String, Object> result = new HashMap<>();
-                    result.put("success", success);
-                    result.put("currentLayer", session.getCurrentLayer());
-                    result.put("maxLayer", session.getMaxLayer());
-                    result.put("stateVersion", session.getStateVersion());
+                    Map<String, Object> result = sessionAssembler.nextLayerResult(session, success);
                     if (!success) {
                         log.info("Game completed for session: {}", sessionId);
                         result.put("message", "恭喜通关！西天取经圆满！");
                     }
                     return result;
                 },
-                previous -> {
-                    GameSession existing = gameService.getSessionForUser(sessionId, username);
-                    return Map.of("success", true, "currentLayer", existing.getCurrentLayer(),
-                            "maxLayer", existing.getMaxLayer(), "stateVersion", existing.getStateVersion());
-                });
+                previous -> sessionAssembler.nextLayerResult(
+                        gameService.getSessionForUser(sessionId, username), true));
     }
 
     /** 从节点获得收益（休息/宝箱/商店） */
@@ -203,11 +174,7 @@ public class GameController {
         return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
                 () -> gameService.withSessionLock(sessionId,
                         () -> eventProcessor.process(sessionId, request, expectedVersion, username)),
-                previous -> {
-                GameSession existing = gameService.getSessionForUser(sessionId, username);
-                return Map.of("stateVersion", existing.getStateVersion(), "player",
-                        playerSummaryAssembler.toPlayerSummary(existing.getPlayer()));
-            });
+                previous -> sessionAssembler.playerState(gameService.getSessionForUser(sessionId, username)));
     }
 
     /** 移除卡牌 */
@@ -226,27 +193,16 @@ public class GameController {
         return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
                 () -> {
                     gameService.removeCardFromDeck(sessionId, index, expectedVersion, username);
-                    GameSession session = gameService.getSessionForUser(sessionId, username);
-                    return Map.of("success", true, "stateVersion", session.getStateVersion(),
-                            "player", playerSummaryAssembler.toPlayerSummary(session.getPlayer()));
+                    Map<String, Object> result = sessionAssembler.playerState(
+                            gameService.getSessionForUser(sessionId, username));
+                    result.put("success", true);
+                    return result;
                 },
                 previous -> {
-                    GameSession existing = gameService.getSessionForUser(sessionId, username);
-                    return Map.of("success", true, "stateVersion", existing.getStateVersion(),
-                            "player", playerSummaryAssembler.toPlayerSummary(existing.getPlayer()));
+                    Map<String, Object> result = sessionAssembler.playerState(
+                            gameService.getSessionForUser(sessionId, username));
+                    result.put("success", true);
+                    return result;
                 });
-    }
-
-    // ===== 辅助方法 =====
-
-    private Map<String, Object> newGameResponse(GameSession session, String sessionId) {
-        Map<String, Object> result = new HashMap<>();
-        result.put("sessionId", sessionId);
-        result.put("stateVersion", session.getStateVersion());
-        result.put("success", true);
-        result.put("player", playerSummaryAssembler.toPlayerSummary(session.getPlayer()));
-        result.put("map", session.getMap());
-        result.put("currentNode", session.getCurrentNode());
-        return result;
     }
 }

@@ -1,5 +1,6 @@
 package com.xiyouji.controller;
 
+import com.xiyouji.controller.support.CurrentUserResolver;
 import com.xiyouji.dto.request.BattlePlayRequest;
 import com.xiyouji.exception.InvalidActionException;
 import com.xiyouji.service.MultiplayerBattleService;
@@ -9,8 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,11 +36,14 @@ public class MultiplayerBattleController {
 
     private final MultiplayerBattleService battleService;
     private final RoomService roomService;
+    private final CurrentUserResolver currentUser;
 
     public MultiplayerBattleController(MultiplayerBattleService battleService,
-                                       RoomService roomService) {
+                                       RoomService roomService,
+                                       CurrentUserResolver currentUser) {
         this.battleService = battleService;
         this.roomService = roomService;
+        this.currentUser = currentUser;
     }
 
     @PostMapping("/{roomCode}/start")
@@ -50,7 +52,7 @@ public class MultiplayerBattleController {
                                             @RequestHeader(value = "X-Idempotency-Key", required = false)
                                             String idempotencyKey,
                                             @RequestHeader("X-Expected-State-Version") long expectedVersion) {
-        String userId = currentUserId();
+        String userId = currentUser.username();
         log.info("Start multiplayer battle: room={}, requester={}", roomCode, userId);
         battleService.startBattle(roomCode, userId, expectedVersion, idempotencyKey);
         return battleService.getBattleInfo(roomCode);
@@ -62,7 +64,7 @@ public class MultiplayerBattleController {
                                         @Valid @RequestBody BattlePlayRequest request,
                                         @RequestHeader("X-Idempotency-Key") String idempotencyKey,
                                         @RequestHeader("X-Expected-State-Version") long expectedVersion) {
-        String userId = currentUserId();
+        String userId = currentUser.username();
         log.info("Play card: room={}, user={}, handIndex={}", roomCode, userId, request.getHandIndex());
         battleService.playCard(roomCode, userId, request.getHandIndex(), expectedVersion, idempotencyKey);
         return battleService.getBattleInfo(roomCode);
@@ -73,7 +75,7 @@ public class MultiplayerBattleController {
     public Map<String, Object> endTurn(@PathVariable String roomCode,
                                        @RequestHeader("X-Idempotency-Key") String idempotencyKey,
                                        @RequestHeader("X-Expected-State-Version") long expectedVersion) {
-        String userId = currentUserId();
+        String userId = currentUser.username();
         log.info("End turn: room={}, user={}", roomCode, userId);
         battleService.endTurn(roomCode, userId, expectedVersion, idempotencyKey);
         return battleService.getBattleInfo(roomCode);
@@ -97,7 +99,7 @@ public class MultiplayerBattleController {
                                             @RequestBody Map<String, String> body,
                                             @RequestHeader("X-Idempotency-Key") String idempotencyKey,
                                             @RequestHeader("X-Expected-State-Version") long expectedVersion) {
-        String userId = currentUserId();
+        String userId = currentUser.username();
         String cardName = body.get("cardName");
         if (cardName == null || cardName.isBlank()) {
             throw new InvalidActionException("请选择一张卡牌");
@@ -112,7 +114,7 @@ public class MultiplayerBattleController {
     public Map<String, Object> skipReward(@PathVariable String roomCode,
             @RequestHeader("X-Idempotency-Key") String idempotencyKey,
             @RequestHeader("X-Expected-State-Version") long expectedVersion) {
-        battleService.skipReward(roomCode, currentUserId(), expectedVersion, idempotencyKey);
+        battleService.skipReward(roomCode, currentUser.username(), expectedVersion, idempotencyKey);
         return battleService.getBattleInfo(roomCode);
     }
 
@@ -121,18 +123,8 @@ public class MultiplayerBattleController {
     public Map<String, Object> returnToMap(@PathVariable String roomCode,
                                            @RequestHeader("X-Idempotency-Key") String idempotencyKey,
                                            @RequestHeader("X-Expected-State-Version") long expectedVersion) {
-        String userId = currentUserId();
+        String userId = currentUser.username();
         log.info("Return to map: room={}, requester={}", roomCode, userId);
         return battleService.returnToMap(roomCode, userId, expectedVersion, idempotencyKey);
-    }
-
-    // ===== 内部方法 =====
-
-    private String currentUserId() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || auth.getName() == null) {
-            throw new InvalidActionException("未登录，请先获取游客token");
-        }
-        return auth.getName();
     }
 }

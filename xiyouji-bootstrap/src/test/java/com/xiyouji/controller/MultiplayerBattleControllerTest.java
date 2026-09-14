@@ -1,5 +1,6 @@
 package com.xiyouji.controller;
 
+import com.xiyouji.controller.support.CurrentUserResolver;
 import com.xiyouji.dto.request.BattlePlayRequest;
 import com.xiyouji.exception.InvalidActionException;
 import com.xiyouji.service.MultiplayerBattleService;
@@ -39,7 +40,7 @@ class MultiplayerBattleControllerTest {
     void setUp() {
         battleService = mock(MultiplayerBattleService.class);
         roomService = mock(RoomService.class);
-        controller = new MultiplayerBattleController(battleService, roomService);
+        controller = new MultiplayerBattleController(battleService, roomService, new CurrentUserResolver());
         loginAs(USER);
     }
 

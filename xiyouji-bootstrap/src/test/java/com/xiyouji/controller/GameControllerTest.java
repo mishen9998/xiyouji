@@ -2,6 +2,7 @@ package com.xiyouji.controller;
 
 import com.xiyouji.controller.support.CharacterClassParser;
 import com.xiyouji.controller.support.CurrentUserResolver;
+import com.xiyouji.dto.GameSessionAssembler;
 import com.xiyouji.dto.PlayerSummaryAssembler;
 import com.xiyouji.dto.request.EventRequest;
 import com.xiyouji.dto.request.MoveRequest;
@@ -58,7 +59,8 @@ class GameControllerTest {
 
     @BeforeEach
     void setUp() {
-        controller = new GameController(gameService, eventProcessor, playerSummaryAssembler,
+        controller = new GameController(gameService, eventProcessor,
+                new GameSessionAssembler(playerSummaryAssembler),
                 new IdempotentCommandRunner(idempotency),
                 new CurrentUserResolver(), new CharacterClassParser());
         SecurityContextHolder.getContext().setAuthentication(
