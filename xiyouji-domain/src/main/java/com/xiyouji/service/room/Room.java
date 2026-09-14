@@ -38,6 +38,12 @@ public class Room implements Serializable {
     /** 创建时间 */
     private LocalDateTime createdAt;
 
+    /**
+     * 最后活动时间。每次通过 RoomStore.save 持久化时由存储实现盖章，
+     * 用于定时任务判断长时间无活动的僵尸房间并自动清理。
+     */
+    private LocalDateTime lastActiveAt;
+
     /** 当前关卡层数 */
     private int floor = 1;
 
@@ -69,6 +75,7 @@ public class Room implements Serializable {
         this.code = code;
         this.hostUserId = hostUserId;
         this.createdAt = LocalDateTime.now();
+        this.lastActiveAt = LocalDateTime.now();
     }
 
     /** 当前玩家数 */
@@ -110,6 +117,9 @@ public class Room implements Serializable {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getLastActiveAt() { return lastActiveAt; }
+    public void setLastActiveAt(LocalDateTime lastActiveAt) { this.lastActiveAt = lastActiveAt; }
 
     public int getFloor() { return floor; }
     public void setFloor(int floor) { this.floor = floor; }

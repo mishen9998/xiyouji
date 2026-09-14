@@ -2,9 +2,14 @@ package com.xiyouji.service.room;
 
 import com.xiyouji.exception.StorageUnavailableException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -28,6 +33,7 @@ public class RedisRoomStore implements RoomStore {
     @Override
     public void save(Room room) {
         room.setStateVersion(room.getStateVersion() + 1);
+        room.setLastActiveAt(LocalDateTime.now());
         try {
             redisTemplate.opsForValue().set(KEY_PREFIX + room.getCode(), room, TTL_HOURS, TimeUnit.HOURS);
         } catch (Exception e) {
@@ -68,6 +74,24 @@ public class RedisRoomStore implements RoomStore {
     @Override
     public boolean codeExists(String code) {
         return exists(code);
+    }
+
+    @Override
+    public List<Room> findAll() {
+        List<Room> all = new ArrayList<>();
+        try (Cursor<String> cursor = redisTemplate.scan(
+                ScanOptions.scanOptions().match(KEY_PREFIX + "*").count(100).build())) {
+            while (cursor.hasNext()) {
+                String key = cursor.next();
+                Room room = get(key.substring(KEY_PREFIX.length()));
+                if (room != null) {
+                    all.add(room);
+                }
+            }
+        } catch (Exception e) {
+            throw unavailable(e);
+        }
+        return all;
     }
 
     private StorageUnavailableException unavailable(Exception cause) {

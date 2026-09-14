@@ -1,5 +1,7 @@
 package com.xiyouji.service.room;
 
+import java.util.List;
+
 /**
  * 房间存储接口
  * 抽象房间持久化方式，支持内存和Redis两种实现。
@@ -21,4 +23,7 @@ public interface RoomStore {
 
     /** 判断某房间码是否已被占用（用于生成唯一房间码） */
     boolean codeExists(String code);
+
+    /** 列出全部房间，供房间清理任务扫描 */
+    List<Room> findAll();
 }

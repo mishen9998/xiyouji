@@ -81,3 +81,6 @@ __pycache__/
 
 # 个人学习笔记（含求职背景等私有信息，不上传公开仓库）
 docs/code-review-learning.md
+
+# TRAE IDE 本地工作目录（计划文档等）
+.trae/

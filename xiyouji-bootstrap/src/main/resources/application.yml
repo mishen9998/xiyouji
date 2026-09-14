@@ -39,6 +39,12 @@ jwt:
 app:
   redis:
     session-enabled: true
+  # 房间自动清理：定时扫描长时间无活动的僵尸房间（玩家直接关浏览器后遗留）
+  room:
+    cleanup:
+      enabled: true
+      idle-minutes: 30
+      fixed-delay-ms: 300000
   # 安全配置：是否强制JWT认证（true=生产模式，游戏API需认证；false=开发模式兼容）
   security:
     enforce-jwt: ${ENFORCE_JWT:false}

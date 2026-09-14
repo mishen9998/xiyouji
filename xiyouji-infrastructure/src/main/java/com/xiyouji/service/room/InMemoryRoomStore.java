@@ -3,6 +3,9 @@ package com.xiyouji.service.room;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -19,6 +22,7 @@ public class InMemoryRoomStore implements RoomStore {
     @Override
     public void save(Room room) {
         room.setStateVersion(room.getStateVersion() + 1);
+        room.setLastActiveAt(LocalDateTime.now());
         rooms.put(room.getCode(), room);
     }
 
@@ -40,5 +44,10 @@ public class InMemoryRoomStore implements RoomStore {
     @Override
     public boolean codeExists(String code) {
         return rooms.containsKey(code);
+    }
+
+    @Override
+    public List<Room> findAll() {
+        return new ArrayList<>(rooms.values());
     }
 }
