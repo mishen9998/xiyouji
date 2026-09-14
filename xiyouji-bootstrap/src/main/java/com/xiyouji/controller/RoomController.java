@@ -1,6 +1,8 @@
 package com.xiyouji.controller;
 
 import com.xiyouji.dto.request.room.JoinRoomRequest;
+import com.xiyouji.dto.request.room.RoomEventRequest;
+import com.xiyouji.dto.request.room.RoomMoveRequest;
 import com.xiyouji.dto.request.room.SelectCharacterRequest;
 import com.xiyouji.dto.response.room.RoomDTO;
 import com.xiyouji.model.enums.CharacterClass;
@@ -181,11 +183,11 @@ public class RoomController {
     @PostMapping("/{code}/move")
     @Operation(summary = "移动到节点", description = "房主选择移动到指定地图节点")
     public Map<String, Object> moveToNode(@PathVariable String code,
-                                           @RequestBody Map<String, String> request,
+                                           @Valid @RequestBody RoomMoveRequest request,
                                            @RequestHeader("X-Expected-State-Version") long expectedVersion,
                                            @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
         String username = currentUser.username();
-        String nodeId = request.get("nodeId");
+        String nodeId = request.getNodeId();
         log.info("Move request from {}, code={}, nodeId={}", username, code, nodeId);
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/" + code + "/move", nodeId);
         String scope = "room:move:" + username + ":" + code;
@@ -197,7 +199,7 @@ public class RoomController {
                     replay.put("room", existing);
                     replay.put("node", existing.getCurrentNode());
                     replay.put("eventType", existing.getCurrentNode() == null ? "unknown"
-                            : existing.getCurrentNode().getType().toLowerCase());
+                            : existing.getCurrentNode().domainEventType());
                     replay.put("stateVersion", existing.getStateVersion());
                     return replay;
                 });
@@ -208,13 +210,13 @@ public class RoomController {
     @PostMapping("/{code}/event")
     @Operation(summary = "处理节点事件", description = "处理休息、篝火升级、宝箱、商店、随机事件等")
     public Map<String, Object> handleEvent(@PathVariable String code,
-                                             @RequestBody Map<String, Object> request,
+                                             @Valid @RequestBody RoomEventRequest request,
                                              @RequestHeader("X-Expected-State-Version") long expectedVersion,
                                              @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
         String username = currentUser.username();
-        String action = (String) request.getOrDefault("action", "none");
-        Long cardId = request.get("cardId") != null ? Long.valueOf(request.get("cardId").toString()) : null;
-        Integer cardIndex = request.get("cardIndex") != null ? Integer.valueOf(request.get("cardIndex").toString()) : null;
+        String action = request.getAction() != null ? request.getAction() : "none";
+        Long cardId = request.getCardId();
+        Integer cardIndex = request.getCardIndex();
         log.info("Event request from {}, code={}, action={}", username, code, action);
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/" + code + "/event",
                 action + ":" + cardId + ":" + cardIndex);

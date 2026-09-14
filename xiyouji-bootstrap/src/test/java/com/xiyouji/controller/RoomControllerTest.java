@@ -3,11 +3,15 @@ package com.xiyouji.controller;
 import com.xiyouji.controller.support.CharacterClassParser;
 import com.xiyouji.controller.support.CurrentUserResolver;
 import com.xiyouji.dto.request.room.JoinRoomRequest;
+import com.xiyouji.dto.request.room.RoomEventRequest;
+import com.xiyouji.dto.request.room.RoomMoveRequest;
 import com.xiyouji.dto.request.room.SelectCharacterRequest;
 import com.xiyouji.dto.response.room.RoomDTO;
 import com.xiyouji.exception.InvalidActionException;
+import com.xiyouji.model.MapNode;
 import com.xiyouji.model.enums.CharacterClass;
 import com.xiyouji.service.CommandIdempotencyService;
+import com.xiyouji.service.IdempotencyStore;
 import com.xiyouji.service.IdempotentCommandRunner;
 import com.xiyouji.service.room.Room;
 import com.xiyouji.service.room.RoomEventPublisher;
@@ -64,6 +68,18 @@ class RoomControllerTest {
         dto.setHostUserId(hostUserId);
         dto.setPlayers(List.of(new RoomPlayer(USER, USER)));
         return dto;
+    }
+
+    private RoomMoveRequest moveRequest(String nodeId) {
+        RoomMoveRequest request = new RoomMoveRequest();
+        request.setNodeId(nodeId);
+        return request;
+    }
+
+    private RoomEventRequest eventRequest(String action) {
+        RoomEventRequest request = new RoomEventRequest();
+        request.setAction(action);
+        return request;
     }
 
     @Test
@@ -162,10 +178,26 @@ class RoomControllerTest {
         Map<String, Object> serviceResult = Map.of("room", dto, "node", "n1", "eventType", "battle");
         when(roomService.moveToNode(CODE, "n1", 3L, USER)).thenReturn(serviceResult);
 
-        Map<String, Object> result = controller.moveToNode(CODE, Map.of("nodeId", "n1"), 3L, KEY);
+        Map<String, Object> result = controller.moveToNode(CODE, moveRequest("n1"), 3L, KEY);
 
         assertSame(serviceResult, result);
         verify(broadcaster).broadcastRoomUpdate(CODE, dto);
+    }
+
+    @Test
+    @DisplayName("移动节点: 幂等重放按 domainEventType 重建事件类型")
+    void moveToNode_completedReplayUsesDomainEventType() {
+        var previous = new IdempotencyStore.Entry("fp", " ", true);
+        when(idempotency.begin(any(), eq(KEY), any())).thenReturn(previous);
+        when(idempotency.replay(previous, Map.class)).thenReturn(null);
+        RoomDTO dto = roomDTO(CODE, USER);
+        dto.setCurrentNode(new MapNode("boss1", 1, 0, 0, "BOSS", "妖王"));
+        when(roomService.getRoom(CODE)).thenReturn(dto);
+
+        Map<String, Object> result = controller.moveToNode(CODE, moveRequest("boss1"), 3L, KEY);
+
+        assertEquals("boss_battle", result.get("eventType"));
+        verify(roomService, never()).moveToNode(any(), any(), anyLong(), any());
     }
 
     @Test
@@ -176,7 +208,7 @@ class RoomControllerTest {
         RoomDTO latest = roomDTO(CODE, USER);
         when(roomService.getRoom(CODE)).thenReturn(latest);
 
-        Map<String, Object> result = controller.handleEvent(CODE, Map.of("action", "rest"), 2L, KEY);
+        Map<String, Object> result = controller.handleEvent(CODE, eventRequest("rest"), 2L, KEY);
 
         assertSame(serviceResult, result);
         verify(broadcaster).broadcastRoomUpdate(CODE, latest);
