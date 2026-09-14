@@ -9,14 +9,19 @@ import com.xiyouji.model.enums.CardType;
 import com.xiyouji.model.enums.CharacterClass;
 import com.xiyouji.model.enums.Rarity;
 import com.xiyouji.model.enums.RelicTier;
-import com.xiyouji.port.CardRepositoryPort;
 import com.xiyouji.port.EnemyRepositoryPort;
+import com.xiyouji.service.battle.SoloBattleInfoAssembler;
+import com.xiyouji.service.battle.SoloBattleStarter;
+import com.xiyouji.service.battle.SoloCardPlayHandler;
+import com.xiyouji.service.battle.SoloRelicTriggers;
+import com.xiyouji.service.battle.SoloRewardService;
+import com.xiyouji.service.battle.SoloTurnCoordinator;
 import com.xiyouji.service.session.BattleState;
 import com.xiyouji.service.session.GameSession;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -28,7 +33,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * BattleService 单元测试
- * 使用 @ExtendWith(MockitoExtension.class) 和 @Mock/@InjectMocks
+ * 装配方式：门面 + 真实战斗组件（Starter/出牌/回合/奖励/组装/遗物触发），仅 mock 依赖。
  */
 @DisplayName("BattleService 单元测试")
 @ExtendWith(MockitoExtension.class)
@@ -40,11 +45,19 @@ class BattleServiceTest {
     @Mock
     private EnemyRepositoryPort enemyRepo;
 
-    @Mock
-    private CardRepositoryPort cardRepo;
-
-    @InjectMocks
     private BattleService battleService;
+
+    @BeforeEach
+    void setUp() {
+        SoloRelicTriggers relicTriggers = new SoloRelicTriggers();
+        battleService = new BattleService(
+                gameService,
+                new SoloBattleStarter(gameService, enemyRepo, relicTriggers),
+                new SoloCardPlayHandler(gameService),
+                new SoloTurnCoordinator(gameService, relicTriggers),
+                new SoloRewardService(gameService),
+                new SoloBattleInfoAssembler());
+    }
 
     @Test
     @DisplayName("startBattle 正确初始化战斗")
