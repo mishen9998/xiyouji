@@ -12,12 +12,16 @@ import com.xiyouji.model.enums.Rarity;
 import com.xiyouji.port.CardRepositoryPort;
 import com.xiyouji.port.CharacterRepositoryPort;
 import com.xiyouji.port.EnemyRepositoryPort;
+import com.xiyouji.service.battle.CardPlayHandler;
+import com.xiyouji.service.battle.MultiplayerBattleInfoAssembler;
+import com.xiyouji.service.battle.MultiplayerBattleStarter;
+import com.xiyouji.service.battle.MultiplayerTurnCoordinator;
+import com.xiyouji.service.battle.RewardService;
 import com.xiyouji.service.room.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -33,7 +37,9 @@ import static org.mockito.Mockito.*;
 
 /**
  * MultiplayerBattleService 单元测试
- * 验证5人PvE协作战斗的核心流程：开始战斗、抢出牌、结束回合、敌人行动、胜负判定
+ * 验证5人PvE协作战斗的核心流程：开始战斗、抢出牌、结束回合、敌人行动、胜负判定。
+ * 装配方式：门面 + 真实战斗组件（RewardService/回合协调器/出牌处理器/启动器/组装器），
+ * 存储与外部依赖用 mock + 真实内存 Map 模拟共享状态。
  */
 @DisplayName("多人战斗系统测试")
 @ExtendWith(MockitoExtension.class)
@@ -46,8 +52,9 @@ class MultiplayerBattleServiceTest {
     @Mock private EnemyRepositoryPort enemyRepo;
     @Mock private RoomEventPublisher broadcaster;
     @Mock private DistributedLockService lockService;
+    @Mock private IdempotencyStore idempotencyStore;
 
-    @InjectMocks
+    /** 门面 + 真实组件（显式组装） */
     private MultiplayerBattleService battleService;
 
     /** 用真实内存Map模拟BattleStore，使多次操作能共享状态 */
@@ -60,6 +67,16 @@ class MultiplayerBattleServiceTest {
     @BeforeEach
     void setUp() {
         storeMap.clear();
+        // 用真实业务组件组装门面：只 mock 存储与外部协作方
+        RewardService rewardService = new RewardService(cardRepo);
+        battleService = new MultiplayerBattleService(
+                roomService, battleStore, broadcaster, lockService, idempotencyStore,
+                new MultiplayerBattleStarter(roomService, battleStore, characterRepo, enemyRepo),
+                new CardPlayHandler(rewardService),
+                new MultiplayerTurnCoordinator(rewardService),
+                rewardService,
+                new MultiplayerBattleInfoAssembler());
+
         // 单元测试直接执行锁内逻辑；分布式锁的跨实例行为由集成测试覆盖。
         lenient().doAnswer(inv -> ((Supplier<?>) inv.getArgument(2)).get())
                 .when(lockService).executeWithLock(anyString(), anyLong(), any(Supplier.class));
