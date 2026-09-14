@@ -1,7 +1,9 @@
-# syntax=docker/dockerfile:1.7
+# 基础镜像仓库可参数化：本地网络受限时用国内镜像站构建示例
+#   docker build --build-arg BASE_REGISTRY=docker.m.daocloud.io/library/ -t xiyouji:1.1.0-k8s .
+ARG BASE_REGISTRY=docker.io/library/
 
 # Stage 1: compile the Vue application in a reproducible Node image.
-FROM node:20.18.1-alpine3.20 AS frontend-build
+FROM ${BASE_REGISTRY}node:20.18.1-alpine3.20 AS frontend-build
 WORKDIR /workspace/frontend-vue
 
 COPY frontend-vue/package.json frontend-vue/package-lock.json ./
@@ -10,7 +12,8 @@ COPY frontend-vue/ ./
 RUN npm run build
 
 # Stage 2: compile all Maven modules and assemble the Spring Boot jar.
-FROM maven:3.9.9-eclipse-temurin-17 AS backend-build
+ARG BASE_REGISTRY=docker.io/library/
+FROM ${BASE_REGISTRY}maven:3.9.9-eclipse-temurin-17 AS backend-build
 WORKDIR /workspace
 
 COPY pom.xml ./
@@ -30,11 +33,11 @@ COPY --from=frontend-build /workspace/frontend-vue/dist/ frontend-vue/dist/
 # Tests run in CI before the image is built. Skip test compilation here as
 # well, keeping the production image build fast and independent of test-only
 # dependencies.
-RUN --mount=type=cache,target=/root/.m2 \
-    mvn -B -Dmaven.test.skip=true package
+RUN mvn -B -Dmaven.test.skip=true package
 
 # Stage 3: small runtime image. Only the executable bootstrap jar is shipped.
-FROM eclipse-temurin:17.0.13_11-jre-alpine
+ARG BASE_REGISTRY=docker.io/library/
+FROM ${BASE_REGISTRY}eclipse-temurin:17.0.13_11-jre-alpine
 LABEL org.opencontainers.image.title="xiyouji-roguelike"
 LABEL org.opencontainers.image.description="西游记 Roguelike 多模块 Spring Boot 应用"
 WORKDIR /app

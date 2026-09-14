@@ -1,0 +1,10 @@
+# kind 本地验证集群配置：将 docker.io 拉取镜像站镜像到本机 Registry，
+# 规避本地网络无法直连 Docker Hub 的问题。
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+containerdConfigPatches:
+  - |-
+    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
+      endpoint = ["http://host.docker.internal:5000"]
+    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."localhost:5000"]
+      endpoint = ["http://host.docker.internal:5000"]

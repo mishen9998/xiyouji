@@ -1,0 +1,17 @@
+# 本地 kind 验证 overlay：镜像统一走本机 Registry（docker.io 镜像站），
+# 与 base 清单的标准镜像名保持解耦。应用方式：
+#   kubectl apply -k k8s
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - 00-namespace.yaml
+  - 01-secret.yaml
+  - 02-infra.yaml
+  - 03-app.yaml
+images:
+  - name: mysql:8.0.39
+    newName: localhost:5000/mysql
+  - name: redis:7.2.5-alpine3.19
+    newName: localhost:5000/redis
+  - name: xiyouji:1.2.0-k8s
+    newName: localhost:5000/xiyouji
