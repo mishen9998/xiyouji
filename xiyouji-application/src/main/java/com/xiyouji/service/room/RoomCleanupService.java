@@ -2,8 +2,6 @@ package com.xiyouji.service.room;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,8 +16,10 @@ import java.util.List;
  * - 清理前先取房间粒度的分布式锁，锁内重新读取并再次确认闲置状态，
  *   避免清理瞬间房间被并发写入恢复活跃而被误删。
  * - 双实例部署时两个实例都会运行扫描任务，靠锁 + 双重确认 + 幂等删除保证安全。
+ *
+ * 去框架化：无 @Service/@Value，配置由 bootstrap 层的 RoomCleanupConfig
+ * 读取后经构造器注入（idleMinutes 为纯值）。
  */
-@Service
 public class RoomCleanupService {
 
     private static final Logger log = LoggerFactory.getLogger(RoomCleanupService.class);
@@ -34,7 +34,7 @@ public class RoomCleanupService {
                               MultiplayerBattleStore battleStore,
                               DistributedLockService lockService,
                               RoomEventPublisher eventPublisher,
-                              @Value("${app.room.cleanup.idle-minutes:30}") long idleMinutes) {
+                              long idleMinutes) {
         this.roomStore = roomStore;
         this.battleStore = battleStore;
         this.lockService = lockService;

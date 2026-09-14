@@ -33,4 +33,16 @@ class ArchitectureTest {
             .that().resideInAnyPackage("com.xiyouji.model..")
             .should().dependOnClassesThat()
             .resideInAnyPackage("org.springframework.data.redis..", "org.redisson..");
+
+    @ArchTest
+    static final ArchRule domainModelsMustNotDependOnFrameworks = noClasses()
+            .that().resideInAnyPackage("com.xiyouji.model..")
+            .should().dependOnClassesThat()
+            .resideInAnyPackage("org.springframework..", "com.fasterxml.jackson..");
+
+    @ArchTest
+    static final ArchRule servicesMustNotDependOnWebLayer = noClasses()
+            .that().resideInAnyPackage("com.xiyouji.service..")
+            .should().dependOnClassesThat()
+            .resideInAnyPackage("org.springframework.web..", "jakarta.servlet..");
 }

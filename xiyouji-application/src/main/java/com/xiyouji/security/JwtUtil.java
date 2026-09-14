@@ -4,11 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -20,37 +17,30 @@ import java.util.Date;
  * 安全约束：
  * - 生产模式（enforceJwt=true）下 JWT_SECRET 必须通过环境变量注入，禁止使用默认值
  * - 默认值仅在开发模式使用，避免密钥可预测导致 token 伪造
+ *
+ * 去框架化：不再依赖 @Value/@PostConstruct，配置由 bootstrap 层的
+ * JwtConfig 读取后用 {@link JwtProperties}（纯 POJO）构造注入。
  */
-@Component
 public class JwtUtil {
 
     private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
 
-    /** 默认密钥（仅开发模式可用，生产模式启动时会拒绝） */
-    private static final String DEFAULT_SECRET =
-            "xiyouji-secret-key-for-jwt-token-generation-must-be-at-least-256-bits-long";
+    private final String secret;
+    private final long expiration;
 
-    @Value("${jwt.secret:" + DEFAULT_SECRET + "}")
-    private String secret;
-
-    @Value("${jwt.expiration:86400000}")
-    private long expiration;
-
-    /**
-     * 是否强制 JWT 认证（生产模式）。
-     * true 时 JWT_SECRET 必须通过环境变量注入，禁止使用默认值。
-     */
-    @Value("${app.security.enforce-jwt:false}")
-    private boolean enforceJwt;
+    public JwtUtil(JwtProperties properties) {
+        this.secret = properties.getSecret();
+        this.expiration = properties.getExpiration();
+        validateSecret(properties.isEnforceJwt());
+    }
 
     /**
-     * 启动时校验 JWT 配置：
+     * 构造时校验 JWT 配置：
      * - 生产模式（enforceJwt=true）下，若 secret 为默认值或为空则抛异常阻止启动
      * - 开发模式仅记录警告
      */
-    @PostConstruct
-    public void validateSecret() {
-        boolean isDefault = DEFAULT_SECRET.equals(secret);
+    private void validateSecret(boolean enforceJwt) {
+        boolean isDefault = JwtProperties.DEFAULT_SECRET.equals(secret);
         if (enforceJwt) {
             if (secret == null || secret.isBlank()) {
                 throw new IllegalStateException(
