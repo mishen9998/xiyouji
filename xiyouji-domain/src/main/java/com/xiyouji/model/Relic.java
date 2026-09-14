@@ -1,33 +1,23 @@
 package com.xiyouji.model;
 
 import com.xiyouji.model.enums.*;
-import jakarta.persistence.*;
 
 /**
  * 遗物实体
+ * JPA 映射契约见 META-INF/orm.xml（领域类不携带持久化注解）
  */
-@Entity
-@Table(name = "relics")
 public class Relic {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String name;
 
-    @Column(length = 500)
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private RelicTier tier;
 
-    @Enumerated(EnumType.STRING)
     private CharacterClass characterClass; // null=通用遗物
 
-    @Column(length = 100)
     private String emoji;
 
     private String effect;          // JSON描述的效果

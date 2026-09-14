@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  声明领域模型的 JPA 持久化单元：实体映射完全由 META-INF/orm.xml 提供，
+  领域类不携带 @Entity 等注解，由 Spring Boot 的 PersistenceUnitManager 读取本文件注册。
+-->
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence
+                                 https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
+    <persistence-unit name="xiyouji" transaction-type="RESOURCE_LOCAL">
+        <mapping-file>META-INF/orm.xml</mapping-file>
+        <class>com.xiyouji.model.User</class>
+        <class>com.xiyouji.model.Card</class>
+        <class>com.xiyouji.model.Enemy</class>
+        <class>com.xiyouji.model.Relic</class>
+        <class>com.xiyouji.model.GameCharacter</class>
+    </persistence-unit>
+</persistence>

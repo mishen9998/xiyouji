@@ -1,35 +1,24 @@
 package com.xiyouji.model;
 
 import com.xiyouji.model.enums.*;
-import jakarta.persistence.*;
 import java.util.Objects;
 
 /**
  * 卡牌实体
+ * JPA 映射契约见 META-INF/orm.xml（领域类不携带持久化注解）
  */
-@Entity
-@Table(name = "cards")
 public class Card {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String name;            // 卡牌名称：如意金箍棒
 
-    @Column(length = 500)
     private String description;     // 效果描述
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private CardType type;          // 攻击/技能/防御/能力/状态
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private Rarity rarity;          // 稀有度
 
-    @Enumerated(EnumType.STRING)
     private CharacterClass characterClass; // null=通用卡牌
 
     private int cost;               // 能量消耗
@@ -48,10 +37,8 @@ public class Card {
     private boolean upgradeable;    // 是否可升级
     private String upgradeName;     // 升级后卡牌名（引用另一张卡）
 
-    @Column(length = 100)
     private String flavorText;      // 卡牌风味文字
 
-    @Column(length = 100)
     private String emoji;           // 图标表情
 
     // 升级字段（持久化到数据库）

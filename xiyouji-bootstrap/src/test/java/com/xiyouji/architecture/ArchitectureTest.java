@@ -38,7 +38,7 @@ class ArchitectureTest {
     static final ArchRule domainModelsMustNotDependOnFrameworks = noClasses()
             .that().resideInAnyPackage("com.xiyouji.model..")
             .should().dependOnClassesThat()
-            .resideInAnyPackage("org.springframework..", "com.fasterxml.jackson..");
+            .resideInAnyPackage("org.springframework..", "com.fasterxml.jackson..", "jakarta.persistence..");
 
     @ArchTest
     static final ArchRule servicesMustNotDependOnWebLayer = noClasses()

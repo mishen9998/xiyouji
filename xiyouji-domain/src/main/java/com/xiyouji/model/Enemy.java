@@ -1,30 +1,23 @@
 package com.xiyouji.model;
 
 import com.xiyouji.model.enums.*;
-import jakarta.persistence.*;
 import java.util.*;
 
 /**
  * 敌人实体
+ * JPA 映射契约见 META-INF/orm.xml（领域类不携带持久化注解；
+ * 未列入 orm.xml 的运行时字段不持久化）
  */
-@Entity
-@Table(name = "enemies")
 public class Enemy {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String name;            // 白骨精、牛魔王等
 
-    @Column(length = 500)
     private String description;
 
-    @Column(nullable = false)
     private int maxHp;
 
-    @Column(nullable = false)
     private int hp;                 // 当前血量
 
     private int attack;             // 基础攻击力
@@ -32,25 +25,17 @@ public class Enemy {
     private boolean isBoss;         // 是否Boss
     private int level;              // 难度等级 1-3
 
-    @Column(length = 100)
     private String emoji;           // 图标
 
     // 运行时状态
-    @Transient
     private int block;              // 当前格挡
-    @Transient
     private int strength;           // 当前力量
-    @Transient
     private EnemyIntent intent;     // 当前意图
-    @Transient
     private int intentValue;        // 意图数值
-    @Transient
     private List<String> movePattern; // 行动模式 [attack, attack_defend, attack]
-    @Transient
     private int patternIndex;
 
     // Buff/Debuff回合计数
-    @Transient
     private Map<BuffType, Integer> buffs = new HashMap<>();
 
     public Enemy() {

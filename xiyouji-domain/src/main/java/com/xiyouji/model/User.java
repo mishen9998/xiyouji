@@ -1,34 +1,25 @@
 package com.xiyouji.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
  * 用户实体 - 用于认证体系
+ * JPA 映射契约见 META-INF/orm.xml（领域类不携带持久化注解）
  */
-@Entity
-@Table(name = "users")
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /** 唯一登录账号。旧数据由 Flyway 使用原 username 回填。 */
-    @Column(nullable = false, unique = true, length = 50)
     private String account;
 
     /** 玩家在界面和房间中显示的名称。 */
-    @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
     private String role = "PLAYER";
 
-    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     public User() {}

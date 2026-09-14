@@ -1,79 +1,50 @@
 package com.xiyouji.model;
 
 import com.xiyouji.model.enums.*;
-import jakarta.persistence.*;
 import java.util.*;
 
 /**
  * 角色/玩家实体
+ * JPA 映射契约见 META-INF/orm.xml（领域类不携带持久化注解；
+ * 未列入 orm.xml 的运行时字段不持久化）
  */
-@Entity
-@Table(name = "characters")
 public class GameCharacter {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, unique = true)
     private CharacterClass characterClass;
 
-    @Column(nullable = false)
     private int maxHp;
 
-    @Column(nullable = false)
     private int startingGold;
 
-    @Column(length = 500)
     private String startingDeck; // 逗号分隔的卡牌ID
 
-    @Column(length = 200)
     private String startingRelic; // 初始遗物
 
-    @Column(length = 500)
     private String description;
 
-    @Column(length = 100)
     private String emoji;
 
     // 运行时（不持久化）
-    @Transient
     private int hp;
-    @Transient
     private int maxEnergy = 3;
     /** 当前战斗开始时的临时能量加成，不跨战斗持久化或累加。 */
-    @Transient
     private int battleStartEnergyBonus;
-    @Transient
     private int energy;
-    @Transient
     private int gold;
-    @Transient
     private int block;
-    @Transient
     private int strength;
-    @Transient
     private int dexterity;
-    @Transient
     private int drawNextTurn;       // 下回合额外抽牌数（由卡牌效果产生）
-    @Transient
     private int energyNextTurn;     // 下回合额外能量（由卡牌效果产生）
-    @Transient
     private List<Card> deck = new ArrayList<>();
-    @Transient
     private List<Card> hand = new ArrayList<>();
-    @Transient
     private List<Card> discardPile = new ArrayList<>();
-    @Transient
     private List<Card> exhaustPile = new ArrayList<>();
-    @Transient
     private List<Card> drawPile = new ArrayList<>();
-    @Transient
     private List<Relic> relics = new ArrayList<>();
-    @Transient
     private Map<BuffType, Integer> buffs = new HashMap<>();
-    @Transient
     private int floor;
 
     public GameCharacter() {}

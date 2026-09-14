@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  领域模型 JPA 映射（去注解化）。
+
+  五个领域实体不携带任何 jakarta.persistence 注解，映射契约集中于此文件；
+  基础设施与运行时依赖本文件 + persistence.xml 完成实体注册。
+  映射内容与原注解逐字段等价，DDL/查询语义不变。
+-->
+<entity-mappings xmlns="https://jakarta.ee/xml/ns/persistence/orm"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence/orm
+                                     https://jakarta.ee/xml/ns/persistence/orm/orm_3_1.xsd"
+                 version="3.1">
+
+    <entity class="com.xiyouji.model.User" access="FIELD">
+        <table name="users"/>
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="account">
+                <column nullable="false" unique="true" length="50"/>
+            </basic>
+            <basic name="username">
+                <column nullable="false" unique="true"/>
+            </basic>
+            <basic name="password">
+                <column nullable="false"/>
+            </basic>
+            <basic name="role">
+                <column nullable="false"/>
+            </basic>
+            <basic name="createdAt">
+                <column name="created_at"/>
+            </basic>
+        </attributes>
+    </entity>
+
+    <entity class="com.xiyouji.model.Card" access="FIELD">
+        <table name="cards"/>
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="name">
+                <column nullable="false"/>
+            </basic>
+            <basic name="description">
+                <column length="500"/>
+            </basic>
+            <basic name="type">
+                <column nullable="false"/>
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="rarity">
+                <column nullable="false"/>
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="characterClass">
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="cost"/>
+            <basic name="damage"/>
+            <basic name="block"/>
+            <basic name="drawCards"/>
+            <basic name="healAmount"/>
+            <basic name="strengthBonus"/>
+            <basic name="dexterityBonus"/>
+            <basic name="vulnerableTurns"/>
+            <basic name="weakTurns"/>
+            <basic name="poisonAmount"/>
+            <basic name="drawNextTurn"/>
+            <basic name="energyNextTurn"/>
+            <basic name="exhaust"/>
+            <basic name="upgradeable"/>
+            <basic name="upgradeName"/>
+            <basic name="flavorText">
+                <column length="100"/>
+            </basic>
+            <basic name="emoji">
+                <column length="100"/>
+            </basic>
+            <basic name="upgraded"/>
+            <basic name="damageUpgrade"/>
+            <basic name="blockUpgrade"/>
+            <basic name="costReduction"/>
+        </attributes>
+    </entity>
+
+    <entity class="com.xiyouji.model.Enemy" access="FIELD">
+        <table name="enemies"/>
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="name">
+                <column nullable="false"/>
+            </basic>
+            <basic name="description">
+                <column length="500"/>
+            </basic>
+            <basic name="maxHp">
+                <column nullable="false"/>
+            </basic>
+            <basic name="hp">
+                <column nullable="false"/>
+            </basic>
+            <basic name="attack"/>
+            <basic name="defense"/>
+            <basic name="isBoss"/>
+            <basic name="level"/>
+            <basic name="emoji">
+                <column length="100"/>
+            </basic>
+        </attributes>
+    </entity>
+
+    <entity class="com.xiyouji.model.Relic" access="FIELD">
+        <table name="relics"/>
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="name">
+                <column nullable="false"/>
+            </basic>
+            <basic name="description">
+                <column length="500"/>
+            </basic>
+            <basic name="tier">
+                <column nullable="false"/>
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="characterClass">
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="emoji">
+                <column length="100"/>
+            </basic>
+            <basic name="effect"/>
+        </attributes>
+    </entity>
+
+    <entity class="com.xiyouji.model.GameCharacter" access="FIELD">
+        <table name="characters"/>
+        <attributes>
+            <id name="id">
+                <generated-value strategy="IDENTITY"/>
+            </id>
+            <basic name="characterClass">
+                <column nullable="false" unique="true"/>
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="maxHp">
+                <column nullable="false"/>
+            </basic>
+            <basic name="startingGold">
+                <column nullable="false"/>
+            </basic>
+            <basic name="startingDeck">
+                <column length="500"/>
+            </basic>
+            <basic name="startingRelic">
+                <column length="200"/>
+            </basic>
+            <basic name="description">
+                <column length="500"/>
+            </basic>
+            <basic name="emoji">
+                <column length="100"/>
+            </basic>
+        </attributes>
+    </entity>
+
+</entity-mappings>
