@@ -14,7 +14,7 @@
 > [!IMPORTANT]
 > 本项目是模块化单体，不是微服务。`app-1` 与 `app-2` 是同一应用的两个运行实例，共享 MySQL 和 Redis，用于验证负载均衡、并发写入与跨实例实时通知。
 >
-> 项目采用 DDD 思想与模块化分层，但当前并非严格的纯领域架构：`domain` 仍使用 JPA/Jackson 注解；`application` 已收敛 Spring 配置读取至 bootstrap 装配（服务本身保留 @Service/@Transactional 等 IoC 契约）。领域模型注解解耦放在可运行性、测试和性能证据之后推进。
+> 项目采用 DDD 思想与模块化分层，但当前并非严格的纯领域架构：`domain` 仅剩 JPA 注解（实体映射）；`application` 已收敛 Spring 配置读取至 bootstrap 装配（服务本身保留 @Service/@Transactional 等 IoC 契约）。领域模型注解解耦放在可运行性、测试和性能证据之后推进。
 
 ## 运行界面
 
@@ -373,7 +373,8 @@ docker run --rm \
 - [x] 建立房间生命周期清理：保存时盖章最后活动时间，定时扫描闲置超时房间并在房间锁内双重确认后自动解散（Redis 与内存模式均生效）。
 - [x] 拆分体积较大的 Service 和 Controller（三大核心服务拆为门面+内聚组件，控制器层收敛到 IdempotentCommandRunner 幂等模板、共享辅助组件、响应组装下沉与类型化请求 DTO，并补控制器层测试）。
 - [x] 应用层去 Spring 配置依赖（JWT 与房间清理配置收敛为纯 POJO、由 bootstrap 层装配；ArchUnit 新增约束：model 不依赖 Spring/Jackson、service 不依赖 Web 层）。
-- [ ] 领域模型去除 JPA/Jackson 注解（Room 的序列化注解受 Redis 持久化契约支撑，留待存储方案演进时一并处理）。
+- [x] 领域对象去 Jackson 序列化注解（Room 的派生访问器过滤经由 infrastructure 层 Redis 专用 MixIn 声明，存储字节兼容；种子数据初始化迁移至 bootstrap）。
+- [ ] 领域模型去除 JPA 注解（User/Card/Enemy/Relic/GameCharacter 的实体映射解耦，需与存储方案演进一并处理）。
 - [ ] 在真实 Kubernetes 集群验证部署、扩缩容、滚动升级与故障恢复。
 
 当前公网 Demo 使用单实例 HTTP/WS；前端自动化仍只覆盖关键路径，尚需扩展多人和失败场景；种子数据初始化类（DataInitializer）仍较大。公开分发前还应补充项目 LICENSE，以及插画、字体等素材的来源与授权说明。

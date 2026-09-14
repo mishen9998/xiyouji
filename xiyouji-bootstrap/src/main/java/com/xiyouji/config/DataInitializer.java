@@ -1,4 +1,4 @@
-package com.xiyouji.service;
+package com.xiyouji.config;
 
 import com.xiyouji.constants.GameConstants;
 import com.xiyouji.model.*;

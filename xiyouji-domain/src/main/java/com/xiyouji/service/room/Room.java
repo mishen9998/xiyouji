@@ -1,6 +1,5 @@
 package com.xiyouji.service.room;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.xiyouji.model.MapNode;
 
 import java.io.Serializable;
@@ -79,13 +78,11 @@ public class Room implements Serializable {
     }
 
     /** 当前玩家数 */
-    @JsonIgnore
     public int getPlayerCount() {
         return players.size();
     }
 
     /** 房间是否已满 */
-    @JsonIgnore
     public boolean isFull() {
         return players.size() >= MAX_PLAYERS;
     }
@@ -133,7 +130,6 @@ public class Room implements Serializable {
     public MapNode getCurrentNode() { return currentNode; }
     public void setCurrentNode(MapNode currentNode) { this.currentNode = currentNode; }
 
-    @JsonIgnore
     public boolean isMapOpen() { return mapOpen; }
     public void setMapOpen(boolean mapOpen) { this.mapOpen = mapOpen; }
 

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.xiyouji.service.room.Room;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,6 +49,8 @@ public class RedisConfig {
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         // 反序列化时忽略未知属性（如计算属性 isFull/getPlayerCount 等），避免失败
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        // Room 的序列化契约下沉到基础设施：领域对象无序列化注解，派生访问器在此排除
+        objectMapper.addMixIn(Room.class, RoomPersistenceMixIn.class);
         // 激活默认类型信息：非 final 类型序列化时写入 @class，反序列化时据此还原
         objectMapper.activateDefaultTyping(
                 LaissezFaireSubTypeValidator.instance,
