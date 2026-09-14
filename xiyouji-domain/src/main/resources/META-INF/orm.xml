@@ -112,6 +112,14 @@
             <basic name="emoji">
                 <column length="100"/>
             </basic>
+            <!-- 运行时字段：不持久化 -->
+            <transient name="block"/>
+            <transient name="strength"/>
+            <transient name="intent"/>
+            <transient name="intentValue"/>
+            <transient name="movePattern"/>
+            <transient name="patternIndex"/>
+            <transient name="buffs"/>
         </attributes>
     </entity>
 
@@ -169,6 +177,25 @@
             <basic name="emoji">
                 <column length="100"/>
             </basic>
+            <!-- 运行时字段：不持久化 -->
+            <transient name="hp"/>
+            <transient name="maxEnergy"/>
+            <transient name="battleStartEnergyBonus"/>
+            <transient name="energy"/>
+            <transient name="gold"/>
+            <transient name="block"/>
+            <transient name="strength"/>
+            <transient name="dexterity"/>
+            <transient name="drawNextTurn"/>
+            <transient name="energyNextTurn"/>
+            <transient name="deck"/>
+            <transient name="hand"/>
+            <transient name="discardPile"/>
+            <transient name="exhaustPile"/>
+            <transient name="drawPile"/>
+            <transient name="relics"/>
+            <transient name="buffs"/>
+            <transient name="floor"/>
         </attributes>
     </entity>
 
