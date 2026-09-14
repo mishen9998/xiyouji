@@ -7,6 +7,12 @@ import com.xiyouji.port.RelicRepositoryPort;
 import com.xiyouji.service.room.InMemoryRoomStore;
 import com.xiyouji.service.room.LocalDistributedLockService;
 import com.xiyouji.service.room.MultiplayerMapService;
+import com.xiyouji.service.room.RoomAccess;
+import com.xiyouji.service.room.RoomCodeGenerator;
+import com.xiyouji.service.room.RoomDTOAssembler;
+import com.xiyouji.service.room.RoomEventProcessor;
+import com.xiyouji.service.room.RoomMembershipService;
+import com.xiyouji.service.room.RoomProgressionService;
 import com.xiyouji.service.room.RoomService;
 import org.junit.jupiter.api.Test;
 
@@ -77,12 +83,22 @@ class RoomConcurrencyTest {
     }
 
     private RoomService newService() {
+        // 门面 + 真实房间组件，共享同一内存 store 与本地锁
+        InMemoryRoomStore store = new InMemoryRoomStore();
+        RoomAccess access = new RoomAccess(store, new LocalDistributedLockService());
+        RoomDTOAssembler assembler = new RoomDTOAssembler();
         return new RoomService(
-                new InMemoryRoomStore(),
-                org.mockito.Mockito.mock(MultiplayerMapService.class),
-                org.mockito.Mockito.mock(CharacterRepositoryPort.class),
-                org.mockito.Mockito.mock(CardRepositoryPort.class),
-                org.mockito.Mockito.mock(RelicRepositoryPort.class),
-                new LocalDistributedLockService());
+                access,
+                assembler,
+                new RoomMembershipService(access, assembler, new RoomCodeGenerator(store)),
+                new RoomProgressionService(access,
+                        org.mockito.Mockito.mock(MultiplayerMapService.class),
+                        org.mockito.Mockito.mock(CharacterRepositoryPort.class),
+                        org.mockito.Mockito.mock(CardRepositoryPort.class),
+                        assembler),
+                new RoomEventProcessor(access,
+                        org.mockito.Mockito.mock(RelicRepositoryPort.class),
+                        org.mockito.Mockito.mock(CardRepositoryPort.class),
+                        assembler));
     }
 }
