@@ -9,8 +9,9 @@ import com.xiyouji.exception.InvalidActionException;
 import com.xiyouji.model.*;
 import com.xiyouji.model.enums.CharacterClass;
 import com.xiyouji.service.GameService;
+import com.xiyouji.service.GameEventProcessor;
 import com.xiyouji.service.CommandGuard;
-import com.xiyouji.service.CommandIdempotencyService;
+import com.xiyouji.service.IdempotentCommandRunner;
 import com.xiyouji.service.session.GameSession;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,14 +37,17 @@ public class GameController {
     private static final Logger log = LoggerFactory.getLogger(GameController.class);
 
     private final GameService gameService;
+    private final GameEventProcessor eventProcessor;
     private final PlayerSummaryAssembler playerSummaryAssembler;
-    private final CommandIdempotencyService idempotency;
+    private final IdempotentCommandRunner idempotent;
 
-    public GameController(GameService gameService, PlayerSummaryAssembler playerSummaryAssembler,
-                          CommandIdempotencyService idempotency) {
+    public GameController(GameService gameService, GameEventProcessor eventProcessor,
+                          PlayerSummaryAssembler playerSummaryAssembler,
+                          IdempotentCommandRunner idempotent) {
         this.gameService = gameService;
+        this.eventProcessor = eventProcessor;
         this.playerSummaryAssembler = playerSummaryAssembler;
-        this.idempotency = idempotency;
+        this.idempotent = idempotent;
     }
 
     /** 开始新游戏 */
@@ -59,27 +63,18 @@ public class GameController {
 
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/new", charClass);
         String scope = "game:new:" + username;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        Map<String, Object> cachedResponse = idempotency.replay(previous, Map.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed() && !previous.value().isBlank()) {
-            GameSession existing = gameService.getSessionForUser(previous.value(), username);
-            return newGameResponse(existing, previous.value());
-        }
-
-        String sessionId = UUID.randomUUID().toString().substring(0, 8);
-        GameSession session;
-        try {
-            session = gameService.newGame(sessionId, characterClass, username);
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
-
-        Map<String, Object> result = newGameResponse(session, sessionId);
-        idempotency.completeResponse(scope, idempotencyKey, fingerprint, result);
-        log.info("New game created successfully, sessionId: {}", sessionId);
-        return result;
+        return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
+                () -> {
+                    String sessionId = UUID.randomUUID().toString().substring(0, 8);
+                    GameSession session = gameService.newGame(sessionId, characterClass, username);
+                    Map<String, Object> result = newGameResponse(session, sessionId);
+                    log.info("New game created successfully, sessionId: {}", sessionId);
+                    return result;
+                },
+                previous -> {
+                    GameSession existing = gameService.getSessionForUser(previous.value(), username);
+                    return newGameResponse(existing, previous.value());
+                });
     }
 
     /** 获取游戏状态 */
@@ -115,23 +110,15 @@ public class GameController {
         String username = currentUsername();
         String fingerprint = CommandGuard.fingerprint("DELETE", "/api/game/sessions/" + sessionId, "");
         String scope = "game:delete:" + username + ":" + sessionId;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        Map<String, Object> cachedResponse = idempotency.replay(previous, Map.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed()) return Map.of("success", true);
-        boolean ok;
-        try {
-            ok = gameService.deleteSession(sessionId, expectedVersion, username);
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
-        if (!ok) {
-            log.warn("Session not found for deletion: {}", sessionId);
-        }
-        Map<String, Object> result = Map.of("success", ok);
-        idempotency.completeResponse(scope, idempotencyKey, fingerprint, result);
-        return result;
+        return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
+                () -> {
+                    boolean ok = gameService.deleteSession(sessionId, expectedVersion, username);
+                    if (!ok) {
+                        log.warn("Session not found for deletion: {}", sessionId);
+                    }
+                    return Map.of("success", ok);
+                },
+                previous -> Map.of("success", true));
     }
 
     /** 移动到地图节点 */
@@ -146,28 +133,20 @@ public class GameController {
         String username = currentUsername();
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/move/" + sessionId, nodeId);
         String scope = "game:move:" + username + ":" + sessionId;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        Map<String, Object> cachedResponse = idempotency.replay(previous, Map.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed()) {
-            GameSession existing = gameService.getSessionForUser(sessionId, username);
-            return Map.of("node", existing.getCurrentNode(), "eventType", interpretNode(existing.getCurrentNode()),
-                    "stateVersion", existing.getStateVersion());
-        }
-        MapNode node;
-        try {
-            node = gameService.moveToNode(sessionId, nodeId, expectedVersion, username);
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("node", node);
-        result.put("eventType", interpretNode(node));
-        result.put("stateVersion", gameService.getSession(sessionId).getStateVersion());
-        idempotency.completeResponse(scope, idempotencyKey, fingerprint, result);
-        return result;
+        return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
+                () -> {
+                    MapNode node = gameService.moveToNode(sessionId, nodeId, expectedVersion, username);
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("node", node);
+                    result.put("eventType", interpretNode(node));
+                    result.put("stateVersion", gameService.getSession(sessionId).getStateVersion());
+                    return result;
+                },
+                previous -> {
+                    GameSession existing = gameService.getSessionForUser(sessionId, username);
+                    return Map.of("node", existing.getCurrentNode(), "eventType", interpretNode(existing.getCurrentNode()),
+                            "stateVersion", existing.getStateVersion());
+                });
     }
 
     /** Boss击败后进入下一层 */
@@ -180,33 +159,26 @@ public class GameController {
         String username = currentUsername();
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/next-layer/" + sessionId, "");
         String scope = "game:next-layer:" + username + ":" + sessionId;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        Map<String, Object> cachedResponse = idempotency.replay(previous, Map.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed()) {
-            GameSession existing = gameService.getSessionForUser(sessionId, username);
-            return Map.of("success", true, "currentLayer", existing.getCurrentLayer(),
-                    "maxLayer", existing.getMaxLayer(), "stateVersion", existing.getStateVersion());
-        }
-        boolean success;
-        try {
-            success = gameService.advanceToNextLayer(sessionId, expectedVersion, username);
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
-        GameSession session = gameService.getSessionForUser(sessionId, username);
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", success);
-        result.put("currentLayer", session.getCurrentLayer());
-        result.put("maxLayer", session.getMaxLayer());
-        result.put("stateVersion", session.getStateVersion());
-        if (!success) {
-            log.info("Game completed for session: {}", sessionId);
-            result.put("message", "恭喜通关！西天取经圆满！");
-        }
-        idempotency.completeResponse(scope, idempotencyKey, fingerprint, result);
-        return result;
+        return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
+                () -> {
+                    boolean success = gameService.advanceToNextLayer(sessionId, expectedVersion, username);
+                    GameSession session = gameService.getSessionForUser(sessionId, username);
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("success", success);
+                    result.put("currentLayer", session.getCurrentLayer());
+                    result.put("maxLayer", session.getMaxLayer());
+                    result.put("stateVersion", session.getStateVersion());
+                    if (!success) {
+                        log.info("Game completed for session: {}", sessionId);
+                        result.put("message", "恭喜通关！西天取经圆满！");
+                    }
+                    return result;
+                },
+                previous -> {
+                    GameSession existing = gameService.getSessionForUser(sessionId, username);
+                    return Map.of("success", true, "currentLayer", existing.getCurrentLayer(),
+                            "maxLayer", existing.getMaxLayer(), "stateVersion", existing.getStateVersion());
+                });
     }
 
     /** 从节点获得收益（休息/宝箱/商店） */
@@ -222,147 +194,14 @@ public class GameController {
                 action + "|" + request.getCardIndex() + "|" + request.getCardId() + "|"
                         + request.getPrice() + "|" + request.getRelicName());
         String scope = "game:event:" + username + ":" + sessionId;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        Map<String, Object> cachedResponse = idempotency.replay(previous, Map.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed()) {
-            GameSession existing = gameService.getSessionForUser(sessionId, username);
-            return Map.of("stateVersion", existing.getStateVersion(), "player",
-                    playerSummaryAssembler.toPlayerSummary(existing.getPlayer()));
-        }
-        try {
-            Map<String, Object> result = gameService.withSessionLock(sessionId,
-                    () -> handleEventUnderLock(sessionId, request, expectedVersion, username));
-            idempotency.completeResponse(scope, idempotencyKey, fingerprint, result);
-            return result;
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
-    }
-
-    private Map<String, Object> handleEventUnderLock(String sessionId, EventRequest request,
-                                                       long expectedVersion, String username) {
-        String action = request.getAction() != null ? request.getAction() : "none";
-        log.info("Handling event action '{}' for session: {}", action, sessionId);
-        gameService.assertOwnerAndVersion(sessionId, username, expectedVersion);
-
-        Map<String, Object> result = new HashMap<>();
-        GameSession session = gameService.getSession(sessionId);
-        boolean persistAfterEvent = false;
-        MapNode node = session.getCurrentNode();
-        if (node == null) {
-            log.warn("No current node for session: {}", sessionId);
-            result.put("error", "不在任何节点");
-            return result;
-        }
-
-        switch (node.getType()) {
-            case "REST" -> {
-                if ("rest".equals(action)) {
-                    gameService.heal(sessionId, session.getPlayer().getMaxHp() / 3);
-                    // Redis-backed service calls deserialize their own copy;
-                    // reload so the response is based on the persisted state
-                    // and never writes an older snapshot back over it.
-                    session = gameService.getSession(sessionId);
-                    result.put("message", "休息完毕，生命值已恢复");
-                    result.put("player", playerSummaryAssembler.toPlayerSummary(session.getPlayer()));
-                }
-            }
-            case "BONFIRE" -> {
-                if ("upgrade".equals(action)) {
-                    if (session.getBonfireUpgradesLeft() <= 0) {
-                        result.put("error", "升级次数已用完");
-                        result.put("bonfireUpgradesLeft", 0);
-                        result.put("player", playerSummaryAssembler.toPlayerSummary(session.getPlayer()));
-                        break;
-                    }
-                    int cardIdx = request.getCardIndex() != null ? request.getCardIndex() : -1;
-                    if (cardIdx >= 0) {
-                        gameService.upgradeCard(sessionId, cardIdx);
-                        session = gameService.getSession(sessionId);
-                        Card upgraded = session.getPlayer().getDeck().get(cardIdx);
-                        session.setBonfireUpgradesLeft(session.getBonfireUpgradesLeft() - 1);
-                        // upgradeCard persists the card mutation itself; the
-                        // remaining bonfire counter must be persisted by the
-                        // outer command as part of the same locked transition.
-                        persistAfterEvent = true;
-                        result.put("upgraded", upgraded);
-                    }
-                }
-                result.put("player", playerSummaryAssembler.toPlayerSummary(session.getPlayer()));
-                result.put("bonfireUpgradesLeft", session.getBonfireUpgradesLeft());
-            }
-            case "TREASURE" -> {
-                Relic relic = gameService.getRandomRelic(sessionId);
-                if (relic != null) {
-                    session.getPlayer().getRelics().add(relic);
-                    persistAfterEvent = true;
-                    result.put("relic", relic);
-                    result.put("message", "获得遗物: " + relic.getName());
-                    log.info("Relic '{}' obtained for session: {}", relic.getName(), sessionId);
-                }
-            }
-            case "EMPEROR" -> {
-                // 唐朝皇帝赐宝：第一次进入返回三选一候选；选择后入库
-                if ("choose".equals(action)) {
-                    String relicName = request.getRelicName();
-                    if (relicName == null || relicName.isBlank()) {
-                        log.warn("Missing relicName for emperor choose, session: {}", sessionId);
-                        throw new InvalidActionException("选择皇帝宝物时必须提供relicName");
-                    }
-                    Relic chosen = gameService.chooseEmperorRelic(sessionId, relicName);
-                    if (chosen != null) {
-                        result.put("relic", chosen);
-                        result.put("message", "唐太宗李世民赐予你: " + chosen.getName() + "！");
-                        result.put("player", playerSummaryAssembler.toPlayerSummary(gameService.getSession(sessionId).getPlayer()));
-                        log.info("Emperor relic chosen: {} for session: {}", relicName, sessionId);
-                    } else {
-                        result.put("error", "无效或已拥有的宝物: " + relicName);
-                    }
-                } else {
-                    // 默认动作：获取3件候选宝物
-                    List<Relic> choices = gameService.getEmperorChoices(sessionId);
-                    result.put("choices", choices);
-                    result.put("message", "唐太宗李世民设宴相送，请从三件御赐宝物中选择一件：");
-                    log.info("Emperor choices offered for session: {}", sessionId);
-                }
-            }
-            case "SHOP" -> {
-                if ("buy".equals(action)) {
-                    Long cardId = request.getCardId();
-                    if (cardId == null) {
-                        log.warn("Missing cardId for shop purchase, session: {}", sessionId);
-                        throw new InvalidActionException("购买卡牌时必须提供cardId");
-                    }
-                    int price = request.getPrice() != null ? request.getPrice() : 50;
-                    boolean bought = gameService.buyCard(sessionId, cardId, price);
-                    session = gameService.getSession(sessionId);
-                    result.put("bought", bought);
-                    result.put("player", playerSummaryAssembler.toPlayerSummary(session.getPlayer()));
-                    log.info("Shop purchase cardId={}, price={}, bought={} for session: {}",
-                            cardId, price, bought, sessionId);
-                } else {
-                    List<Card> shopCards = gameService.getShopCards(sessionId);
-                    result.put("shopCards", shopCards);
-                }
-            }
-            case "RANDOM" -> {
-                result.put("message", randomEvent(session));
-                result.put("player", playerSummaryAssembler.toPlayerSummary(session.getPlayer()));
-                // randomEvent mutates gold/HP/relics directly and therefore
-                // needs an explicit save before the command completes.
-                persistAfterEvent = true;
-            }
-        }
-
-        if (persistAfterEvent) {
-            gameService.saveSession(session);
-        }
-
-        result.put("stateVersion", gameService.getSession(sessionId).getStateVersion());
-
-        return result;
+        return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
+                () -> gameService.withSessionLock(sessionId,
+                        () -> eventProcessor.process(sessionId, request, expectedVersion, username)),
+                previous -> {
+                GameSession existing = gameService.getSessionForUser(sessionId, username);
+                return Map.of("stateVersion", existing.getStateVersion(), "player",
+                        playerSummaryAssembler.toPlayerSummary(existing.getPlayer()));
+            });
     }
 
     /** 移除卡牌 */
@@ -378,25 +217,18 @@ public class GameController {
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/deck/remove/" + sessionId,
                 String.valueOf(index));
         String scope = "game:deck-remove:" + username + ":" + sessionId;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        Map<String, Object> cachedResponse = idempotency.replay(previous, Map.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed()) {
-            GameSession existing = gameService.getSessionForUser(sessionId, username);
-            return Map.of("success", true, "stateVersion", existing.getStateVersion(),
-                    "player", playerSummaryAssembler.toPlayerSummary(existing.getPlayer()));
-        }
-        try {
-            gameService.removeCardFromDeck(sessionId, index, expectedVersion, username);
-            GameSession session = gameService.getSessionForUser(sessionId, username);
-            Map<String, Object> result = Map.of("success", true, "stateVersion", session.getStateVersion(),
-                    "player", playerSummaryAssembler.toPlayerSummary(session.getPlayer()));
-            idempotency.completeResponse(scope, idempotencyKey, fingerprint, result);
-            return result;
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
+        return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
+                () -> {
+                    gameService.removeCardFromDeck(sessionId, index, expectedVersion, username);
+                    GameSession session = gameService.getSessionForUser(sessionId, username);
+                    return Map.of("success", true, "stateVersion", session.getStateVersion(),
+                            "player", playerSummaryAssembler.toPlayerSummary(session.getPlayer()));
+                },
+                previous -> {
+                    GameSession existing = gameService.getSessionForUser(sessionId, username);
+                    return Map.of("success", true, "stateVersion", existing.getStateVersion(),
+                            "player", playerSummaryAssembler.toPlayerSummary(existing.getPlayer()));
+                });
     }
 
     // ===== 辅助方法 =====
@@ -448,32 +280,6 @@ public class GameController {
             case "EMPEROR" -> "emperor";
             default -> "unknown";
         };
-    }
-
-    private String randomEvent(GameSession session) {
-        String[] events = {
-            "你遇到了一位老神仙，他给了你一些指引。获得10金币。",
-            "路边有棵人参果树，摘了一颗吃。回复8点生命值。",
-            "遇到小妖怪打劫！失去10金币。",
-            "发现了太上老君的丹炉遗迹，获得了一件遗物。",
-            "山间的温泉让你神清气爽。回复5点生命值。"
-        };
-
-        Random r = new Random();
-        String event = events[r.nextInt(events.length)];
-
-        // 简单效果
-        if (event.contains("10金币")) session.getPlayer().setGold(session.getPlayer().getGold() + 10);
-        if (event.contains("8点生命")) session.getPlayer().heal(8);
-        if (event.contains("10金币") && event.contains("失去"))
-            session.getPlayer().setGold(Math.max(0, session.getPlayer().getGold() - 10));
-        if (event.contains("5点生命")) session.getPlayer().heal(5);
-        if (event.contains("遗物")) {
-            Relic relic = gameService.getRandomRelic(session.getSessionId());
-            if (relic != null) session.getPlayer().getRelics().add(relic);
-        }
-
-        return event;
     }
 
     private Map<String, Object> newGameResponse(GameSession session, String sessionId) {

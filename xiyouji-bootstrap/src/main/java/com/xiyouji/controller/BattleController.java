@@ -6,7 +6,7 @@ import com.xiyouji.dto.request.ChooseCardRequest;
 import com.xiyouji.model.Card;
 import com.xiyouji.service.BattleService;
 import com.xiyouji.service.CommandGuard;
-import com.xiyouji.service.CommandIdempotencyService;
+import com.xiyouji.service.IdempotentCommandRunner;
 import com.xiyouji.service.GameService;
 import com.xiyouji.service.session.BattleState;
 import com.xiyouji.service.session.GameSession;
@@ -34,15 +34,15 @@ public class BattleController {
     private final BattleService battleService;
     private final GameService gameService;
     private final PlayerSummaryAssembler playerSummaryAssembler;
-    private final CommandIdempotencyService idempotency;
+    private final IdempotentCommandRunner idempotent;
 
     public BattleController(BattleService battleService, GameService gameService,
                             PlayerSummaryAssembler playerSummaryAssembler,
-                            CommandIdempotencyService idempotency) {
+                            IdempotentCommandRunner idempotent) {
         this.battleService = battleService;
         this.gameService = gameService;
         this.playerSummaryAssembler = playerSummaryAssembler;
-        this.idempotency = idempotency;
+        this.idempotent = idempotent;
     }
 
     /** 开始战斗 */
@@ -55,19 +55,12 @@ public class BattleController {
         String user = currentUsername();
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/battle/start/" + sessionId, "");
         String scope = "game:battle:start:" + user + ":" + sessionId;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        Map<String, Object> cachedResponse = idempotency.replay(previous, Map.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed()) return battleService.getBattleInfo(sessionId);
-        try {
-            battleService.startBattle(sessionId, expectedVersion, user);
-            Map<String, Object> result = battleService.getBattleInfo(sessionId);
-            idempotency.completeResponse(scope, idempotencyKey, fingerprint, result);
-            return result;
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
+        return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
+                () -> {
+                    battleService.startBattle(sessionId, expectedVersion, user);
+                    return battleService.getBattleInfo(sessionId);
+                },
+                previous -> battleService.getBattleInfo(sessionId));
     }
 
     /** 出牌 */
@@ -83,18 +76,9 @@ public class BattleController {
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/battle/play/" + sessionId,
                 String.valueOf(handIndex));
         String scope = "game:battle:play:" + user + ":" + sessionId;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        Map<String, Object> cachedResponse = idempotency.replay(previous, Map.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed()) return battleService.getBattleInfo(sessionId);
-        try {
-            Map<String, Object> result = battleService.playCardAndResolve(sessionId, handIndex, expectedVersion, user);
-            idempotency.completeResponse(scope, idempotencyKey, fingerprint, result);
-            return result;
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
+        return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
+                () -> battleService.playCardAndResolve(sessionId, handIndex, expectedVersion, user),
+                previous -> battleService.getBattleInfo(sessionId));
     }
 
     /** 结束回合 */
@@ -107,18 +91,9 @@ public class BattleController {
         String user = currentUsername();
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/battle/endturn/" + sessionId, "");
         String scope = "game:battle:endturn:" + user + ":" + sessionId;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        Map<String, Object> cachedResponse = idempotency.replay(previous, Map.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed()) return battleService.getBattleInfo(sessionId);
-        try {
-            Map<String, Object> result = battleService.endTurnAndResolve(sessionId, expectedVersion, user);
-            idempotency.completeResponse(scope, idempotencyKey, fingerprint, result);
-            return result;
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
+        return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
+                () -> battleService.endTurnAndResolve(sessionId, expectedVersion, user),
+                previous -> battleService.getBattleInfo(sessionId));
     }
 
     /** 获取战斗状态 */
@@ -144,20 +119,14 @@ public class BattleController {
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/reward/choose/" + sessionId,
                 String.valueOf(cardIndex));
         String scope = "game:reward:choose:" + user + ":" + sessionId;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        Map<String, Object> cachedResponse = idempotency.replay(previous, Map.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed()) return battleService.getBattleInfo(sessionId);
-        try {
-            Map<String, Object> result = battleService.chooseCardReward(sessionId, cardIndex, expectedVersion, user);
-            GameSession session = gameService.getSessionForUser(sessionId, user);
-            result.put("player", playerSummaryAssembler.toPlayerSummary(session.getPlayer()));
-            idempotency.completeResponse(scope, idempotencyKey, fingerprint, result);
-            return result;
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
+        return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
+                () -> {
+                    Map<String, Object> result = battleService.chooseCardReward(sessionId, cardIndex, expectedVersion, user);
+                    GameSession session = gameService.getSessionForUser(sessionId, user);
+                    result.put("player", playerSummaryAssembler.toPlayerSummary(session.getPlayer()));
+                    return result;
+                },
+                previous -> battleService.getBattleInfo(sessionId));
     }
 
     /** 跳过奖励 */
@@ -170,18 +139,9 @@ public class BattleController {
         String user = currentUsername();
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/reward/skip/" + sessionId, "");
         String scope = "game:reward:skip:" + user + ":" + sessionId;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        Map<String, Object> cachedResponse = idempotency.replay(previous, Map.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed()) return battleService.getBattleInfo(sessionId);
-        try {
-            Map<String, Object> result = battleService.skipReward(sessionId, expectedVersion, user);
-            idempotency.completeResponse(scope, idempotencyKey, fingerprint, result);
-            return result;
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
+        return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
+                () -> battleService.skipReward(sessionId, expectedVersion, user),
+                previous -> battleService.getBattleInfo(sessionId));
     }
 
     private String currentUsername() {

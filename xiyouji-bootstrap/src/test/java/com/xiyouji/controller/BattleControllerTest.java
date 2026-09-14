@@ -9,6 +9,7 @@ import com.xiyouji.service.BattleService;
 import com.xiyouji.service.CommandIdempotencyService;
 import com.xiyouji.service.GameService;
 import com.xiyouji.service.IdempotencyStore;
+import com.xiyouji.service.IdempotentCommandRunner;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -53,7 +54,8 @@ class BattleControllerTest {
         gameService = mock(GameService.class);
         playerSummaryAssembler = mock(PlayerSummaryAssembler.class);
         idempotency = mock(CommandIdempotencyService.class);
-        controller = new BattleController(battleService, gameService, playerSummaryAssembler, idempotency);
+        controller = new BattleController(battleService, gameService, playerSummaryAssembler,
+                new IdempotentCommandRunner(idempotency));
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(USER, null, List.of()));
     }

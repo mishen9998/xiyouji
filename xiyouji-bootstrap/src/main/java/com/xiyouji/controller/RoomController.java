@@ -8,7 +8,7 @@ import com.xiyouji.model.enums.CharacterClass;
 import com.xiyouji.service.room.RoomEventPublisher;
 import com.xiyouji.service.room.RoomService;
 import com.xiyouji.service.CommandGuard;
-import com.xiyouji.service.CommandIdempotencyService;
+import com.xiyouji.service.IdempotentCommandRunner;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -39,13 +39,13 @@ public class RoomController {
 
     private final RoomService roomService;
     private final RoomEventPublisher broadcaster;
-    private final CommandIdempotencyService idempotency;
+    private final IdempotentCommandRunner idempotent;
 
     public RoomController(RoomService roomService, RoomEventPublisher broadcaster,
-                          CommandIdempotencyService idempotency) {
+                          IdempotentCommandRunner idempotent) {
         this.roomService = roomService;
         this.broadcaster = broadcaster;
-        this.idempotency = idempotency;
+        this.idempotent = idempotent;
     }
 
     @PostMapping("/create")
@@ -55,20 +55,9 @@ public class RoomController {
         log.info("Create room request from {}", username);
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/create", username);
         String scope = "room:create:" + username;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        RoomDTO cachedResponse = idempotency.replay(previous, RoomDTO.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed() && !previous.value().isBlank()) {
-            return roomService.getRoom(previous.value());
-        }
-        try {
-            RoomDTO room = roomService.createRoom(username, username);
-            idempotency.completeResponse(scope, idempotencyKey, fingerprint, room);
-            return room;
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
+        return idempotent.run(scope, idempotencyKey, fingerprint, RoomDTO.class,
+                () -> roomService.createRoom(username, username),
+                previous -> roomService.getRoom(previous.value()));
     }
 
     @PostMapping("/join")
@@ -80,21 +69,12 @@ public class RoomController {
         log.info("Join room request from {}, code={}", username, request.getCode());
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/join", request.getCode());
         String scope = "room:join:" + username + ":" + request.getCode();
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        RoomDTO cachedResponse = idempotency.replay(previous, RoomDTO.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed()) return roomService.getRoom(request.getCode());
-        RoomDTO room;
-        try {
-            room = roomService.joinRoom(request.getCode(), username, username, expectedVersion);
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
+        RoomDTO room = idempotent.run(scope, idempotencyKey, fingerprint, RoomDTO.class,
+                () -> roomService.joinRoom(request.getCode(), username, username, expectedVersion),
+                previous -> roomService.getRoom(request.getCode()));
         // 广播房间状态变化给所有订阅者
         broadcaster.broadcastRoomUpdate(request.getCode(), room);
         broadcaster.broadcastSystemMessage(request.getCode(), username + " 加入了房间");
-        idempotency.completeResponse(scope, idempotencyKey, fingerprint, room);
         return room;
     }
 
@@ -107,31 +87,22 @@ public class RoomController {
         log.info("Leave room request from {}, code={}", username, code);
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/" + code + "/leave", "");
         String scope = "room:leave:" + username + ":" + code;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        Map<String, Object> cachedResponse = idempotency.replay(previous, Map.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed()) return Map.of("dissolved", true);
-        boolean wasHost = username.equals(roomService.getRoomEntity(code).getHostUserId());
-        try {
-            roomService.leaveRoom(code, username, expectedVersion);
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
-        if (wasHost) {
-            // 房主退出后房间已解散，广播解散通知
-            broadcaster.broadcastSystemMessage(code, "房主已退出，房间已解散");
-            Map<String, Object> result = Map.of("dissolved", true);
-            idempotency.completeResponse(scope, idempotencyKey, fingerprint, result);
-            return result;
-        }
-        // 非房主退出，广播剩余玩家
-        RoomDTO room = roomService.getRoom(code);
-        broadcaster.broadcastRoomUpdate(code, room);
-        broadcaster.broadcastSystemMessage(code, username + " 退出了房间");
-        Map<String, Object> result = Map.of("dissolved", false, "room", room);
-        idempotency.completeResponse(scope, idempotencyKey, fingerprint, result);
-        return result;
+        return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
+                () -> {
+                    boolean wasHost = username.equals(roomService.getRoomEntity(code).getHostUserId());
+                    roomService.leaveRoom(code, username, expectedVersion);
+                    if (wasHost) {
+                        // 房主退出后房间已解散，广播解散通知
+                        broadcaster.broadcastSystemMessage(code, "房主已退出，房间已解散");
+                        return Map.of("dissolved", true);
+                    }
+                    // 非房主退出，广播剩余玩家
+                    RoomDTO room = roomService.getRoom(code);
+                    broadcaster.broadcastRoomUpdate(code, room);
+                    broadcaster.broadcastSystemMessage(code, username + " 退出了房间");
+                    return Map.of("dissolved", false, "room", room);
+                },
+                previous -> Map.of("dissolved", true));
     }
 
     @PostMapping("/{code}/ready")
@@ -142,19 +113,10 @@ public class RoomController {
         String username = currentUsername();
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/" + code + "/ready", "");
         String scope = "room:ready:" + username + ":" + code;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        RoomDTO cachedResponse = idempotency.replay(previous, RoomDTO.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed()) return roomService.getRoom(code);
-        RoomDTO room;
-        try {
-            room = roomService.toggleReady(code, username, expectedVersion);
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
+        RoomDTO room = idempotent.run(scope, idempotencyKey, fingerprint, RoomDTO.class,
+                () -> roomService.toggleReady(code, username, expectedVersion),
+                previous -> roomService.getRoom(code));
         broadcaster.broadcastRoomUpdate(code, room);
-        idempotency.completeResponse(scope, idempotencyKey, fingerprint, room);
         return room;
     }
 
@@ -168,19 +130,10 @@ public class RoomController {
         CharacterClass cc = parseCharacterClass(request.getCharacterClass());
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/" + code + "/character", cc.name());
         String scope = "room:character:" + username + ":" + code;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        RoomDTO cachedResponse = idempotency.replay(previous, RoomDTO.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed()) return roomService.getRoom(code);
-        RoomDTO room;
-        try {
-            room = roomService.selectCharacter(code, username, cc, expectedVersion);
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
+        RoomDTO room = idempotent.run(scope, idempotencyKey, fingerprint, RoomDTO.class,
+                () -> roomService.selectCharacter(code, username, cc, expectedVersion),
+                previous -> roomService.getRoom(code));
         broadcaster.broadcastRoomUpdate(code, room);
-        idempotency.completeResponse(scope, idempotencyKey, fingerprint, room);
         return room;
     }
 
@@ -213,20 +166,11 @@ public class RoomController {
         log.info("Start game request from {}, code={}", username, code);
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/" + code + "/start-game", "");
         String scope = "room:start:" + username + ":" + code;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        RoomDTO cachedResponse = idempotency.replay(previous, RoomDTO.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed()) return roomService.getRoom(code);
-        RoomDTO room;
-        try {
-            room = roomService.startGame(code, username, expectedVersion);
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
+        RoomDTO room = idempotent.run(scope, idempotencyKey, fingerprint, RoomDTO.class,
+                () -> roomService.startGame(code, username, expectedVersion),
+                previous -> roomService.getRoom(code));
         broadcaster.broadcastRoomUpdate(code, room);
         broadcaster.broadcastSystemMessage(code, "游戏开始！探索第1层地图");
-        idempotency.completeResponse(scope, idempotencyKey, fingerprint, room);
         return room;
     }
 
@@ -241,28 +185,19 @@ public class RoomController {
         log.info("Move request from {}, code={}, nodeId={}", username, code, nodeId);
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/" + code + "/move", nodeId);
         String scope = "room:move:" + username + ":" + code;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        Map<String, Object> cachedResponse = idempotency.replay(previous, Map.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed()) {
-            RoomDTO existing = roomService.getRoom(code);
-            Map<String, Object> replay = new java.util.LinkedHashMap<>();
-            replay.put("room", existing);
-            replay.put("node", existing.getCurrentNode());
-            replay.put("eventType", existing.getCurrentNode() == null ? "unknown"
-                    : existing.getCurrentNode().getType().toLowerCase());
-            replay.put("stateVersion", existing.getStateVersion());
-            return replay;
-        }
-        Map<String, Object> result;
-        try {
-            result = roomService.moveToNode(code, nodeId, expectedVersion, username);
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
+        Map<String, Object> result = idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
+                () -> roomService.moveToNode(code, nodeId, expectedVersion, username),
+                previous -> {
+                    RoomDTO existing = roomService.getRoom(code);
+                    Map<String, Object> replay = new java.util.LinkedHashMap<>();
+                    replay.put("room", existing);
+                    replay.put("node", existing.getCurrentNode());
+                    replay.put("eventType", existing.getCurrentNode() == null ? "unknown"
+                            : existing.getCurrentNode().getType().toLowerCase());
+                    replay.put("stateVersion", existing.getStateVersion());
+                    return replay;
+                });
         broadcaster.broadcastRoomUpdate(code, (RoomDTO) result.get("room"));
-        idempotency.completeResponse(scope, idempotencyKey, fingerprint, result);
         return result;
     }
 
@@ -280,19 +215,10 @@ public class RoomController {
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/" + code + "/event",
                 action + ":" + cardId + ":" + cardIndex);
         String scope = "room:event:" + username + ":" + code;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        Map<String, Object> cachedResponse = idempotency.replay(previous, Map.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed()) return Map.of("room", roomService.getRoom(code));
-        Map<String, Object> result;
-        try {
-            result = roomService.handleEvent(code, username, action, cardId, cardIndex, expectedVersion);
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
+        Map<String, Object> result = idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
+                () -> roomService.handleEvent(code, username, action, cardId, cardIndex, expectedVersion),
+                previous -> Map.of("room", roomService.getRoom(code)));
         broadcaster.broadcastRoomUpdate(code, roomService.getRoom(code));
-        idempotency.completeResponse(scope, idempotencyKey, fingerprint, result);
         return result;
     }
 
@@ -305,20 +231,11 @@ public class RoomController {
         log.info("Next layer request from {}, code={}", username, code);
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/" + code + "/next-layer", "");
         String scope = "room:next-layer:" + username + ":" + code;
-        var previous = idempotency.begin(scope, idempotencyKey, fingerprint);
-        Map<String, Object> cachedResponse = idempotency.replay(previous, Map.class);
-        if (cachedResponse != null) return cachedResponse;
-        if (previous != null && previous.completed()) return Map.of("room", roomService.getRoom(code));
-        Map<String, Object> result;
-        try {
-            result = roomService.nextLayer(code, username, expectedVersion);
-        } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
-        }
+        Map<String, Object> result = idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
+                () -> roomService.nextLayer(code, username, expectedVersion),
+                previous -> Map.of("room", roomService.getRoom(code)));
         broadcaster.broadcastSystemMessage(code, "进入第 " + roomService.getRoom(code).getFloor() + " 层");
         broadcaster.broadcastRoomUpdate(code, roomService.getRoom(code));
-        idempotency.completeResponse(scope, idempotencyKey, fingerprint, result);
         return result;
     }
 
