@@ -3,8 +3,9 @@ package com.xiyouji.controller;
 import com.xiyouji.dto.request.room.JoinRoomRequest;
 import com.xiyouji.dto.request.room.SelectCharacterRequest;
 import com.xiyouji.dto.response.room.RoomDTO;
-import com.xiyouji.exception.InvalidActionException;
 import com.xiyouji.model.enums.CharacterClass;
+import com.xiyouji.controller.support.CharacterClassParser;
+import com.xiyouji.controller.support.CurrentUserResolver;
 import com.xiyouji.service.room.RoomEventPublisher;
 import com.xiyouji.service.room.RoomService;
 import com.xiyouji.service.CommandGuard;
@@ -14,12 +15,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -40,18 +38,24 @@ public class RoomController {
     private final RoomService roomService;
     private final RoomEventPublisher broadcaster;
     private final IdempotentCommandRunner idempotent;
+    private final CurrentUserResolver currentUser;
+    private final CharacterClassParser characterClassParser;
 
     public RoomController(RoomService roomService, RoomEventPublisher broadcaster,
-                          IdempotentCommandRunner idempotent) {
+                          IdempotentCommandRunner idempotent,
+                          CurrentUserResolver currentUser,
+                          CharacterClassParser characterClassParser) {
         this.roomService = roomService;
         this.broadcaster = broadcaster;
         this.idempotent = idempotent;
+        this.currentUser = currentUser;
+        this.characterClassParser = characterClassParser;
     }
 
     @PostMapping("/create")
     @Operation(summary = "创建房间", description = "生成8位房间码，创建者自动成为房主")
     public RoomDTO createRoom(@RequestHeader("X-Idempotency-Key") String idempotencyKey) {
-        String username = currentUsername();
+        String username = currentUser.username();
         log.info("Create room request from {}", username);
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/create", username);
         String scope = "room:create:" + username;
@@ -65,7 +69,7 @@ public class RoomController {
     public RoomDTO joinRoom(@Valid @RequestBody JoinRoomRequest request,
                             @RequestHeader("X-Expected-State-Version") long expectedVersion,
                             @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
-        String username = currentUsername();
+        String username = currentUser.username();
         log.info("Join room request from {}, code={}", username, request.getCode());
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/join", request.getCode());
         String scope = "room:join:" + username + ":" + request.getCode();
@@ -83,7 +87,7 @@ public class RoomController {
     public Map<String, Object> leaveRoom(@PathVariable String code,
                                          @RequestHeader("X-Expected-State-Version") long expectedVersion,
                                          @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
-        String username = currentUsername();
+        String username = currentUser.username();
         log.info("Leave room request from {}, code={}", username, code);
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/" + code + "/leave", "");
         String scope = "room:leave:" + username + ":" + code;
@@ -110,7 +114,7 @@ public class RoomController {
     public RoomDTO toggleReady(@PathVariable String code,
                                @RequestHeader("X-Expected-State-Version") long expectedVersion,
                                @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
-        String username = currentUsername();
+        String username = currentUser.username();
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/" + code + "/ready", "");
         String scope = "room:ready:" + username + ":" + code;
         RoomDTO room = idempotent.run(scope, idempotencyKey, fingerprint, RoomDTO.class,
@@ -126,8 +130,8 @@ public class RoomController {
                                    @Valid @RequestBody SelectCharacterRequest request,
                                    @RequestHeader("X-Expected-State-Version") long expectedVersion,
                                    @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
-        String username = currentUsername();
-        CharacterClass cc = parseCharacterClass(request.getCharacterClass());
+        String username = currentUser.username();
+        CharacterClass cc = characterClassParser.parse(request.getCharacterClass());
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/" + code + "/character", cc.name());
         String scope = "room:character:" + username + ":" + code;
         RoomDTO room = idempotent.run(scope, idempotencyKey, fingerprint, RoomDTO.class,
@@ -162,7 +166,7 @@ public class RoomController {
     public RoomDTO startGame(@PathVariable String code,
                              @RequestHeader("X-Expected-State-Version") long expectedVersion,
                              @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
-        String username = currentUsername();
+        String username = currentUser.username();
         log.info("Start game request from {}, code={}", username, code);
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/" + code + "/start-game", "");
         String scope = "room:start:" + username + ":" + code;
@@ -180,7 +184,7 @@ public class RoomController {
                                            @RequestBody Map<String, String> request,
                                            @RequestHeader("X-Expected-State-Version") long expectedVersion,
                                            @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
-        String username = currentUsername();
+        String username = currentUser.username();
         String nodeId = request.get("nodeId");
         log.info("Move request from {}, code={}, nodeId={}", username, code, nodeId);
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/" + code + "/move", nodeId);
@@ -207,7 +211,7 @@ public class RoomController {
                                              @RequestBody Map<String, Object> request,
                                              @RequestHeader("X-Expected-State-Version") long expectedVersion,
                                              @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
-        String username = currentUsername();
+        String username = currentUser.username();
         String action = (String) request.getOrDefault("action", "none");
         Long cardId = request.get("cardId") != null ? Long.valueOf(request.get("cardId").toString()) : null;
         Integer cardIndex = request.get("cardIndex") != null ? Integer.valueOf(request.get("cardIndex").toString()) : null;
@@ -227,7 +231,7 @@ public class RoomController {
     public Map<String, Object> nextLayer(@PathVariable String code,
                                          @RequestHeader("X-Expected-State-Version") long expectedVersion,
                                          @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
-        String username = currentUsername();
+        String username = currentUser.username();
         log.info("Next layer request from {}, code={}", username, code);
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/" + code + "/next-layer", "");
         String scope = "room:next-layer:" + username + ":" + code;
@@ -237,26 +241,5 @@ public class RoomController {
         broadcaster.broadcastSystemMessage(code, "进入第 " + roomService.getRoom(code).getFloor() + " 层");
         broadcaster.broadcastRoomUpdate(code, roomService.getRoom(code));
         return result;
-    }
-
-    // ===== 内部方法 =====
-
-    /** 从 SecurityContext 获取当前用户名（JWT subject） */
-    private String currentUsername() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || auth.getName() == null) {
-            throw new InvalidActionException("未登录，请先获取游客token");
-        }
-        return auth.getName();
-    }
-
-    /** 解析角色职业字符串，无效则抛出 InvalidActionException */
-    private CharacterClass parseCharacterClass(String input) {
-        try {
-            return CharacterClass.valueOf(input.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new InvalidActionException(
-                    "无效的角色职业: " + input + "，可选: " + Arrays.toString(CharacterClass.values()));
-        }
     }
 }

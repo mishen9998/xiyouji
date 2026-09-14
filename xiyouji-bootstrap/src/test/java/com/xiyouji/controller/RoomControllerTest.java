@@ -1,5 +1,7 @@
 package com.xiyouji.controller;
 
+import com.xiyouji.controller.support.CharacterClassParser;
+import com.xiyouji.controller.support.CurrentUserResolver;
 import com.xiyouji.dto.request.room.JoinRoomRequest;
 import com.xiyouji.dto.request.room.SelectCharacterRequest;
 import com.xiyouji.dto.response.room.RoomDTO;
@@ -50,7 +52,8 @@ class RoomControllerTest {
     @BeforeEach
     void setUp() {
         controller = new RoomController(roomService, broadcaster,
-                new IdempotentCommandRunner(idempotency));
+                new IdempotentCommandRunner(idempotency),
+                new CurrentUserResolver(), new CharacterClassParser());
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(USER, null, List.of()));
     }

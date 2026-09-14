@@ -1,5 +1,7 @@
 package com.xiyouji.controller;
 
+import com.xiyouji.controller.support.CharacterClassParser;
+import com.xiyouji.controller.support.CurrentUserResolver;
 import com.xiyouji.dto.PlayerSummaryAssembler;
 import com.xiyouji.dto.request.EventRequest;
 import com.xiyouji.dto.request.MoveRequest;
@@ -57,7 +59,8 @@ class GameControllerTest {
     @BeforeEach
     void setUp() {
         controller = new GameController(gameService, eventProcessor, playerSummaryAssembler,
-                new IdempotentCommandRunner(idempotency));
+                new IdempotentCommandRunner(idempotency),
+                new CurrentUserResolver(), new CharacterClassParser());
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(USER, null, List.of()));
         lenient().when(session.getStateVersion()).thenReturn(7L);
@@ -119,7 +122,7 @@ class GameControllerTest {
         MoveRequest request = new MoveRequest();
         request.setNodeId("n1");
         MapNode node = mock(MapNode.class);
-        when(node.getType()).thenReturn("BATTLE");
+        when(node.domainEventType()).thenReturn("battle");
         when(gameService.moveToNode(SESSION, "n1", 3L, USER)).thenReturn(node);
         when(gameService.getSession(SESSION)).thenReturn(session);
 

@@ -4,6 +4,7 @@ import com.xiyouji.dto.PlayerSummaryAssembler;
 import com.xiyouji.dto.request.BattlePlayRequest;
 import com.xiyouji.dto.request.ChooseCardRequest;
 import com.xiyouji.model.Card;
+import com.xiyouji.controller.support.CurrentUserResolver;
 import com.xiyouji.service.BattleService;
 import com.xiyouji.service.CommandGuard;
 import com.xiyouji.service.IdempotentCommandRunner;
@@ -16,8 +17,6 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.*;
 
@@ -35,14 +34,17 @@ public class BattleController {
     private final GameService gameService;
     private final PlayerSummaryAssembler playerSummaryAssembler;
     private final IdempotentCommandRunner idempotent;
+    private final CurrentUserResolver currentUser;
 
     public BattleController(BattleService battleService, GameService gameService,
                             PlayerSummaryAssembler playerSummaryAssembler,
-                            IdempotentCommandRunner idempotent) {
+                            IdempotentCommandRunner idempotent,
+                            CurrentUserResolver currentUser) {
         this.battleService = battleService;
         this.gameService = gameService;
         this.playerSummaryAssembler = playerSummaryAssembler;
         this.idempotent = idempotent;
+        this.currentUser = currentUser;
     }
 
     /** 开始战斗 */
@@ -52,7 +54,7 @@ public class BattleController {
                                            @RequestHeader("X-Expected-State-Version") long expectedVersion,
                                            @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
         log.info("Starting battle for session: {}", sessionId);
-        String user = currentUsername();
+        String user = currentUser.username();
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/battle/start/" + sessionId, "");
         String scope = "game:battle:start:" + user + ":" + sessionId;
         return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
@@ -72,7 +74,7 @@ public class BattleController {
                                         @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
         int handIndex = request.getHandIndex();
         log.info("Playing card at handIndex {} for session: {}", handIndex, sessionId);
-        String user = currentUsername();
+        String user = currentUser.username();
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/battle/play/" + sessionId,
                 String.valueOf(handIndex));
         String scope = "game:battle:play:" + user + ":" + sessionId;
@@ -88,7 +90,7 @@ public class BattleController {
                                        @RequestHeader("X-Expected-State-Version") long expectedVersion,
                                        @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
         log.info("Ending turn for session: {}", sessionId);
-        String user = currentUsername();
+        String user = currentUser.username();
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/battle/endturn/" + sessionId, "");
         String scope = "game:battle:endturn:" + user + ":" + sessionId;
         return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
@@ -101,7 +103,7 @@ public class BattleController {
     @Operation(summary = "获取战斗状态", description = "查询当前战斗的完整状态信息，包括玩家手牌、敌人意图等")
     public Map<String, Object> battleState(@PathVariable String sessionId) {
         log.debug("Fetching battle state for session: {}", sessionId);
-        gameService.getSessionForUser(sessionId, currentUsername());
+        gameService.getSessionForUser(sessionId, currentUser.username());
         return battleService.getBattleInfo(sessionId);
     }
 
@@ -115,7 +117,7 @@ public class BattleController {
         int cardIndex = request.getCardIndex();
         log.info("Choosing card reward at index {} for session: {}", cardIndex, sessionId);
 
-        String user = currentUsername();
+        String user = currentUser.username();
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/reward/choose/" + sessionId,
                 String.valueOf(cardIndex));
         String scope = "game:reward:choose:" + user + ":" + sessionId;
@@ -136,17 +138,11 @@ public class BattleController {
                                           @RequestHeader("X-Expected-State-Version") long expectedVersion,
                                           @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
         log.info("Skipping card reward for session: {}", sessionId);
-        String user = currentUsername();
+        String user = currentUser.username();
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/reward/skip/" + sessionId, "");
         String scope = "game:reward:skip:" + user + ":" + sessionId;
         return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
                 () -> battleService.skipReward(sessionId, expectedVersion, user),
                 previous -> battleService.getBattleInfo(sessionId));
-    }
-
-    private String currentUsername() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) return null;
-        return authentication.getName();
     }
 }

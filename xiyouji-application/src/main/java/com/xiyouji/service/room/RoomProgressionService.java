@@ -117,7 +117,7 @@ public class RoomProgressionService {
             }
 
             MapNode node = mapService.moveToNode(room, nodeId);
-            String eventType = mapService.interpretNode(node);
+            String eventType = node.domainEventType();
 
             access.save(room);
             log.info("Room {} moved to node: {}, event: {}", code, nodeId, eventType);

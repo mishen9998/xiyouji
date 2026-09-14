@@ -5,9 +5,10 @@ import com.xiyouji.dto.request.EventRequest;
 import com.xiyouji.dto.request.MoveRequest;
 import com.xiyouji.dto.request.NewGameRequest;
 import com.xiyouji.dto.request.RemoveCardRequest;
-import com.xiyouji.exception.InvalidActionException;
 import com.xiyouji.model.*;
 import com.xiyouji.model.enums.CharacterClass;
+import com.xiyouji.controller.support.CharacterClassParser;
+import com.xiyouji.controller.support.CurrentUserResolver;
 import com.xiyouji.service.GameService;
 import com.xiyouji.service.GameEventProcessor;
 import com.xiyouji.service.CommandGuard;
@@ -20,8 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.*;
 
@@ -40,14 +39,20 @@ public class GameController {
     private final GameEventProcessor eventProcessor;
     private final PlayerSummaryAssembler playerSummaryAssembler;
     private final IdempotentCommandRunner idempotent;
+    private final CurrentUserResolver currentUser;
+    private final CharacterClassParser characterClassParser;
 
     public GameController(GameService gameService, GameEventProcessor eventProcessor,
                           PlayerSummaryAssembler playerSummaryAssembler,
-                          IdempotentCommandRunner idempotent) {
+                          IdempotentCommandRunner idempotent,
+                          CurrentUserResolver currentUser,
+                          CharacterClassParser characterClassParser) {
         this.gameService = gameService;
         this.eventProcessor = eventProcessor;
         this.playerSummaryAssembler = playerSummaryAssembler;
         this.idempotent = idempotent;
+        this.currentUser = currentUser;
+        this.characterClassParser = characterClassParser;
     }
 
     /** 开始新游戏 */
@@ -55,11 +60,11 @@ public class GameController {
     @Operation(summary = "开始新游戏", description = "创建新的游戏会话，选择角色职业并生成第一层地图")
     public Map<String, Object> newGame(@Valid @RequestBody NewGameRequest request,
                                        @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
-        String username = currentUsername();
+        String username = currentUser.username();
         String charClass = request.getCharacterClass();
         log.info("Creating new game with character class: {}", charClass);
 
-        CharacterClass characterClass = parseCharacterClass(charClass);
+        CharacterClass characterClass = characterClassParser.parse(charClass);
 
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/new", charClass);
         String scope = "game:new:" + username;
@@ -82,7 +87,7 @@ public class GameController {
     @Operation(summary = "获取游戏状态", description = "查询指定会话的完整游戏状态，包括玩家信息、地图、当前节点等")
     public Map<String, Object> gameState(@PathVariable String sessionId) {
         log.debug("Fetching game state for session: {}", sessionId);
-        GameSession session = gameService.getSessionForUser(sessionId, currentUsername());
+        GameSession session = gameService.getSessionForUser(sessionId, currentUser.username());
         Map<String, Object> result = new HashMap<>();
         result.put("sessionId", sessionId);
         result.put("stateVersion", session.getStateVersion());
@@ -107,7 +112,7 @@ public class GameController {
                                               @RequestHeader("X-Expected-State-Version") long expectedVersion,
                                               @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
         log.info("Deleting session: {}", sessionId);
-        String username = currentUsername();
+        String username = currentUser.username();
         String fingerprint = CommandGuard.fingerprint("DELETE", "/api/game/sessions/" + sessionId, "");
         String scope = "game:delete:" + username + ":" + sessionId;
         return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
@@ -130,7 +135,7 @@ public class GameController {
                                     @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
         String nodeId = request.getNodeId();
         log.info("Moving to node {} for session: {}", nodeId, sessionId);
-        String username = currentUsername();
+        String username = currentUser.username();
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/move/" + sessionId, nodeId);
         String scope = "game:move:" + username + ":" + sessionId;
         return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
@@ -138,13 +143,14 @@ public class GameController {
                     MapNode node = gameService.moveToNode(sessionId, nodeId, expectedVersion, username);
                     Map<String, Object> result = new HashMap<>();
                     result.put("node", node);
-                    result.put("eventType", interpretNode(node));
+                    result.put("eventType", node.domainEventType());
                     result.put("stateVersion", gameService.getSession(sessionId).getStateVersion());
                     return result;
                 },
                 previous -> {
                     GameSession existing = gameService.getSessionForUser(sessionId, username);
-                    return Map.of("node", existing.getCurrentNode(), "eventType", interpretNode(existing.getCurrentNode()),
+                    return Map.of("node", existing.getCurrentNode(),
+                            "eventType", existing.getCurrentNode().domainEventType(),
                             "stateVersion", existing.getStateVersion());
                 });
     }
@@ -156,7 +162,7 @@ public class GameController {
                                          @RequestHeader("X-Expected-State-Version") long expectedVersion,
                                          @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
         log.info("Advancing to next layer for session: {}", sessionId);
-        String username = currentUsername();
+        String username = currentUser.username();
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/next-layer/" + sessionId, "");
         String scope = "game:next-layer:" + username + ":" + sessionId;
         return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
@@ -188,7 +194,7 @@ public class GameController {
                                            @Valid @RequestBody EventRequest request,
                                            @RequestHeader("X-Expected-State-Version") long expectedVersion,
                                            @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
-        String username = currentUsername();
+        String username = currentUser.username();
         String action = request.getAction() != null ? request.getAction() : "none";
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/event/" + sessionId,
                 action + "|" + request.getCardIndex() + "|" + request.getCardId() + "|"
@@ -213,7 +219,7 @@ public class GameController {
                                           @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
         int index = request.getIndex();
         log.info("Removing card at index {} for session: {}", index, sessionId);
-        String username = currentUsername();
+        String username = currentUser.username();
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/deck/remove/" + sessionId,
                 String.valueOf(index));
         String scope = "game:deck-remove:" + username + ":" + sessionId;
@@ -233,55 +239,6 @@ public class GameController {
 
     // ===== 辅助方法 =====
 
-    /**
-     * 大小写不敏感地解析角色职业枚举。
-     * 支持 "sunwukong"、"SUN_WUKONG"、"Sun_Wukong" 等各种格式，
-     * 也支持中文名称 "孙悟空" 匹配。
-     */
-    private CharacterClass parseCharacterClass(String input) {
-        if (input == null || input.isBlank()) {
-            throw new InvalidActionException("角色职业不能为空");
-        }
-        // 1. 尝试直接枚举匹配（大小写敏感）
-        try {
-            return CharacterClass.valueOf(input);
-        } catch (IllegalArgumentException ignored) {}
-        // 2. 大小写不敏感匹配：转大写并替换空格/连字符为下划线
-        String normalized = input.trim().toUpperCase().replace(" ", "_").replace("-", "_");
-        try {
-            return CharacterClass.valueOf(normalized);
-        } catch (IllegalArgumentException ignored) {}
-        // 3. 去除下划线后匹配（如 "sunwukong" → "SUNWUKONG" vs "SUN_WUKONG"）
-        String noSeparator = normalized.replace("_", "");
-        for (CharacterClass cc : CharacterClass.values()) {
-            if (cc.name().replace("_", "").equals(noSeparator)) {
-                return cc;
-            }
-        }
-        // 4. 中文名称匹配
-        for (CharacterClass cc : CharacterClass.values()) {
-            if (cc.getDisplayName().equals(input.trim())) {
-                return cc;
-            }
-        }
-        log.warn("Invalid character class provided: {}", input);
-        throw new InvalidActionException("无效的角色职业: " + input);
-    }
-
-    private String interpretNode(MapNode node) {
-        return switch (node.getType()) {
-            case "BATTLE" -> "battle";
-            case "BOSS" -> "boss_battle";
-            case "REST" -> "rest";
-            case "TREASURE" -> "treasure";
-            case "SHOP" -> "shop";
-            case "RANDOM" -> "random";
-            case "BONFIRE" -> "bonfire";
-            case "EMPEROR" -> "emperor";
-            default -> "unknown";
-        };
-    }
-
     private Map<String, Object> newGameResponse(GameSession session, String sessionId) {
         Map<String, Object> result = new HashMap<>();
         result.put("sessionId", sessionId);
@@ -291,13 +248,5 @@ public class GameController {
         result.put("map", session.getMap());
         result.put("currentNode", session.getCurrentNode());
         return result;
-    }
-
-    private String currentUsername() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || auth.getName() == null) {
-            throw new InvalidActionException("未登录，请先获取游客token");
-        }
-        return auth.getName();
     }
 }

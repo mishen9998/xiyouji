@@ -176,22 +176,6 @@ public class MultiplayerMapService {
     }
 
     /**
-     * 节点类型转换为事件类型字符串
-     */
-    public String interpretNode(MapNode node) {
-        return switch (node.getType()) {
-            case "BATTLE" -> "battle";
-            case "BOSS" -> "boss_battle";
-            case "REST" -> "rest";
-            case "TREASURE" -> "treasure";
-            case "SHOP" -> "shop";
-            case "RANDOM" -> "random";
-            case "BONFIRE" -> "bonfire";
-            default -> "unknown";
-        };
-    }
-
-    /**
      * 进入下一层
      *
      * @return true表示成功进入下一层，false表示已通关

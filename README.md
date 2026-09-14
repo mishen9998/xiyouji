@@ -371,7 +371,7 @@ docker run --rm \
 - [x] 为 JaCoCo 聚合覆盖率建立非零门禁，并增加前端单元测试与 Playwright E2E。
 - [x] 设计真实业务 k6 场景，固定环境并输出可复现报告。
 - [x] 建立房间生命周期清理：保存时盖章最后活动时间，定时扫描闲置超时房间并在房间锁内双重确认后自动解散（Redis 与内存模式均生效）。
-- [ ] 拆分体积较大的 Service 和 Controller（三大核心服务拆为门面+内聚组件，三大控制器收敛到 IdempotentCommandRunner 幂等模板并补控制器层测试）。
+- [ ] 拆分体积较大的 Service 和 Controller（三大核心服务拆为门面+内聚组件，控制器层收敛到 IdempotentCommandRunner 幂等模板与共享辅助组件，并补控制器层测试）。
 - [ ] 逐步移除领域层与应用层的框架依赖。
 - [ ] 在真实 Kubernetes 集群验证部署、扩缩容、滚动升级与故障恢复。
 

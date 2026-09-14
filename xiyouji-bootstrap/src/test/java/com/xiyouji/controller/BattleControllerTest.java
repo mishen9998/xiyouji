@@ -1,5 +1,6 @@
 package com.xiyouji.controller;
 
+import com.xiyouji.controller.support.CurrentUserResolver;
 import com.xiyouji.dto.PlayerSummaryAssembler;
 import com.xiyouji.dto.request.BattlePlayRequest;
 import com.xiyouji.dto.request.ChooseCardRequest;
@@ -55,7 +56,7 @@ class BattleControllerTest {
         playerSummaryAssembler = mock(PlayerSummaryAssembler.class);
         idempotency = mock(CommandIdempotencyService.class);
         controller = new BattleController(battleService, gameService, playerSummaryAssembler,
-                new IdempotentCommandRunner(idempotency));
+                new IdempotentCommandRunner(idempotency), new CurrentUserResolver());
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(USER, null, List.of()));
     }

@@ -49,6 +49,24 @@ public class MapNode {
     public int getCol() { return col; }
     public void setCol(int col) { this.col = col; }
     public String getType() { return type; }
+
+    /**
+     * 节点类型 → 前端事件类型标识。
+     * 统一单人（含 EMPEROR 皇帝宝库）与多人地图的映射，替代原先散落的 interpretNode。
+     */
+    public String domainEventType() {
+        return switch (type) {
+            case "BATTLE" -> "battle";
+            case "BOSS" -> "boss_battle";
+            case "REST" -> "rest";
+            case "TREASURE" -> "treasure";
+            case "SHOP" -> "shop";
+            case "RANDOM" -> "random";
+            case "BONFIRE" -> "bonfire";
+            case "EMPEROR" -> "emperor";
+            default -> "unknown";
+        };
+    }
     public void setType(String type) { this.type = type; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
