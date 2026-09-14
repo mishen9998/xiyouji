@@ -78,3 +78,6 @@ gpg-public-key.txt
 ~$*
 __pycache__/
 *.pyc
+
+# 个人学习笔记（含求职背景等私有信息，不上传公开仓库）
+docs/code-review-learning.md

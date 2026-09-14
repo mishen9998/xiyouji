@@ -1,20 +1,26 @@
-# 简历项目经历（可直接粘贴）
+# BOSS 直聘项目经历（可直接粘贴）
 
-## 西游记：西行之路｜多人实时协作 Roguelike 游戏平台
+## 西游记：西行之路｜多人实时协作 Roguelike 卡牌游戏平台
 
-**个人项目｜全栈开发**
+**个人项目｜AI 协作全栈开发**
 
-基于 Spring Boot 3 与 Vue 3 开发的 Web Roguelike 卡牌游戏，支持单人闯关和最多 5 人实时协作；后端采用五模块模块化单体，通过 Redis 共享状态验证同一应用的双实例运行，并围绕并发一致性、请求幂等、跨实例通知、自动化测试和可复现部署建立工程闭环。
+### 项目描述
 
-**技术栈：** Java 17、Spring Boot 3.4、Spring Security、Spring Data JPA、WebSocket/STOMP、MySQL 8、Redis 7、Redisson、Vue 3、TypeScript、Pinia、Three.js、Nginx、Docker Compose、GitHub Actions、JUnit 5、Testcontainers、ArchUnit、Vitest、Playwright、k6
+- 基于 Java 17、Spring Boot 3 和 Vue 3 从 0 到 1 独立开发的西游题材 Roguelike 卡牌游戏，支持单人闯关、角色养成、随机地图，以及最多 5 名玩家组队协作战斗。
+- 独立负责需求梳理、产品设计、系统架构、前后端开发、数据库设计、自动化测试、Docker 部署和线上演示，完成从创意到可运行 Web 产品的完整交付。前端使用 Vue 3、TypeScript、Pinia，后端使用 Spring Security、Spring Data JPA，MySQL 保存用户及基础数据，Redis 保存游戏与房间实时状态。
+- 围绕多人游戏中的核心问题，使用 WebSocket/STOMP 实现房间及战斗状态实时同步，并通过 Redisson 分布式锁、状态版本和幂等机制，避免多人同时操作互相覆盖以及网络重试造成重复提交。
+- 熟练运用 AI 辅助完成需求拆解、代码实现、问题定位、测试设计和技术文档沉淀，并对 AI 生成结果进行代码审查、自动化验证和工程化落地；同时通过模块化设计、GitHub Actions 持续集成、Docker 一键部署及监控压测保证项目质量。
 
-### 项目成果
+**技术栈：** Java 17、Spring Boot 3.4、Spring Security、Spring Data JPA、MySQL 8、Redis 7、Redisson、WebSocket/STOMP、Vue 3、TypeScript、Pinia、Three.js、Nginx、Docker Compose、GitHub Actions、JUnit 5、Testcontainers、ArchUnit、Vitest、Playwright、k6
 
-- 基于 DDD 思想与模块化分层，将后端拆分为 `common`、`domain`、`application`、`infrastructure`、`bootstrap` 五个 Maven 模块，并通过 4 条 ArchUnit 规则持续校验 Controller、Service、Repository 与基础设施的关键依赖边界。
-- 针对双实例下的多人状态一致性问题，以 Redis 保存房间、战斗和会话权威状态，结合 Redisson 房间粒度锁、状态版本校验以及“幂等键 + 请求指纹 + 响应重放”处理并发写入与网络重试；使用 Redis Pub/Sub 通知状态变化，客户端断线后通过 REST 重新对账。
-- 使用 Vue 3、TypeScript、Pinia、Three.js 与 STOMP 完成单人闯关、角色选择、多人房间、共享地图与协作战斗；完成 `app-1` 建房、`app-2` 跨实例读取/加入及跨实例 WebSocket 通知验证。
-- 建立 GitHub Actions 持续集成，自动执行前端类型检查与构建、76 个后端测试、Vitest、Playwright、Testcontainers、Compose 黑盒验证及 JaCoCo 五模块聚合非零回归门禁。
-- 使用多阶段 Docker 构建与 Compose 一键启动，并编写 12 步跨实例 k6 业务链路；在固定本机 Docker 环境中以 5 transaction/s 连续执行 3 轮、每轮 5 分钟，共完成 4,502 笔完整事务，业务成功率 100%，跨实例状态不一致、HTTP 5xx 与丢弃迭代均为 0；在 12 transaction/s 探索档识别出房间创建全局锁瓶颈，并形成原子唯一性与细化锁粒度的改进方案。
+### 项目业绩
+
+- 从 0 到 1 独立完成需求分析、UI 交互、Java 后端、Vue 3 前端、MySQL/Redis 数据层及 Docker 部署，交付可在线访问、可独立运行的完整产品，体现 AI 协作下的全栈开发与工程落地能力。
+- 实现用户注册登录、游客存档、随机地图、卡牌战斗、多人房间和共享战斗等核心功能；基于 WebSocket/STOMP 完成最多 5 人实时协作，使玩家的选角、准备、地图和战斗进度能够及时同步。
+- 面向双实例部署场景，以 Redis 统一保存房间、战斗和会话状态，结合 Redisson 房间级分布式锁、状态版本校验及幂等请求机制，解决并发修改、重复提交和跨实例状态一致性问题。
+- 基于 DDD 思想与模块化分层，将后端划分为 5 个 Maven 模块，并使用 4 条 ArchUnit 规则自动检查 Controller、Service、Repository 与基础设施之间的关键依赖边界，提升代码可维护性。
+- 建立覆盖开发到交付的质量保障流程：GitHub Actions 自动执行构建、类型检查及测试；79 个 Maven 测试全部通过，并结合 JUnit 5、Testcontainers、Vitest、Playwright 和 Compose 黑盒测试验证数据库、缓存、前端页面及跨实例通信。
+- 通过 Nginx、Docker Compose 完成双实例部署和一键启动；在固定本机 Docker 测试环境中执行 k6 完整业务压测，累计完成 4,502 笔事务，业务成功率 100%，状态不一致、HTTP 5xx 和丢弃迭代均为 0，并根据高压力测试结果定位出全局锁性能瓶颈及后续优化方向。
 
 ### 30 秒面试介绍
 
