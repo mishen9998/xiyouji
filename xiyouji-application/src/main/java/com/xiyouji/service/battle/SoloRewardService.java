@@ -36,13 +36,25 @@ public class SoloRewardService {
 
     /** 战斗结束处理（调用方须持有会话锁） */
     public Map<String, Object> resolveBattleEnd(String sessionId) {
-        GameSession session = gameService.getSession(sessionId);
+        return resolveBattleEnd(gameService.getSession(sessionId));
+    }
+
+    /** Settle rewards and map state on the caller's authoritative snapshot, saving it once.
+     * The caller must hold the session lock and use this same instance for its response.
+     */
+    public Map<String, Object> resolveBattleEnd(GameSession session) {
+        String sessionId = session.getSessionId();
         BattleState battle = session.getBattle();
         if (battle == null || !battle.isBattleOver()) {
             throw new InvalidActionException("战斗未结束");
         }
         // 防止重复领取奖励
         if (battle.isRewardsHandled()) {
+            // Recover terminal snapshots saved by older versions before mapOpen was persisted.
+            if (!session.isMapOpen()) {
+                session.setMapOpen(true);
+                gameService.saveSession(session);
+            }
             return rewardInfo(battle);
         }
         battle.setRewardsHandled(true);
@@ -103,6 +115,7 @@ public class SoloRewardService {
         }
 
         battle.setRewardSummary(new HashMap<>(result));
+        session.setMapOpen(true);
         gameService.saveSession(session);
         return rewardInfo(battle);
     }
