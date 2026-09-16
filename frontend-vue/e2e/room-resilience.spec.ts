@@ -59,7 +59,7 @@ async function cleanup(page: Page, code: string) {
   }, code).catch(() => {})
 }
 
-test('REST fallback, stale-ready recovery and room restoration work without WebSocket', async ({ browser }) => {
+test('REST fallback, explicit stale-ready retry and room restoration work without WebSocket', async ({ browser }) => {
   test.setTimeout(90_000)
   const contexts = await Promise.all([browser.newContext(), browser.newContext(), browser.newContext()])
   const pages = await Promise.all(contexts.map(c => c.newPage()))
@@ -95,6 +95,12 @@ test('REST fallback, stale-ready recovery and room restoration work without WebS
       await pages[i].locator('.char-card-mini').nth(i).click()
       await expect(pages[i].locator('.player-slot.is-me .slot-char')).not.toHaveText('未选择')
       await pages[i].getByRole('button', { name: '准备', exact: true }).click()
+      if (i === 1) {
+        // A rejected version check refreshes authority and asks for a new user
+        // intent; it must not infer success from the refreshed ready flag.
+        await expect(pages[i].getByRole('button', { name: '准备', exact: true })).toBeEnabled()
+        await pages[i].getByRole('button', { name: '准备', exact: true }).click()
+      }
       await expect(pages[i].locator('.player-slot.is-me .slot-ready')).toHaveText('✓ 已准备')
     }
     expect(rejectedOnce).toBe(true)
