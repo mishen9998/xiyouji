@@ -1,5 +1,6 @@
 import { test, expect, type Browser, type BrowserContext, type Page, type TestInfo } from '@playwright/test'
 import { execFileSync } from 'node:child_process'
+import { writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 test.use({ actionTimeout: 15000 })
 
@@ -105,7 +106,8 @@ async function request(app: string, path: string, identity?: Identity, body?: un
 async function actor(browser: Browser, index: number, info: TestInfo): Promise<Actor> {
   const app = APP[index % 2]
   const identity = await request(app, '/api/auth/guest', undefined, {}) as Identity
-  const context = await browser.newContext({ viewport: { width: index === 0 ? 1366 : 390, height: index === 0 ? 768 : 844 } })
+  const desktop = index === 0 && process.env.T6_HOST_MOBILE !== '1'
+  const context = await browser.newContext({ viewport: { width: desktop ? 1366 : 390, height: desktop ? 768 : 844 } })
   await context.addInitScript(({ identity, app }) => {
     localStorage.setItem('xiyouji_jwt_token', identity.token)
     localStorage.setItem('xiyouji_auth_profile', JSON.stringify(identity))
@@ -146,6 +148,13 @@ async function snap(page: Page, info: TestInfo, name: string) {
   await skipStory(page)
   await page.screenshot({ path: info.outputPath(`${name}.png`) })
 }
+async function saveEvidence(info: TestInfo, name: string, report: unknown) {
+  // A list reporter does not persist body-only attachments. Keep raw JSON beside
+  // screenshots regardless of reporter, then link it into any HTML report.
+  const path = info.outputPath(name)
+  await writeFile(path, JSON.stringify(report, null, 2))
+  await info.attach(name, { path, contentType: 'application/json' })
+}
 async function handleRest(page: Page, multiplayer: boolean) {
   await expect(page.locator('.modal-box')).toBeVisible()
   await page.locator('.modal-box .btn-primary').last().click()
@@ -156,12 +165,14 @@ async function handleShop(a: Actor, id: string, multiplayer: boolean, info: Test
   await expect(page.locator('.shop-card').first()).toBeVisible()
   const before = await state(a, id, multiplayer)
   const player = multiplayer ? before.players.find((p: any) => p.userId === a.identity.username) : before.player
+  const price = player.relics?.some((relic: any) => relic.name === '通关文牒') ? 40 : 50
   await page.locator('.shop-card').first().click()
+  await expect(page.locator('.purchase-button')).toContainText(`供奉 ${price} 金币购买`)
   await page.locator('.purchase-button').click()
   await expect(page.locator('.purchase-button')).toContainText('已收入牌组')
   const after = await state(a, id, multiplayer)
   const updated = multiplayer ? after.players.find((p: any) => p.userId === a.identity.username) : after.player
-  expect(updated.gold).toBe(player.gold - 50)
+  expect(updated.gold).toBe(player.gold - price)
   expect(updated.deck.length).toBe(player.deck.length + 1)
   if (layer === 1) await snap(page, info, 'real-shop-purchased')
   await page.locator('.back-link').click(); await page.getByTestId('temple-forward').click()
@@ -205,7 +216,7 @@ async function fight(actors: Actor[], id: string, multiplayer: boolean, info: Te
   for (const a of actors) {
     await skipStory(a.page)
     if (row === 5) {
-      await a.page.locator(multiplayer ? '.reward-card' : '.reward-cards .mini-card').first().click()
+      await a.page.locator(multiplayer ? '.reward-card' : '.reward-cards .card-mini').first().click()
       await a.page.getByRole('button', { name: multiplayer ? '确认领取' : '继续前进', exact: true }).click()
     } else await a.page.getByRole('button', { name: '跳过奖励', exact: true }).click()
     if (multiplayer) await expect(a.page.locator('.claimed-status')).toBeVisible()
@@ -248,7 +259,7 @@ test('real cross-instance disconnect, missed broadcast, exactly two reconnect su
     const one = await state(host, code, true); const two = await state(guest, code, true)
     expect(two.stateVersion).toBe(one.stateVersion); expect(two.players).toEqual(one.players)
     await snap(guest.page, info, 'real-cross-instance-reconnected')
-    await info.attach('real-recovery.json', { body: JSON.stringify({ code, instances: APP, subscriptions, reads, stateVersion: one.stateVersion }), contentType: 'application/json' })
+    await saveEvidence(info, 'real-recovery.json', { code, instances: APP, subscriptions, reads, stateVersion: one.stateVersion })
   } finally { for (const a of actors) await a.context.close() }
 })
 
@@ -308,10 +319,18 @@ for (const count of [1, 2, 5]) test(`real ${count}-player UI journey: 81 rows, 9
     if (multiplayer) expect(complete.status).toBe('FINISHED')
     else { expect(redis(key).completed).toBe(true); expect(complete.currentLayer).toBe(3); expect(complete.inBattle).toBe(false) }
     expect(progress).toHaveLength(81)
+    for (const a of actors) {
+      await skipStory(a.page)
+      await expect(a.page.getByRole('heading', { name: '取经归来', exact: true })).toBeVisible()
+      await a.page.reload()
+      await skipStory(a.page)
+      await expect(a.page.getByRole('heading', { name: '取经归来', exact: true })).toBeVisible()
+      await expect.poll(() => a.page.locator('.completion-art img').evaluate(img => (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0)).toBe(true)
+    }
     await snap(page, info, `${count}-player-complete`)
-    await info.attach('real-journey.json', { body: JSON.stringify({ count, id, instances: APP, fixture: 'isolated Redis: 27-row connected path, encounter/event assignments, HP 10000/9000, gold 1000, zero-cost 10000-damage attack cards; no API mocks', progress, final: complete }, null, 2), contentType: 'application/json' })
+    await saveEvidence(info, 'real-journey.json', { count, id, instances: APP, viewports: actors.map(a => a.page.viewportSize()), fixture: 'isolated Redis: 27-row connected path, encounter/event assignments, HP 10000/9000, gold 1000, zero-cost 10000-damage attack cards; no API mocks', progress, final: complete })
   } finally {
-    await info.attach('partial-progress.json', { body: JSON.stringify(progress), contentType: 'application/json' })
+    await saveEvidence(info, 'partial-progress.json', progress)
     for (const a of actors) await a.context.close()
   }
 })
