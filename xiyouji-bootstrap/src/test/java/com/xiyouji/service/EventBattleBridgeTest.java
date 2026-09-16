@@ -12,7 +12,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class EventBattleBridgeTest {
-    private Enemy enemy() { Enemy e = new Enemy("enemy",100,10,3,false,1); e.setId(1L); return e; }
+    private Enemy enemy() {
+        Enemy e = new Enemy("enemy",100,10,3,false,1);
+        e.setId(1L);
+        e.setContentKey("test:event-block");
+        e.setRulesVersion(com.xiyouji.combat.CombatRules.VERSION);
+        e.setActionDefinitions(List.of(com.xiyouji.combat.EnemyActionDefinition.attack(100)));
+        return e;
+    }
     private MapNode node() { MapNode n = new MapNode("battle",1,1,0,"BATTLE","battle"); n.setEnemyId("1"); return n; }
     @Test void soloEightBlockIsConsumedForExactlyTheNextBattleBeforeForecast() {
         EnemyRepositoryPort enemies = mock(EnemyRepositoryPort.class); when(enemies.findById(1L)).thenReturn(Optional.of(enemy()));
