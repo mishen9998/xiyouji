@@ -13,7 +13,7 @@ import {
 } from './guestSaves'
 import type {
   CharacterClass, Player, MapNode as GameMapNode,
-  BattleInfo, Rewards, GameState
+  BattleInfo, Rewards, GameState, StoryEvent
 } from '@/types'
 
 const SESSION_KEY = 'xiyouji_session_id'
@@ -44,6 +44,7 @@ export const useGameStore = defineStore('game', () => {
   const rewards = ref<Rewards | null>(null)
   const bonfireUpgradesLeft = ref(2)
   const stateVersion = ref(0)
+  const storyEvent = ref<StoryEvent | undefined>()
 
   // ====== Getters ======
   const isPlayerAlive = computed(() => (player.value?.hp ?? 0) > 0)
@@ -99,6 +100,7 @@ export const useGameStore = defineStore('game', () => {
     }
 
     const data = await gameApi.newGame(charClass)
+    storyEvent.value = data.storyEvent
     sessionId.value = data.sessionId
     stateVersion.value = data.stateVersion ?? 0
     player.value = data.player
@@ -127,6 +129,7 @@ export const useGameStore = defineStore('game', () => {
     if (!sessionId.value) return
     try {
       const data: GameState = await gameApi.getState(sessionId.value)
+      storyEvent.value = data.storyEvent
       stateVersion.value = data.stateVersion ?? stateVersion.value
       player.value = data.player
       mapNodes.value = data.map
@@ -151,6 +154,7 @@ export const useGameStore = defineStore('game', () => {
     if (!savedId) return null
     try {
       const data: GameState = await gameApi.getState(savedId)
+      storyEvent.value = data.storyEvent
       sessionId.value = savedId
       stateVersion.value = data.stateVersion ?? 0
       player.value = data.player
@@ -287,6 +291,7 @@ export const useGameStore = defineStore('game', () => {
     let data
     try { data = await retryCommand(`next:${sessionId.value}`, key => gameApi.nextLayer(sessionId.value!, stateVersion.value, key)) }
     catch (error) { return recoverFromConflict(error) }
+    storyEvent.value = data.storyEvent
     stateVersion.value = data.stateVersion ?? stateVersion.value
     if (data.success) {
       currentLayer.value = data.currentLayer || currentLayer.value + 1
@@ -340,7 +345,7 @@ export const useGameStore = defineStore('game', () => {
 
   return {
     // state
-    sessionId, selectedCharacter, player, mapNodes, currentNode, stateVersion,
+    sessionId, selectedCharacter, player, mapNodes, currentNode, stateVersion, storyEvent,
     currentLayer, maxLayer, inBattle, battleInfo, rewards, bonfireUpgradesLeft,
     // getters
     isPlayerAlive, hasSession,

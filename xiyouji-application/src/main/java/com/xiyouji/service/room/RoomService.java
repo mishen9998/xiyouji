@@ -113,6 +113,7 @@ public class RoomService {
         access.withRoomLock(code, () -> {
             Room room = access.getRoomOrThrow(code);
             room.setStatus(RoomStatus.IN_BATTLE);
+            room.getPlayers().forEach(p -> p.setNextBattleBlock(0));
             access.save(room);
         });
     }
@@ -181,6 +182,11 @@ public class RoomService {
                                            String action, Long cardId, Integer cardIndex,
                                            long expectedVersion) {
         return eventProcessor.handleEvent(code, userId, action, cardId, cardIndex, expectedVersion);
+    }
+
+    public Map<String, Object> handleEvent(String code, String userId, String action, Long cardId,
+                                          Integer cardIndex, Integer price, long expectedVersion) {
+        return eventProcessor.handleEvent(code, userId, action, cardId, cardIndex, price, expectedVersion);
     }
 
     @Transactional

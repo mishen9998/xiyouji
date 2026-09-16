@@ -8,6 +8,12 @@ import java.util.List;
  */
 public class MapNode {
     private String id;
+    private com.xiyouji.event.EventState eventState;
+    private java.util.Map<String, java.util.List<Card>> shopStock = new java.util.LinkedHashMap<>();
+    public com.xiyouji.event.EventState getEventState() { return eventState; }
+    public void setEventState(com.xiyouji.event.EventState eventState) { this.eventState = eventState; }
+    public java.util.Map<String, java.util.List<Card>> getShopStock() { return shopStock; }
+    public void setShopStock(java.util.Map<String, java.util.List<Card>> stock) { this.shopStock = stock; }
     private int layer;              // 第几层 (1-3)
     private int row;                // 在当前层中的行号 (0=底部起点, 最大行=Boss)
     private int col;                // 列号 (用于水平定位)

@@ -20,6 +20,9 @@ public class RoomPlayer implements Serializable {
 
     /** 玩家ID（来自 User 实体或游客 token 的 subject） */
     private String userId;
+    private int nextBattleBlock;
+    public int getNextBattleBlock() { return nextBattleBlock; }
+    public void setNextBattleBlock(int value) { nextBattleBlock = value; }
 
     /** 玩家显示名 */
     private String username;

@@ -32,6 +32,9 @@ public class MultiplayerBattleInfoAssembler {
         info.put("playerTurn", state.isPlayerTurn());
         info.put("battleOver", state.isBattleOver());
         info.put("victory", state.isVictory());
+        info.put("storyEvent",com.xiyouji.service.event.StoryCatalog.battle(
+            state.getStoryInstanceId() == null ? state.getRoomCode() + ":legacy" : state.getStoryInstanceId(),
+            state.getStoryFloor(),state.getEnemy(),state.isBattleOver(),state.isVictory()));
         info.put("rulesVersion", EnemyForecastInfo.rulesVersion(state.getEnemy()));
 
         // 敌人信息
