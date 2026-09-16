@@ -4,13 +4,15 @@
     <!-- 顶部信息栏 -->
     <div class="map-top-bar">
       <div class="player-info-bar">
-        <img
-          v-if="playerAvatarUrl"
+        <ResponsiveImage
           class="player-avatar-full"
           :src="playerAvatarUrl"
-          alt="角色"
+          alt="角色头像"
+          :emoji="playerEmoji"
+          sizes="(max-width: 600px) 28px, 36px"
+          object-fit="cover"
+          critical
         />
-        <span v-else class="player-emoji">{{ playerEmoji }}</span>
         <HpBar :hp="player?.hp ?? 0" :max-hp="player?.maxHp ?? 1" />
         <span class="resource">🪙 <span>{{ player?.gold ?? 0 }}</span></span>
         <span class="resource">📦 <span>{{ player?.deckSize ?? 0 }}</span></span>
@@ -18,18 +20,15 @@
       </div>
       <div class="map-relics-bar">
         <template v-for="(relic, i) in playerRelics" :key="i">
-          <img
-            v-if="relicImgUrl(relic.name)"
+          <ResponsiveImage
             class="map-relic-icon"
-            :src="relicImgUrl(relic.name)!"
+            :src="relicImgUrl(relic.name)"
             :alt="relic.name"
+            :emoji="relic.emoji || '💎'"
+            sizes="(max-width: 600px) 24px, 32px"
+            object-fit="cover"
             :title="relic.name + ' — ' + relic.description"
           />
-          <span
-            v-else
-            class="map-relic-emoji"
-            :title="relic.name"
-          >{{ relic.emoji || '💎' }}</span>
         </template>
       </div>
       <div class="top-actions">
@@ -84,13 +83,15 @@
               top: (nodePositions[currentNode.id].y - 48) + 'px',
             }"
           >
-            <img
-              v-if="playerAvatarUrl"
+            <ResponsiveImage
               class="map-avatar-img"
               :src="playerAvatarUrl"
-              alt="玩家"
+              alt="当前位置玩家"
+              :emoji="playerEmoji"
+              sizes="(max-width: 600px) 32px, 40px"
+              object-fit="cover"
+              critical
             />
-            <span v-else class="map-avatar-emoji">{{ playerEmoji }}</span>
           </div>
 
           <!-- 底部起点标签 -->
@@ -129,6 +130,7 @@ import MapNodeComponent from '@/components/MapNodeComponent.vue'
 import EventModal from '@/components/EventModal.vue'
 import DeckModal from '@/components/DeckModal.vue'
 import RelicsModal from '@/components/RelicsModal.vue'
+import ResponsiveImage from '@/components/ResponsiveImage.vue'
 
 const router = useRouter()
 const store = useGameStore()
@@ -252,6 +254,13 @@ onMounted(async () => {
   border: 2px solid var(--gold);
   box-shadow: 0 0 8px rgba(242, 169, 0, 0.3);
 }
+
+/* Keep the same icon boxes whether the image succeeds or the shared fallback is shown. */
+.player-avatar-full, .map-avatar-img, .map-relic-icon { flex-shrink: 0; }
+.player-avatar-full :deep(img), .map-avatar-img :deep(img) { object-position: top center; }
+.player-avatar-full :deep(.responsive-image__fallback),
+.map-avatar-img :deep(.responsive-image__fallback),
+.map-relic-icon :deep(.responsive-image__fallback) { min-height: 0; font-size: 20px; line-height: 1; }
 
 .player-emoji {
   font-size: 1.5rem;
