@@ -34,7 +34,17 @@ public class IdempotentCommandRunner {
                      Class<T> responseType,
                      Supplier<T> execute,
                      Function<IdempotencyStore.Entry, T> completedReplay) {
+        return run(scope, idempotencyKey, fingerprint, responseType, () -> { }, execute, completedReplay);
+    }
+
+    /** Admission commands may require different authorization for first execution and replay. */
+    public <T> T run(String scope, String idempotencyKey, String fingerprint,
+                     Class<T> responseType, Runnable authorizeReplay,
+                     Supplier<T> execute,
+                     Function<IdempotencyStore.Entry, T> completedReplay) {
         IdempotencyStore.Entry previous = idempotency.begin(scope, idempotencyKey, fingerprint);
+        // Authorize before decoding a cached body or rebuilding a legacy completed response.
+        if (previous != null && previous.completed()) authorizeReplay.run();
         T cached = idempotency.replay(previous, responseType);
         if (cached != null) return cached;
         if (previous != null && previous.completed()) {

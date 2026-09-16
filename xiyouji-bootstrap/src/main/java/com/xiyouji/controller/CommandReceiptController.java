@@ -4,6 +4,7 @@ import com.xiyouji.controller.support.CurrentUserResolver;
 import com.xiyouji.exception.BusinessException;
 import com.xiyouji.exception.ResultUnknownException;
 import com.xiyouji.service.CommandIdempotencyService;
+import com.xiyouji.service.CommandGuard;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
@@ -27,6 +28,12 @@ public class CommandReceiptController {
         String scope = scope(path, resource, user);
         var entry = commands.receipt(scope, commandId);
         if (!entry.completed()) throw new ResultUnknownException();
+        if (path.equals("/api/room/join")) {
+            // scope already binds user + original room; also verify the stored request fingerprint.
+            if (!CommandGuard.fingerprint("POST", path, resource).equals(entry.fingerprint()))
+                throw new BusinessException("INVALID_COMMAND", "回执与原加入房间不匹配", 400);
+            rooms.assertMember(resource, user);
+        }
         if (entry.resourceRef() != null && entry.resourceRef().startsWith("room:")) rooms.assertMember(entry.resourceRef().substring(5), user);
         String[] segments = path.split("/");
         if (segments.length == 5 && segments[2].equals("room") && !segments[4].equals("leave")) rooms.assertMember(segments[3], user);

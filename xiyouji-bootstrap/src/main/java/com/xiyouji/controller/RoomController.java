@@ -75,13 +75,16 @@ public class RoomController {
         log.info("Join room request from {}, code={}", username, request.getCode());
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/join", request.getCode());
         String scope = "room:join:" + username + ":" + request.getCode();
-        RoomDTO room = idempotent.run(scope, idempotencyKey, fingerprint, RoomDTO.class,
-                () -> roomService.joinRoom(request.getCode(), username, username, expectedVersion),
+        return idempotent.run(scope, idempotencyKey, fingerprint, RoomDTO.class,
+                () -> roomService.assertMember(request.getCode(), username),
+                () -> {
+                    RoomDTO room = roomService.joinRoom(request.getCode(), username, username, expectedVersion);
+                    // Only a new admission emits join events; replay must not publish an old snapshot.
+                    broadcaster.broadcastRoomUpdate(request.getCode(), room);
+                    broadcaster.broadcastSystemMessage(request.getCode(), username + " 加入了房间");
+                    return room;
+                },
                 previous -> roomService.getRoom(request.getCode()));
-        // 广播房间状态变化给所有订阅者
-        broadcaster.broadcastRoomUpdate(request.getCode(), room);
-        broadcaster.broadcastSystemMessage(request.getCode(), username + " 加入了房间");
-        return room;
     }
 
     @PostMapping("/{code}/leave")
