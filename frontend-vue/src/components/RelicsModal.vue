@@ -5,12 +5,7 @@
       <h3>💎 你的宝物</h3>
       <div class="relic-list" v-if="relics.length">
         <div v-for="(relic, i) in relics" :key="i" class="relic-item">
-          <div
-            v-if="relicImgUrl(relic.name)"
-            class="relic-img"
-            :style="{ backgroundImage: `url('${relicImgUrl(relic.name)}')` }"
-          ></div>
-          <span v-else class="relic-emoji">{{ relic.emoji || '💎' }}</span>
+          <ResponsiveImage class="relic-img" :src="relicImgUrl(relic.name)" :alt="relic.name" :emoji="relic.emoji || '💎'" sizes="160px" object-fit="cover" />
           <div class="relic-name">{{ relic.name }}</div>
           <div class="relic-desc">{{ relic.description }}</div>
         </div>
@@ -25,6 +20,7 @@
 import { computed } from 'vue'
 import { useGameStore } from '@/stores/game'
 import { relicImgUrl } from '@/constants/images'
+import ResponsiveImage from './ResponsiveImage.vue'
 
 const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits<{ 'update:visible': [val: boolean] }>()
@@ -68,7 +64,7 @@ function close() {
 }
 
 .relic-emoji {
-  font-size: 28px;
+  font-size: 1.75rem;
   display: block;
   margin-bottom: 4px;
 }
@@ -76,11 +72,11 @@ function close() {
 .relic-name {
   font-weight: bold;
   color: var(--gold);
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 
 .relic-desc {
-  font-size: 11px;
+  font-size: 0.6875rem;
   color: var(--text-muted);
   margin-top: 4px;
   line-height: 1.4;

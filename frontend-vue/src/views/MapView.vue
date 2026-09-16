@@ -4,13 +4,15 @@
     <!-- 顶部信息栏 -->
     <div class="map-top-bar">
       <div class="player-info-bar">
-        <img
-          v-if="playerAvatarUrl"
+        <ResponsiveImage
           class="player-avatar-full"
           :src="playerAvatarUrl"
-          alt="角色"
+          alt="角色头像"
+          :emoji="playerEmoji"
+          sizes="(max-width: 600px) 28px, 36px"
+          object-fit="cover"
+          critical
         />
-        <span v-else class="player-emoji">{{ playerEmoji }}</span>
         <HpBar :hp="player?.hp ?? 0" :max-hp="player?.maxHp ?? 1" />
         <span class="resource">🪙 <span>{{ player?.gold ?? 0 }}</span></span>
         <span class="resource">📦 <span>{{ player?.deckSize ?? 0 }}</span></span>
@@ -18,18 +20,15 @@
       </div>
       <div class="map-relics-bar">
         <template v-for="(relic, i) in playerRelics" :key="i">
-          <img
-            v-if="relicImgUrl(relic.name)"
+          <ResponsiveImage
             class="map-relic-icon"
-            :src="relicImgUrl(relic.name)!"
+            :src="relicImgUrl(relic.name)"
             :alt="relic.name"
+            :emoji="relic.emoji || '💎'"
+            sizes="(max-width: 600px) 24px, 32px"
+            object-fit="cover"
             :title="relic.name + ' — ' + relic.description"
           />
-          <span
-            v-else
-            class="map-relic-emoji"
-            :title="relic.name"
-          >{{ relic.emoji || '💎' }}</span>
         </template>
       </div>
       <div class="top-actions">
@@ -39,9 +38,10 @@
       </div>
     </div>
 
+    <p v-if="moving" class="operation-status" role="status">正在前往下一站，请稍候…</p>
     <!-- 可滑动的地图容器 -->
     <div class="map-scroll-wrapper" ref="scrollWrapper">
-      <div class="map-container" :style="wrapperStyle" ref="mapContainer">
+      <div class="map-container" :style="{ ...wrapperStyle, backgroundImage: `linear-gradient(#fff6da66,#e6f3dd77),url(${sceneImageUrl('journey', MAP_WIDTH < 600 ? 640 : 960)})` }" ref="mapContainer">
         <div class="map-graph-layer" :style="{ width: MAP_WIDTH + 'px', minHeight: mapHeight + 'px' }">
           <!-- SVG 连线层 -->
           <svg
@@ -67,6 +67,7 @@
             v-for="node in mapNodes"
             :key="node.id"
             :node="node"
+            :busy="moving"
             :is-current="currentNode?.id === node.id"
             :x="nodePositions[node.id]?.x ?? 0"
             :y="nodePositions[node.id]?.y ?? 0"
@@ -82,13 +83,15 @@
               top: (nodePositions[currentNode.id].y - 48) + 'px',
             }"
           >
-            <img
-              v-if="playerAvatarUrl"
+            <ResponsiveImage
               class="map-avatar-img"
               :src="playerAvatarUrl"
-              alt="玩家"
+              alt="当前位置玩家"
+              :emoji="playerEmoji"
+              sizes="(max-width: 600px) 32px, 40px"
+              object-fit="cover"
+              critical
             />
-            <span v-else class="map-avatar-emoji">{{ playerEmoji }}</span>
           </div>
 
           <!-- 底部起点标签 -->
@@ -115,26 +118,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useMapLayout } from '@/composables/useMapLayout'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/game'
 import { useUiStore } from '@/stores/ui'
-import { fullImgUrl, relicImgUrl, EMOJI_MAP } from '@/constants/images'
+import { fullImgUrl, relicImgUrl, EMOJI_MAP, sceneImageUrl, preloadScene } from '@/constants/images'
 import type { MapNode } from '@/types'
 import HpBar from '@/components/HpBar.vue'
 import MapNodeComponent from '@/components/MapNodeComponent.vue'
 import EventModal from '@/components/EventModal.vue'
 import DeckModal from '@/components/DeckModal.vue'
 import RelicsModal from '@/components/RelicsModal.vue'
+import ResponsiveImage from '@/components/ResponsiveImage.vue'
 
 const router = useRouter()
 const store = useGameStore()
 const ui = useUiStore()
 
 // 布局常量 - 四列路线自适应铺满可视宽度，并给大节点留出呼吸感
-const ROW_HEIGHT = 220
-const MAP_WIDTH = Math.max(360, Math.round((typeof window !== 'undefined' ? window.innerWidth : 1200) * 0.9))
-const COL_WIDTH = MAP_WIDTH / 4
 
 // 本地状态
 const eventModalVisible = ref(false)
@@ -162,56 +164,12 @@ const playerEmoji = computed(() => {
 
 const playerRelics = computed(() => store.player?.relics ?? [])
 
-const maxRow = computed(() => {
-  let m = 0
-  for (const n of mapNodes.value) {
-    if (n.row > m) m = n.row
-  }
-  return m
-})
-
-const mapHeight = computed(() => (maxRow.value + 1) * ROW_HEIGHT + 60)
-
-const HORIZONTAL_OFFSET = computed(() => (MAP_WIDTH - 4 * COL_WIDTH) / 2)
-
-const nodePositions = computed(() => {
-  const positions: Record<string, { x: number; y: number }> = {}
-  for (const n of mapNodes.value) {
-    const x = n.type === 'BOSS'
-      ? MAP_WIDTH / 2
-      : HORIZONTAL_OFFSET.value + n.col * COL_WIDTH + COL_WIDTH / 2
-    const y = mapHeight.value - 30 - n.row * ROW_HEIGHT
-    positions[n.id] = { x, y }
-  }
-  return positions
-})
-
-const connectionLines = computed(() => {
-  const lines: { x1: number; y1: number; x2: number; y2: number }[] = []
-  for (const n of mapNodes.value) {
-    const from = nodePositions.value[n.id]
-    if (!from || !n.connections) continue
-    for (const toId of n.connections) {
-      const to = nodePositions.value[toId]
-      if (!to) continue
-      lines.push({ x1: from.x, y1: from.y, x2: to.x, y2: to.y })
-    }
-  }
-  return lines
-})
-
-const wrapperStyle = computed(() => ({
-  position: 'relative' as const,
-  width: '100%',
-  maxWidth: 'none',
-  height: mapHeight.value + 'px',
-  minHeight: mapHeight.value + 'px',
-  margin: '0',
-}))
+const { MAP_WIDTH, maxRow, mapHeight, nodePositions, connectionLines, wrapperStyle, scrollToCurrentNode } = useMapLayout(mapNodes, currentNode, scrollWrapper)
 
 // 交互逻辑
 async function onMoveNode(node: MapNode) {
   if (moving.value) return
+  if (node.type === 'BATTLE' || node.type === 'BOSS') preloadScene(currentLayer.value === 1 ? 'blackwind' : currentLayer.value === 2 ? 'firemountain' : 'lionridge', MAP_WIDTH.value < 600 ? 640 : 960)
   moving.value = true
   try {
     const eventType = await store.moveToNode(node.id)
@@ -238,35 +196,6 @@ function goHome() {
   router.push('/menu')
 }
 
-// 没有当前节点时，从底部起点开始；进入路线后由 scrollToCurrentNode 居中角色。
-function scrollToBottom() {
-  nextTick(() => {
-    if (scrollWrapper.value) {
-      scrollWrapper.value.scrollTop = scrollWrapper.value.scrollHeight
-    }
-  })
-}
-
-function scrollToCurrentNode() {
-  nextTick(() => {
-    const wrapper = scrollWrapper.value
-    if (!wrapper) return
-
-    const position = currentNode.value
-      ? nodePositions.value[currentNode.value.id]
-      : undefined
-    if (!position) {
-      wrapper.scrollTop = wrapper.scrollHeight
-      return
-    }
-
-    const maxScrollTop = Math.max(0, wrapper.scrollHeight - wrapper.clientHeight)
-    const centeredTop = position.y - wrapper.clientHeight / 2
-    const targetTop = Math.max(0, Math.min(centeredTop, maxScrollTop))
-    wrapper.scrollTo({ top: targetTop, behavior: 'smooth' })
-  })
-}
-
 onMounted(async () => {
   // 刷新页面后 sessionId 可能丢失，先尝试从 localStorage 恢复
   if (!store.sessionId) {
@@ -291,16 +220,13 @@ onMounted(async () => {
   }
 })
 
-watch([mapNodes, currentNode], () => {
-  scrollToCurrentNode()
-})
 </script>
 
 <style scoped>
 .map-screen {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
 }
 
 .map-top-bar {
@@ -329,12 +255,19 @@ watch([mapNodes, currentNode], () => {
   box-shadow: 0 0 8px rgba(242, 169, 0, 0.3);
 }
 
+/* Keep the same icon boxes whether the image succeeds or the shared fallback is shown. */
+.player-avatar-full, .map-avatar-img, .map-relic-icon { flex-shrink: 0; }
+.player-avatar-full :deep(img), .map-avatar-img :deep(img) { object-position: top center; }
+.player-avatar-full :deep(.responsive-image__fallback),
+.map-avatar-img :deep(.responsive-image__fallback),
+.map-relic-icon :deep(.responsive-image__fallback) { min-height: 0; font-size: 20px; line-height: 1; }
+
 .player-emoji {
-  font-size: 24px;
+  font-size: 1.5rem;
 }
 
 .resource {
-  font-size: 13px;
+  font-size: 0.8125rem;
   white-space: nowrap;
 }
 
@@ -356,7 +289,7 @@ watch([mapNodes, currentNode], () => {
 }
 
 .map-relic-emoji {
-  font-size: 20px;
+  font-size: 1.25rem;
 }
 
 .top-actions {
@@ -367,23 +300,21 @@ watch([mapNodes, currentNode], () => {
 
 .map-scroll-wrapper {
   flex: 1;
+  min-height: 120px;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 10px;
   /* The scrollable map itself owns the artwork so the scene moves with the route. */
-  background-color: #171527;
+  background-color: var(--bg-dark);
   scrollbar-width: thin;
   scrollbar-color: rgba(242, 169, 0, 0.3) transparent;
 }
 
 .map-container {
-  background-color: #252139;
-  background-image:
-    linear-gradient(180deg, rgba(15, 14, 23, 0.28), rgba(15, 14, 23, 0.12) 40%, rgba(15, 14, 23, 0.38)),
-    url('/images/宝物/场景/map_background.png');
-  background-size: cover;
+  background-color: #e5ead8;
+  background-size: 100% auto;
   background-position: center;
-  background-repeat: no-repeat;
+  background-repeat: repeat-y;
   border-radius: 18px;
   overflow: hidden;
 }
@@ -434,7 +365,7 @@ watch([mapNodes, currentNode], () => {
 }
 
 .map-avatar-emoji {
-  font-size: 32px;
+  font-size: 2rem;
   display: block;
   text-align: center;
   line-height: 40px;
@@ -445,7 +376,7 @@ watch([mapNodes, currentNode], () => {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: bold;
 }
 
@@ -473,21 +404,21 @@ watch([mapNodes, currentNode], () => {
     height: 34px;
   }
   .resource {
-    font-size: 11px;
+    font-size: 0.6875rem;
   }
   .map-relic-icon {
     width: 24px;
     height: 24px;
   }
   .map-relic-emoji {
-    font-size: 16px;
+    font-size: 1rem;
   }
   .top-actions {
-    gap: 6px;
+    gap: 8px;
   }
   .btn-small {
     padding: 4px 10px;
-    font-size: 12px;
+    font-size: 0.75rem;
   }
   .map-scroll-wrapper {
     padding: 6px;
@@ -502,7 +433,7 @@ watch([mapNodes, currentNode], () => {
     border-width: 2px;
   }
   .map-avatar-emoji {
-    font-size: 24px;
+    font-size: 1.5rem;
     line-height: 32px;
   }
 }

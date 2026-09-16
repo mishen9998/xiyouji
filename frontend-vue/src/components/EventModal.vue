@@ -7,11 +7,13 @@
       :gold="currentGold"
       :bought-indices="boughtIndices"
       :price="shopPrice"
+      :busy="submitting"
       @buy="buyCard"
       @forward="onContinue"
     />
-    <div v-else class="modal-box" :class="{ 'modal-large': isLargeModal }">
-      <h3>{{ title }}</h3>
+    <div v-else class="modal-box" :class="{ 'modal-large': isLargeModal }" role="dialog" aria-modal="true" aria-labelledby="event-title">
+      <h3 id="event-title">{{ title }}</h3>
+      <p v-if="submitting" role="status">正在确认本次操作…</p>
       <p v-html="message"></p>
       <BranchEventChoices v-if="eventType === 'random' && branchEvent" :event="branchEvent" :busy="submitting" @choose="chooseBranch" />
       <button v-if="eventType === 'random' && !branchEvent" class="btn-primary" :disabled="submitting" @click="chooseBranch('leave')">离开</button>
@@ -36,35 +38,40 @@
       <!-- 唐朝皇帝三选一宝物 -->
       <div v-if="eventType === 'emperor' && emperorChoices.length" class="emperor-content">
         <div class="emperor-choices">
-          <div
+          <button
+            type="button"
             v-for="relic in emperorChoices"
             :key="relic.name"
             class="emperor-relic-card"
+            :disabled="submitting || emperorConfirmed"
+            :aria-pressed="chosenRelicName === relic.name"
             :class="{ chosen: chosenRelicName === relic.name }"
             @click="chooseEmperorRelic(relic)"
           >
-            <img
-              v-if="emperorRelicImgUrl(relic.name)"
+            <ResponsiveImage
               class="emperor-relic-img"
-              :src="emperorRelicImgUrl(relic.name)!"
+              :src="emperorRelicImgUrl(relic.name)"
               :alt="relic.name"
+              :emoji="relic.emoji || '💎'"
+              sizes="96px"
+              object-fit="cover"
             />
-            <span v-else class="emperor-relic-emoji">{{ relic.emoji || '💎' }}</span>
             <div class="emperor-relic-name">{{ relic.name }}</div>
             <div class="emperor-relic-desc">{{ relic.description }}</div>
-          </div>
+          </button>
         </div>
       </div>
 
       <!-- 宝箱打开后获得的宝物展示 -->
       <div v-if="eventType === 'treasure' && treasureRelic" class="treasure-relic-show">
-        <img
-          v-if="relicImgUrl(treasureRelic.name)"
+        <ResponsiveImage
           class="treasure-relic-img"
-          :src="relicImgUrl(treasureRelic.name)!"
+          :src="relicImgUrl(treasureRelic.name)"
           :alt="treasureRelic.name"
+          :emoji="treasureRelic.emoji || '🎁'"
+          sizes="120px"
+          object-fit="cover"
         />
-        <span v-else class="treasure-relic-emoji">{{ treasureRelic.emoji || '🎁' }}</span>
         <div class="treasure-relic-name">{{ treasureRelic.name }}</div>
         <div class="treasure-relic-desc">{{ treasureRelic.description }}</div>
       </div>
@@ -86,6 +93,7 @@ import { emperorRelicImgUrl, relicImgUrl } from '@/constants/images'
 import MiniCard from './MiniCard.vue'
 import TempleShop from './TempleShop.vue'
 import BranchEventChoices from './BranchEventChoices.vue'
+import ResponsiveImage from './ResponsiveImage.vue'
 import type { Card, Relic, EventPreview } from '@/types'
 
 const props = defineProps<{ visible: boolean; eventType: string }>()
@@ -123,7 +131,11 @@ watch(
   () => [props.visible, props.eventType] as const,
   async ([vis, et]) => {
     if (!vis || !et) return
-    await handleEvent(et)
+    if (submitting.value) return
+    submitting.value = true
+    try { await handleEvent(et) }
+    catch (error: any) { message.value = error?.message || '事件读取失败，请稍后重试'; ui.showToast(message.value) }
+    finally { submitting.value = false }
   }
 )
 
@@ -288,18 +300,18 @@ async function chooseBranch(optionId: string) {
 <style scoped>
 /* ====== 大尺寸弹窗（emperor / treasure 场景） ====== */
 .modal-large {
-  min-width: 520px;
+  min-width: 0;
   max-width: 880px;
   width: min(90vw, 880px);
   padding: 32px;
 }
 
 .modal-large h3 {
-  font-size: 28px;
+  font-size: 1.75rem;
 }
 
 .modal-large p {
-  font-size: 17px;
+  font-size: 1.0625rem;
 }
 
 .event-actions {
@@ -382,20 +394,20 @@ async function chooseBranch(optionId: string) {
 }
 
 .emperor-relic-emoji {
-  font-size: 64px;
+  font-size: 4rem;
   margin-bottom: 12px;
   line-height: 1;
 }
 
 .emperor-relic-name {
-  font-size: 17px;
+  font-size: 1.0625rem;
   font-weight: bold;
   color: var(--gold);
   margin-bottom: 8px;
 }
 
 .emperor-relic-desc {
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--text-muted);
   line-height: 1.5;
 }
@@ -431,20 +443,20 @@ async function chooseBranch(optionId: string) {
 }
 
 .treasure-relic-emoji {
-  font-size: 80px;
+  font-size: 5rem;
   margin-bottom: 14px;
   line-height: 1;
 }
 
 .treasure-relic-name {
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: bold;
   color: var(--gold);
   margin-bottom: 8px;
 }
 
 .treasure-relic-desc {
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--text-muted);
   line-height: 1.6;
   max-width: 320px;
@@ -454,12 +466,12 @@ async function chooseBranch(optionId: string) {
 /* ====== 响应式 ====== */
 @media (max-width: 768px) {
   .modal-large {
-    min-width: 300px;
+    min-width: 0;
     width: 92vw;
     padding: 22px;
   }
   .modal-large h3 {
-    font-size: 22px;
+    font-size: 1.375rem;
   }
   .emperor-relic-card {
     width: 150px;
@@ -470,26 +482,26 @@ async function chooseBranch(optionId: string) {
     height: 72px;
   }
   .emperor-relic-emoji {
-    font-size: 48px;
+    font-size: 3rem;
   }
   .emperor-relic-name {
-    font-size: 14px;
+    font-size: 0.875rem;
   }
   .emperor-relic-desc {
-    font-size: 11px;
+    font-size: 0.6875rem;
   }
   .treasure-relic-img {
     width: 88px;
     height: 88px;
   }
   .treasure-relic-emoji {
-    font-size: 60px;
+    font-size: 3.75rem;
   }
   .treasure-relic-name {
-    font-size: 17px;
+    font-size: 1.0625rem;
   }
   .treasure-relic-desc {
-    font-size: 12px;
+    font-size: 0.75rem;
   }
 }
 </style>

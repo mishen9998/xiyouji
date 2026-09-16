@@ -8,6 +8,7 @@
 -->
 <template>
   <div
+    ref="characterRoot"
     class="battle-character"
     :class="[
       `battle-character--${size}`,
@@ -16,6 +17,7 @@
       `battle-character--${visualAction}`,
       `action-${action}`,
       { 'battle-character--failed': imageFailed },
+      { 'motion-paused': !motionAllowed },
     ]"
     role="img"
     :aria-label="ariaLabel"
@@ -53,6 +55,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useMotionVisibility } from '@/composables/useMotionVisibility'
 
 /** ability 是产品文案使用的名称，power 保留作为后端 CardType.POWER 的别名。 */
 export type BattleAction = 'idle' | 'attack' | 'defense' | 'ability' | 'power' | 'hit'
@@ -88,6 +91,8 @@ const props = withDefaults(
 )
 
 const imageFailed = ref(false)
+const characterRoot = ref<HTMLElement | null>(null)
+const { motionAllowed } = useMotionVisibility(characterRoot)
 
 watch(
   () => props.imageUrl,
@@ -126,8 +131,8 @@ function onImageError() {
 .battle-character {
   --character-width: 180px;
   --character-height: 250px;
-  --character-accent: #f2a900;
-  --character-glow: rgba(242, 169, 0, 0.38);
+  --character-accent: #9e7a34;
+  --character-glow: #a5c7a533;
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -197,7 +202,7 @@ function onImageError() {
   transform-style: preserve-3d;
   transform: rotateY(-7deg) rotateX(1deg) translateZ(8px);
   transform-origin: 50% 88%;
-  filter: drop-shadow(0 14px 10px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 6px 6px #38544422);
 }
 
 /* 立绘背面层制造轻量的“厚度”，即使使用 2D 图片也有 3D 纵深感 */
@@ -235,7 +240,7 @@ function onImageError() {
   border: 2px solid var(--character-accent);
   border-color: color-mix(in srgb, var(--character-accent) 82%, white 18%);
   border-radius: 22px 22px 14px 14px;
-  background: linear-gradient(160deg, #3a3650, #1a1825);
+  background: linear-gradient(160deg, #e1e8d7, #f5edda);
   backface-visibility: hidden;
   user-select: none;
 }
@@ -250,7 +255,7 @@ function onImageError() {
   border: 2px solid var(--character-accent);
   border-color: color-mix(in srgb, var(--character-accent) 82%, white 18%);
   border-radius: 22px 22px 14px 14px;
-  background: linear-gradient(160deg, #3a3650, #1a1825);
+  background: linear-gradient(160deg, #e1e8d7, #f5edda);
   font-size: clamp(60px, 10vw, 100px);
 }
 
@@ -305,7 +310,7 @@ function onImageError() {
   min-height: 18px;
   margin-top: -1px;
   color: var(--character-accent);
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 2px;
   text-shadow: 0 0 8px var(--character-glow);
@@ -316,7 +321,7 @@ function onImageError() {
   overflow: hidden;
   margin-top: 3px;
   color: var(--text-secondary, #a7a9be);
-  font-size: 12px;
+  font-size: 0.75rem;
   line-height: 1.3;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -452,4 +457,5 @@ function onImageError() {
     animation-iteration-count: 1 !important;
   }
 }
+.motion-paused :deep(*) { animation-play-state: paused !important; }
 </style>

@@ -1,388 +1,184 @@
-<!-- ====== 多人战斗视图 ====== -->
 <template>
   <div class="mp-battle">
-    <!-- 楼层显示 + 小地图玩家头像栏 -->
-    <div v-if="roomStore.room" class="floor-bar">
-      <span class="floor-label">🏰 第 {{ roomStore.room.floor }} 层</span>
-      <!-- 小地图：所有玩家头像 -->
-      <div class="mini-map">
-        <span class="mini-map-title">🗺️ 队伍</span>
-        <div class="mini-map-avatars">
-          <template v-if="battle">
-            <div
-              v-for="player in battle.players"
-              :key="player.userId"
-              class="mini-avatar"
-              :class="{
-                dead: !player.alive,
-                'is-me': player.userId === currentUsername,
-                targeted: battle.enemy.targetPlayerIndex === player.index,
-                ended: player.endedTurn && player.alive,
-                ready: player.alive && !player.endedTurn && battle.playerTurn
-              }"
-              :title="player.username + (player.characterClass ? ' (' + charName(player.characterClass) + ')' : '')"
-            >
-              <span class="mini-avatar-emoji">{{ charEmoji(player.characterClass) }}</span>
-              <span class="mini-avatar-name">{{ player.username }}</span>
-              <span v-if="player.alive" class="mini-avatar-hp">{{ player.hp }}</span>
-              <span v-else class="mini-avatar-dead">💀</span>
-            </div>
-          </template>
-          <template v-else>
-            <!-- 战斗未开始：显示房间内玩家 -->
-            <div
-              v-for="player in roomStore.room.players"
-              :key="player.userId"
-              class="mini-avatar"
-              :class="{ 'is-me': player.userId === currentUsername }"
-              :title="player.username"
-            >
-              <span class="mini-avatar-emoji">{{ charEmoji(player.characterClass) }}</span>
-              <span class="mini-avatar-name">{{ player.username }}</span>
-              <span v-if="player.ready" class="mini-avatar-hp">✓</span>
-            </div>
-          </template>
-        </div>
-      </div>
-    </div>
-
-    <!-- 敌人面板 -->
-    <div v-if="battle" class="enemy-section">
-      <div class="enemy-card">
-        <div class="enemy-avatar">{{ battle.enemy.emoji || '👹' }}</div>
-        <div class="enemy-info">
-          <div class="enemy-name">{{ battle.enemy.name }}</div>
-          <div class="hp-bar">
-            <div class="hp-fill" :style="{ width: enemyHpPct + '%' }"></div>
-            <span class="hp-text">{{ battle.enemy.hp }} / {{ battle.enemy.maxHp }}</span>
+    <ResponsiveImage v-if="battle" class="battle-backdrop" :src="sceneImageUrl(roomStore.room?.floor === 1 ? 'blackwind' : roomStore.room?.floor === 2 ? 'firemountain' : 'lionridge')" alt="" emoji="" sizes="100vw" object-fit="cover" critical aria-hidden="true" />
+    <header class="floor-bar">
+      <div><span class="eyebrow">同行 · 共战</span><h1>第 {{ roomStore.room?.floor || 1 }} 层</h1></div>
+      <span class="connection-state" role="status" :class="{ offline: !roomStore.connected }">{{ roomStore.connected ? '实时已连接' : '实时连接恢复中 · 定时同步' }}</span>
+      <span class="turn-num">第 {{ battle?.turnNumber || 1 }} 回合</span>
+    </header>
+    <main v-if="battle" class="battle-stage">
+      <p class="stage-scroll-hint">↕ 上下滑动战场，查看完整预告与队伍</p>
+      <section class="enemy-section" aria-label="敌人与攻击预告">
+        <div class="enemy-card">
+          <div class="enemy-avatar">
+            <ResponsiveImage v-if="enemyImgUrl(battle.enemy.name)" :src="enemyImgUrl(battle.enemy.name)" :alt="battle.enemy.name" :emoji="battle.enemy.emoji || '👹'" sizes="(max-width: 600px) 90px, 136px" object-fit="cover" critical />
+            <span v-else>{{ battle.enemy.emoji || '👹' }}</span>
+            <span v-if="battle.enemy.isBoss" class="boss-seal">关主</span>
           </div>
-          <div class="enemy-stats">
-            <span v-if="battle.enemy.block" class="stat-block">🛡️ {{ battle.enemy.block }}</span>
-            <span v-if="battle.enemy.strength" class="stat-str">💪 {{ battle.enemy.strength }}</span>
-            <span v-for="(val, buff) in battle.enemy.buffs" :key="buff" class="enemy-buff">
-              {{ buffEmoji(buff as string) }} {{ val }}
-            </span>
+          <div class="enemy-info">
+            <h2 class="enemy-name">{{ battle.enemy.name }}</h2>
+            <HpBar :hp="battle.enemy.hp" :max-hp="battle.enemy.maxHp" is-enemy width="100%" />
+            <div class="enemy-stats"><span v-if="battle.enemy.block">格挡 {{ battle.enemy.block }}</span><span v-if="battle.enemy.strength">力量 {{ battle.enemy.strength }}</span></div>
+            <div class="player-buffs"><span v-for="(val, buff) in battle.enemy.buffs" :key="buff">{{ statusNames[buff] || buff }} {{ val }}</span></div>
           </div>
         </div>
-        <!-- 敌人意图 -->
-        <div class="enemy-intent">
-          <span class="intent-icon">{{ intentIcon(battle.enemy.intent) }}</span>
-          <span class="intent-label">{{ intentLabel(battle.enemy.intent) }}</span>
-          <span v-if="battle.enemy.intentValue > 0" class="intent-value">{{ battle.enemy.intentValue }}</span>
-          <span v-if="battle.enemy.intent === 'ATTACK' && battle.players[battle.enemy.targetPlayerIndex]" class="intent-target">
-            → {{ battle.players[battle.enemy.targetPlayerIndex].username }}
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 玩家面板区 -->
-    <div v-if="battle" class="players-section">
-      <div
-        v-for="player in battle.players"
-        :key="player.userId"
-        class="player-panel"
-        :class="{ dead: !player.alive, 'is-me': player.userId === currentUsername, 'targeted': battle.enemy.targetPlayerIndex === player.index && battle.playerTurn }"
-      >
-        <div class="player-header">
-          <span class="player-emoji">{{ charEmoji(player.characterClass) }}</span>
-          <span class="player-name">{{ player.username }}</span>
-          <span v-if="player.characterClass" class="player-char-name">{{ charName(player.characterClass) }}</span>
-          <span v-if="player.userId === currentUsername" class="me-tag">我</span>
-        </div>
-        <div class="player-hp-bar">
-          <div class="hp-fill" :style="{ width: playerHpPct(player) + '%', background: player.alive ? 'var(--green)' : 'var(--red-dark)' }"></div>
-          <span class="hp-text">{{ player.hp }}/{{ player.maxHp }}</span>
-        </div>
-        <div class="player-stats">
-          <span class="stat-energy">⚡ {{ player.energy }}/{{ player.maxEnergy }}</span>
-          <span v-if="player.block" class="stat-block">🛡️ {{ player.block }}</span>
-          <span v-if="player.strength" class="stat-str">💪 {{ player.strength }}</span>
-          <span v-if="player.endedTurn" class="ended-tag">已结束</span>
-        </div>
-        <div class="player-buffs">
-          <span v-for="(val, buff) in player.buffs" :key="buff" class="player-buff">
-            {{ buffEmoji(buff as string) }}{{ val }}
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 我的手牌区 -->
-    <div v-if="battle && myPlayer && myPlayer.alive" class="hand-section">
-      <div class="hand-cards">
-        <div
-          v-for="card in myPlayer.hand"
-          :key="card.index"
-          class="mp-card"
-          :class="{
-            playable: canPlay(card),
-            exhausted: card.exhaust
-          }"
-          @click="handlePlayCard(card.index)"
-        >
-          <div class="card-cost">⚡{{ card.cost }}</div>
-          <div class="card-emoji">{{ card.emoji || '📜' }}</div>
-          <div class="card-name">{{ card.name }}</div>
-          <div class="card-effects">
-            <span v-if="card.damage" class="card-dmg">⚔️{{ card.damage }}</span>
-            <span v-if="card.block" class="card-blk">🛡️{{ card.block }}</span>
+        <EnemyIntent v-if="!battle.battleOver" :enemy="battle.enemy" :players="battle.players" :focus-user-id="currentUsername" />
+      </section>
+      <section class="players-section" aria-label="队伍状态">
+        <article v-for="player in battle.players" :key="player.userId" class="player-panel"
+          :class="{ dead: !player.alive, 'is-me': player.userId === currentUsername, targeted: isTargeted(player.userId) && battle.playerTurn }">
+          <div class="player-header">
+            <ResponsiveImage v-if="characterAvatarUrl(player.characterClass || '')" class="player-avatar" :src="characterAvatarUrl(player.characterClass || '')" :alt="charName(player.characterClass)" :emoji="charEmoji(player.characterClass)" sizes="38px" object-fit="cover" />
+            <span v-else class="player-emoji">{{ charEmoji(player.characterClass) }}</span>
+            <div class="player-identity"><strong class="player-name">{{ player.username }}</strong><span class="player-char-name">{{ charName(player.characterClass) }}</span></div>
+            <span v-if="player.userId === currentUsername" class="me-tag">我</span>
           </div>
-        </div>
-        <div v-if="myPlayer.hand.length === 0" class="no-cards">无手牌</div>
+          <HpBar :hp="player.hp" :max-hp="player.maxHp" width="100%" />
+          <div class="player-stats"><span>法力 {{ player.energy }}/{{ player.maxEnergy }}</span><span>格挡 {{ player.block }}</span></div>
+          <div class="player-buffs"><span v-for="(val, buff) in player.buffs" :key="buff">{{ statusNames[buff] || buff }} {{ val }}</span></div>
+          <span class="player-state">{{ !player.alive ? '已倒下' : player.endedTurn ? '已结束回合' : isTargeted(player.userId) ? '敌人目标 · 可用格挡应对' : '行动中' }}</span>
+        </article>
+      </section>
+      <details v-if="battle.combatLog?.length" class="combat-log"><summary>战斗记录</summary><p v-for="(log, i) in battle.combatLog.slice(-8)" :key="i">{{ log }}</p></details>
+    </main>
+    <main v-else class="battle-loading" role="status">正在读取队伍战斗…</main>
+    <footer v-if="battle" class="battle-dock" :aria-busy="commandPending">
+      <div class="selection-preview" aria-live="polite">
+        <template v-if="selectedCard"><strong>{{ selectedCard.name }} · {{ selectedCard.cost }} 法力</strong><span>{{ selectedCard.description }}</span></template>
+        <span v-else>师徒齐心，各尽其力。</span><small>{{ actionHint }}</small>
       </div>
-    </div>
-
-    <!-- 底部操作栏 -->
-    <div v-if="battle" class="bottom-bar">
-      <div class="turn-info">
-        <span class="turn-num">第 {{ battle.turnNumber }} 回合</span>
-        <span class="turn-phase">{{ battle.playerTurn ? '玩家行动' : '敌人行动' }}</span>
-        <span class="players-ended">已结束 {{ battle.playersEndedTurn }}/{{ battle.alivePlayerCount }}</span>
+      <div class="hand-cards" aria-label="我的手牌，左右滑动浏览">
+        <GameCard v-for="card in myPlayer?.hand || []" :key="card.index" class="mp-card"
+          :card="toCard(card)" :index="card.index" :can-play="canPlay(card)" :selected="selectedHandIndex === card.index"
+          preview @select="selectHand(card.index)" />
+        <p v-if="!myPlayer?.hand.length" class="no-cards">{{ myPlayer?.alive ? '手牌已用完，可以结束回合。' : '你已倒下，为队友加油。' }}</p>
       </div>
-      <button
-        v-if="myPlayer && myPlayer.alive && !myPlayer.endedTurn && battle.playerTurn && !battle.battleOver"
-        class="btn-end-turn"
-        @click="handleEndTurn"
-      >
-        结束回合
-      </button>
-    </div>
-
-    <!-- 战斗日志 -->
-    <div v-if="battle" class="combat-log">
-      <div v-for="(log, i) in battle.combatLog.slice(-5)" :key="i" class="log-line">{{ log }}</div>
-    </div>
-
-    <!-- 战斗结果 -->
-    <div v-if="battle && battle.battleOver" class="battle-result-overlay">
-      <div class="result-modal">
-        <h2 class="result-title" :class="{ victory: battle.victory, defeat: !battle.victory }">
-          {{ battle.victory ? '🎉 胜利！' : '💀 失败...' }}
-        </h2>
-        <p class="result-desc">{{ battle.victory ? '师徒齐心，降妖除魔！' : '西行受阻，再接再厉。' }}</p>
-        <button class="btn-primary" @click="handleReturn">返回大厅</button>
+      <div class="bottom-bar">
+        <div class="turn-info"><strong>法力 {{ myPlayer?.energy || 0 }}/{{ myPlayer?.maxEnergy || 0 }}</strong><span class="players-ended">队伍已结束 {{ battle.playersEndedTurn }}/{{ battle.alivePlayerCount }}</span></div>
+        <button class="confirm-card-btn" :disabled="!selectedCard || !canPlay(selectedCard)" @click="selectedHandIndex !== null && handlePlayCard(selectedHandIndex)">{{ commandPending ? '同步中…' : '打出此牌' }}</button>
+        <button class="btn-end-turn" :disabled="!canEndTurn" @click="handleEndTurn">{{ myPlayer?.endedTurn ? '等待队友' : '结束回合' }}</button>
       </div>
+    </footer>
+    <div v-if="battle?.battleOver && !battle.rewardsPhase" class="battle-result-overlay">
+      <section class="result-modal" role="dialog" aria-modal="true" aria-labelledby="battle-result-title">
+        <h2 id="battle-result-title" class="result-title">{{ battle.victory ? '降妖功成' : '西行暂歇' }}</h2>
+        <p>{{ battle.victory ? '师徒齐心，降妖除魔！' : '这一程的历练，将成为下一次出发的力量。' }}</p>
+        <button class="btn-primary" @click="handleReturn">返回营地</button>
+      </section>
     </div>
-
-    <!-- 宝物选择界面（战斗胜利后） -->
-    <div v-if="battle && battle.rewardsPhase && battle.victory" class="rewards-overlay">
-      <div class="rewards-modal">
-        <h2 class="rewards-title">战斗胜利！五张卡牌选一张</h2>
-
-        <!-- 已领取状态 -->
-        <div v-if="hasClaimed" class="claimed-status">
-          <p>{{ myClaimedCardName === '__SKIPPED__' ? '已跳过奖励' : '✅ 已领取：' + myClaimedCardName }}</p>
+    <div v-if="battle?.rewardsPhase && battle.victory" class="rewards-overlay">
+      <section class="rewards-modal" role="dialog" aria-modal="true" aria-labelledby="rewards-title">
+        <span class="eyebrow">战后收获</span><h2 id="rewards-title" class="rewards-title">挑选一张，继续西行</h2>
+        <p class="reward-hint">点选卡牌后确认；也可以跳过奖励。</p>
+        <div v-if="hasClaimed" class="claimed-status"><p>{{ myClaimedCardName === '__SKIPPED__' ? '已跳过奖励' : '已领取：' + myClaimedCardName }}</p></div>
+        <div v-else-if="myRewards.length" class="rewards-cards" aria-label="可选卡牌，左右滑动浏览">
+          <button v-for="(card, index) in myRewards" :key="index" class="reward-card" :class="{ selected: selectedReward === card.name }"
+            :aria-pressed="selectedReward === card.name" :disabled="rewardSubmitting" @click="selectReward(card.name)">
+            <span class="card-cost">{{ card.cost }} 法力</span>
+            <ResponsiveImage v-if="cardImgUrl(card.name)" class="reward-art" :src="cardImgUrl(card.name)" alt="" :emoji="card.emoji || '📜'" sizes="145px" object-fit="cover" />
+            <span v-else class="card-emoji">{{ card.emoji || '📜' }}</span>
+            <strong class="card-name">{{ card.name }}</strong>
+            <span class="card-effects"><span v-if="card.damage">伤害 {{ card.damage }}</span><span v-if="card.block">格挡 {{ card.block }}</span></span>
+            <span class="card-desc">{{ card.description }}</span>
+          </button>
         </div>
-
-        <!-- 五张可选卡牌 -->
-        <div v-else-if="myRewards.length > 0" class="rewards-cards">
-          <div
-            v-for="(card, index) in myRewards"
-            :key="index"
-            class="reward-card"
-            :class="{ selected: selectedReward === card.name }"
-            @click="selectReward(card.name)"
-          >
-            <div class="card-cost">⚡{{ card.cost }}</div>
-            <div class="card-emoji">{{ card.emoji || '📜' }}</div>
-            <div class="card-name">{{ card.name }}</div>
-            <div class="card-effects">
-              <span v-if="card.damage" class="card-dmg">⚔️{{ card.damage }}</span>
-              <span v-if="card.block" class="card-blk">🛡️{{ card.block }}</span>
-            </div>
-            <div class="card-desc">{{ card.description }}</div>
-          </div>
-        </div>
-
         <div v-if="!hasClaimed && currentUsername && battle.rewards?.[currentUsername]" class="reward-actions">
-          <button class="btn-primary" :disabled="rewardSubmitting || !selectedReward" @click="confirmReward(false)">继续前进</button>
+          <button class="btn-primary" :disabled="rewardSubmitting || !selectedReward" @click="confirmReward(false)">{{ rewardSubmitting ? '同步中…' : '确认领取' }}</button>
           <button class="btn-small" :disabled="rewardSubmitting" @click="confirmReward(true)">跳过奖励</button>
         </div>
-        <!-- 其他玩家领取状态 -->
         <div class="other-players-status">
           <div v-for="player in battle.players" :key="player.userId" class="player-status">
-            <span class="player-status-emoji">{{ charEmoji(player.characterClass) }}</span>
-            <span class="player-status-name">{{ player.username }}</span>
-            <span v-if="battle.claimedRewards && battle.claimedRewards[player.userId]" class="status-claimed">{{ battle.claimedRewards[player.userId] === '__SKIPPED__' ? '已跳过' : '✅ 已领取' }}</span>
-            <span v-else-if="battle.rewards?.[player.userId]" class="status-waiting">⏳ 等待中</span>
+            <span>{{ player.username }}</span><span v-if="battle.claimedRewards?.[player.userId]">{{ battle.claimedRewards[player.userId] === '__SKIPPED__' ? '已跳过' : '已领取' }}</span><span v-else-if="battle.rewards?.[player.userId]">等待选择</span>
           </div>
         </div>
-
-        <!-- 返回地图按钮 -->
         <div v-if="battle.rewardsHandled" class="next-floor-section">
-          <button v-if="roomStore.isHost" class="btn-next-floor" :disabled="rewardSubmitting" @click="handleNextFloor">
-            返回地图
-          </button>
-          <p v-else class="waiting-host">等待房主返回地图...</p>
+          <button v-if="roomStore.isHost" class="btn-next-floor" :disabled="rewardSubmitting" @click="handleNextFloor">返回地图</button>
+          <p v-else class="waiting-host">等待房主返回地图…</p>
         </div>
-      </div>
+      </section>
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useRoomStore } from '@/stores/room'
 import { useUiStore } from '@/stores/ui'
 import { getCurrentUsername } from '@/api/room'
-import type { MultiplayerBattleInfo, MultiplayerPlayerInfo, MultiplayerCardInfo, CharacterClass } from '@/types'
+import { enemyImgUrl, characterAvatarUrl, cardImgUrl, CHARACTER_DIR, EMOJI_MAP, sceneImageUrl } from '@/constants/images'
+import { intentTargets, statusNames } from '@/components/enemyIntent'
+import EnemyIntent from '@/components/EnemyIntent.vue'
+import ResponsiveImage from '@/components/ResponsiveImage.vue'
+import GameCard from '@/components/GameCard.vue'
+import HpBar from '@/components/HpBar.vue'
+import type { MultiplayerBattleInfo, MultiplayerPlayerInfo, MultiplayerCardInfo, CharacterClass, Card } from '@/types'
 
 const route = useRoute()
 const router = useRouter()
 const roomStore = useRoomStore()
 const uiStore = useUiStore()
-
 const currentUsername = ref<string | null>(null)
 const battle = computed<MultiplayerBattleInfo | null>(() => roomStore.battleInfo)
-
-const charEmojiMap: Record<string, string> = {
-  SUN_WUKONG: '🐵', ZHU_BAJIE: '🐷', SHA_SENG: '🟤',
-  BAI_LONGMA: '🐴', TANG_SANZANG: '🧘',
+const commandPending = ref(false)
+const selectedHandIndex = ref<number | null>(null)
+const myPlayer = computed<MultiplayerPlayerInfo | null>(() => battle.value?.players.find(p => p.userId === currentUsername.value) ?? null)
+const selectedCard = computed(() => myPlayer.value?.hand.find(card => card.index === selectedHandIndex.value) ?? null)
+const canEndTurn = computed(() => !commandPending.value && !!(battle.value?.playerTurn && !battle.value.battleOver && myPlayer.value?.alive && !myPlayer.value.endedTurn))
+const actionHint = computed(() => commandPending.value ? '正在同步本次操作，请稍候…'
+  : battle.value?.battleOver ? '战斗已结束，请处理战后奖励。'
+  : !myPlayer.value?.alive ? '你已倒下，等待队伍完成本场战斗。'
+  : myPlayer.value.endedTurn ? '本回合已结束，等待队友。'
+  : !battle.value?.playerTurn ? '敌人正在行动…'
+  : selectedCard.value && myPlayer.value.energy < selectedCard.value.cost ? '法力不足，换一张牌或结束回合。'
+  : '点选手牌查看效果，再点击「打出此牌」。')
+watch(() => [battle.value?.turnNumber, myPlayer.value?.hand.map(c => c.index + ':' + c.name).join(',')].join(':'), () => { selectedHandIndex.value = null })
+async function loadBattle(code: string) {
+  try {
+    if (roomStore.roomCode !== code) await roomStore.openRoom(code)
+    await roomStore.refreshBattleState()
+    if (!battle.value) { uiStore.showToast('战斗尚未开始'); await router.push('/room') }
+  } catch { uiStore.showToast('房间不存在或已结束'); await router.push('/room') }
 }
-
-// 角色中文名映射
-const charNameMap: Record<string, string> = {
-  SUN_WUKONG: '孙悟空', ZHU_BAJIE: '猪八戒', SHA_SENG: '沙僧',
-  BAI_LONGMA: '白龙马', TANG_SANZANG: '唐三藏',
-}
-
-const buffEmojiMap: Record<string, string> = {
-  WEAK: '😵', VULNERABLE: '🔻', POISON: '☠️', STRENGTH: '💪',
-  DEXTERITY: '✨', REGENERATION: '💚', RAGE: '🔥', FORTIFY: '🏰',
-  GLUTTONY: '🍽️', SWIFT: '💨', BURN: '🔥', FROZEN: '🧊',
-}
-
-const intentIcons: Record<string, string> = {
-  ATTACK: '⚔️', DEFEND: '🛡️', BUFF: '💪', DEBUFF: '🔻', SPECIAL: '✨',
-}
-
-const intentLabels: Record<string, string> = {
-  ATTACK: '攻击', DEFEND: '防御', BUFF: '强化', DEBUFF: '削弱', SPECIAL: '特殊',
-}
-
-onMounted(async () => {
-  currentUsername.value = getCurrentUsername()
-  const code = route.params.code as string
-
-  // 如果还没有连接 WebSocket，先连接
-  if (roomStore.roomCode !== code) {
-    // 尝试获取房间信息
-    try {
-      await roomStore.openRoom(code)
-    } catch {
-      uiStore.showToast('房间不存在或已结束')
-      router.push('/room')
-      return
-    }
-  }
-
-  // 获取战斗状态
-  await roomStore.refreshBattleState()
-
-  if (!battle.value) {
-    uiStore.showToast('战斗尚未开始')
-    router.push('/room')
-  }
-})
-
-onUnmounted(() => {
-  // 不在这里断开，由用户主动退出
-})
-
-// 监听房间状态变化：当房主返回地图时，非房主玩家也自动跳转到地图
+onMounted(() => { currentUsername.value = getCurrentUsername(); void loadBattle(route.params.code as string) })
+watch(() => route.params.code, (code, old) => { if (code && code !== old) { selectedHandIndex.value = null; void loadBattle(code as string) } })
 watch(() => roomStore.room?.status, (status) => {
-  if (status === 'IN_MAP') {
-    router.push(`/room/${roomStore.roomCode}/map`)
-  } else if (status === 'FINISHED') {
-    uiStore.showToast('🎉 恭喜通关！')
-    router.push('/menu')
-  } else if (status === 'WAITING') {
-    router.push('/room')
-  }
+  if (status === 'IN_MAP') router.push(`/room/${roomStore.roomCode}/map`)
+  else if (status === 'FINISHED') { uiStore.showToast('恭喜通关！'); router.push('/menu') }
+  else if (status === 'WAITING') router.push('/room')
 })
-
-// ====== 计算属性 ======
-const myPlayer = computed<MultiplayerPlayerInfo | null>(() => {
-  if (!battle.value || !currentUsername.value) return null
-  return battle.value.players.find(p => p.userId === currentUsername.value) ?? null
-})
-
-const enemyHpPct = computed(() => {
-  if (!battle.value || battle.value.enemy.maxHp === 0) return 0
-  return Math.max(0, (battle.value.enemy.hp / battle.value.enemy.maxHp) * 100)
-})
-
-function playerHpPct(player: MultiplayerPlayerInfo): number {
-  return Math.max(0, (player.hp / player.maxHp) * 100)
-}
-
-// ====== 游戏操作 ======
 function canPlay(card: MultiplayerCardInfo): boolean {
-  if (!battle.value || !myPlayer.value) return false
-  return battle.value.playerTurn
-    && !battle.value.battleOver
-    && myPlayer.value.alive
-    && !myPlayer.value.endedTurn
-    && myPlayer.value.energy >= card.cost
+  return !commandPending.value && !!(battle.value?.playerTurn && !battle.value.battleOver && myPlayer.value?.alive && !myPlayer.value.endedTurn && myPlayer.value.energy >= card.cost)
 }
-
-async function handlePlayCard(handIndex: number) {
-  try {
-    await roomStore.playCard(handIndex)
-  } catch {
-    // 错误已在 store 中处理
-  }
+function selectHand(index: number) { if (!commandPending.value) selectedHandIndex.value = index }
+async function handlePlayCard(index: number) {
+  const card = myPlayer.value?.hand.find(c => c.index === index)
+  if (!card || !canPlay(card)) return
+  commandPending.value = true
+  try { await roomStore.playCard(index); selectedHandIndex.value = null }
+  catch { /* Store retains RESULT_UNKNOWN and shows the error; never replay here. */ }
+  finally { commandPending.value = false }
 }
-
 async function handleEndTurn() {
-  try {
-    await roomStore.endTurn()
-  } catch {
-    // 错误已在 store 中处理
-  }
+  if (!canEndTurn.value) return
+  commandPending.value = true
+  try { await roomStore.endTurn() }
+  catch { /* A 409 requires another deliberate user action. */ }
+  finally { commandPending.value = false }
 }
-
-function handleReturn() {
-  roomStore.reset()
-  router.push('/menu')
-}
-
-// ====== 宝物奖励相关 ======
-// 当前用户可选择的奖励卡牌
-const myRewards = computed<MultiplayerCardInfo[]>(() => {
-  if (!battle.value || !currentUsername.value || !battle.value.rewards) return []
-  return battle.value.rewards[currentUsername.value] ?? []
-})
-
-// 当前用户是否已领取奖励
-const hasClaimed = computed(() => {
-  if (!battle.value || !currentUsername.value || !battle.value.claimedRewards) return false
-  return !!battle.value.claimedRewards[currentUsername.value]
-})
-
-// 当前用户已领取的卡牌名称
-const myClaimedCardName = computed(() => {
-  if (!battle.value || !currentUsername.value || !battle.value.claimedRewards) return ''
-  return battle.value.claimedRewards[currentUsername.value] ?? ''
-})
-
+function handleReturn() { roomStore.reset(); router.push('/menu') }
+const myRewards = computed<MultiplayerCardInfo[]>(() => currentUsername.value ? battle.value?.rewards?.[currentUsername.value] ?? [] : [])
+const hasClaimed = computed(() => !!(currentUsername.value && battle.value?.claimedRewards?.[currentUsername.value]))
+const myClaimedCardName = computed(() => currentUsername.value ? battle.value?.claimedRewards?.[currentUsername.value] ?? '' : '')
 const selectedReward = ref('')
 const rewardSubmitting = ref(false)
-function selectReward(name: string) {
-  if (!rewardSubmitting.value && !hasClaimed.value) selectedReward.value = name
-}
+function selectReward(name: string) { if (!rewardSubmitting.value && !hasClaimed.value) selectedReward.value = name }
 async function confirmReward(skip: boolean) {
   if (rewardSubmitting.value || hasClaimed.value || (!skip && !selectedReward.value)) return
   rewardSubmitting.value = true
-  try {
-    if (skip) await roomStore.skipReward()
-    else await roomStore.claimReward(selectedReward.value)
-  } catch { /* Store displays the error; keep selection for retry. */ }
+  try { if (skip) await roomStore.skipReward(); else await roomStore.claimReward(selectedReward.value) }
+  catch { /* Selection stays local until receipt proves success. */ }
   finally { rewardSubmitting.value = false }
 }
-
 async function handleNextFloor() {
   if (rewardSubmitting.value) return
   rewardSubmitting.value = true
@@ -393,567 +189,154 @@ async function handleNextFloor() {
   } catch { /* Store displays the error. */ }
   finally { rewardSubmitting.value = false }
 }
-
-// ====== 辅助方法 ======
-function charEmoji(cc: CharacterClass | null): string {
-  return cc ? (charEmojiMap[cc] ?? '❓') : '❓'
-}
-
-function charName(cc: CharacterClass | null): string {
-  return cc ? (charNameMap[cc] ?? '') : ''
-}
-
-function buffEmoji(buff: string): string {
-  return buffEmojiMap[buff] ?? buff
-}
-
-function intentIcon(intent: string): string {
-  return intentIcons[intent] ?? '❓'
-}
-
-function intentLabel(intent: string): string {
-  return intentLabels[intent] ?? intent
+function charEmoji(cc: CharacterClass | null) { return cc ? EMOJI_MAP[cc] ?? '❓' : '❓' }
+function charName(cc: CharacterClass | null) { return cc ? CHARACTER_DIR[cc] ?? '' : '' }
+function isTargeted(userId: string) { return !!battle.value && intentTargets(battle.value.enemy, battle.value.players).includes(userId) }
+function toCard(card: MultiplayerCardInfo): Card {
+  return { ...card, id: card.index, type: card.type ?? 'SKILL', drawCards: 0, upgraded: false }
 }
 </script>
-
 <style scoped>
-.reward-card.selected { outline: 3px solid #f2a900; }
-.reward-actions { display: flex; gap: 12px; justify-content: center; margin: 16px 0; }
-
-.mp-battle {
-  width: 100%;
-  height: 100vh;
-  background: var(--bg-dark);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+.mp-battle { position: relative; isolation: isolate; height: 100vh; height: 100dvh; width: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; overflow: hidden; color: #283c35; background: radial-gradient(ellipse at 50% 10%, #dbe9d4 0, #f7f1e5 60%); }
+.battle-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .22; pointer-events: none; z-index: -1; }
+.floor-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: max(8px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 8px max(16px, env(safe-area-inset-left)); background: #fffbf1ed; border-bottom: 1px solid #d8cbb0; }
+.eyebrow { color: #776549; font-size: 0.6875rem; letter-spacing: .16em; }
+h1 { font: 1.25rem var(--font-display); margin: 2px 0 0; }
+.connection-state { font-size: 0.75rem; color: #21665b; margin-left: auto; }
+.connection-state.offline { color: #984e26; }
+.turn-num { color: #776549; font-size: 0.8125rem; }
+.battle-stage { min-height: 0; overflow-y: auto; padding: 20px max(16px, env(safe-area-inset-left)) 14px; }
+.stage-scroll-hint { display: none; color: #5b6455; font-size: 0.6875rem; margin: 0 0 6px; text-align: center; }
+.battle-loading { display: grid; place-content: center; }
+.enemy-section { display: grid; grid-template-columns: minmax(240px, .85fr) minmax(280px, 1.15fr); gap: 20px; align-items: center; max-width: 920px; margin: auto; }
+.enemy-card { display: flex; align-items: center; gap: 18px; min-width: 0; }
+.enemy-avatar { flex-shrink: 0; width: 136px; height: 136px; position: relative; border: 1px solid #b6bda0; border-radius: 50%; padding: 5px; background: #fffaf0; }
+.enemy-avatar :deep(.responsive-image), .enemy-avatar :deep(img) { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+.enemy-avatar > span:not(.boss-seal) { display: grid; place-items: center; font-size: 3.75rem; height: 100%; }
+.boss-seal { position: absolute; right: 0; bottom: 0; padding: 4px 8px; border-radius: 4px; background: #b44736; color: #fffaf0; font-size: 0.75rem; }
+.enemy-info { flex: 1; min-width: 0; }
+.enemy-name { font: 1.5rem var(--font-display); margin: 0 0 12px; }
+.enemy-stats, .player-stats { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 0.75rem; margin-top: 6px; color: #335f51; }
+.players-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px; max-width: 1040px; margin: 18px auto 0; }
+.player-panel { min-width: 0; padding: 10px; border: 1px solid #d8cbb0; border-radius: 12px; background: #fffbf1; }
+.player-panel.is-me { border-color: #21665b; }
+.player-panel.targeted { border: 2px solid #b44736; padding: 9px; }
+.player-panel.dead { filter: grayscale(1); background: #e4e2d8; }
+.player-header { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; }
+.player-avatar { width: 38px; height: 42px; object-fit: cover; object-position: top; border-radius: 7px; }
+.player-avatar :deep(img) { object-position: top; }
+.player-avatar :deep(.responsive-image__fallback) { min-height: 0; font-size: 1.25rem; }
+.player-emoji { font-size: 1.625rem; }
+.player-identity { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.player-name { font-size: 0.8125rem; overflow-wrap: anywhere; }
+.player-char-name { font-size: 0.6875rem; color: #6b6555; }
+.me-tag { margin-left: auto; font-size: 0.6875rem; padding: 2px 5px; border-radius: 4px; color: #21665b; background: #e0ece3; }
+.player-buffs { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; font-size: 0.6875rem; }
+.player-buffs span { padding: 2px 5px; border-radius: 4px; background: #eee6d5; color: #644d32; }
+.player-state { display: block; margin-top: 6px; font-size: 0.6875rem; color: #635c4c; }
+.targeted .player-state { color: #963b2d; }
+.combat-log { max-width: 1040px; margin: 10px auto 0; color: #5d6555; font-size: 0.75rem; }
+.combat-log summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
+.combat-log p { margin: 5px 0; }
+.battle-dock { max-height: 58dvh; overflow-y: auto; background: #fffbf1f5; border-top: 1px solid #c9c7ad; padding-bottom: env(safe-area-inset-bottom); }
+.selection-preview { max-width: 1100px; margin: auto; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 8px 20px 0; font-size: 0.8125rem; }
+.selection-preview strong { color: #21665b; }
+.selection-preview small { font-size: 0.6875rem; color: #6b6555; }
+.hand-cards { max-width: 1100px; margin: auto; display: flex; gap: 10px; padding: 10px 20px 8px; overflow-x: auto; overscroll-behavior-x: contain; }
+.hand-cards > :first-child { margin-left: auto; }
+.hand-cards > :last-child { margin-right: auto; }
+.no-cards { padding: 12px; font-size: 0.8125rem; color: #6b6555; }
+.bottom-bar { max-width: 1100px; margin: auto; display: flex; align-items: center; gap: 8px; padding: 8px 20px; }
+.turn-info { flex: 1; display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.875rem; color: #21665b; }
+.players-ended { color: #6b6555; font-size: 0.75rem; }
+button { min-width: 44px; min-height: 44px; border: 1px solid #b8b09a; border-radius: 9px; padding: 8px 14px; color: #314c41; background: #fffaf0; font: inherit; cursor: pointer; touch-action: manipulation; }
+button:disabled { opacity: .55; cursor: not-allowed; }
+button:focus-visible { outline: 3px solid #b44736; outline-offset: 3px; }
+.confirm-card-btn, .btn-end-turn, .btn-primary, .btn-next-floor { min-height: 48px; padding: 10px 22px; background: #21665b; border-color: #21665b; color: #fffdf6; font-weight: 700; }
+.btn-end-turn { background: #b44736; border-color: #b44736; }
+.battle-result-overlay, .rewards-overlay { position: fixed; inset: 0; padding: max(16px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); display: grid; place-items: center; background: #1d332bb3; z-index: 100; }
+.rewards-overlay { z-index: 200; }
+.result-modal, .rewards-modal { width: min(100%, 850px); min-width: 0; max-height: 100%; overflow-y: auto; border: 1px solid #c4af7e; border-radius: 18px; background: #fffbf1; padding: 28px; text-align: center; }
+.result-title, .rewards-title { font: 1.75rem var(--font-display); color: #21665b; margin: 8px 0; }
+.reward-hint, .result-modal p { color: #645e4e; font-size: 0.875rem; margin: 10px 0 18px; }
+.claimed-status { padding: 12px; background: #e2ece1; border-radius: 8px; color: #21665b; }
+.rewards-cards { display: flex; gap: 12px; overflow-x: auto; overscroll-behavior-x: contain; padding: 7px 6px 14px; }
+.reward-card { flex: 0 0 145px; width: 145px; display: flex; flex-direction: column; gap: 7px; align-items: center; padding: 10px; border-color: #d1c3a7; font-size: 0.8125rem; }
+.reward-card.selected { outline: 3px solid #21665b; outline-offset: 2px; background: #eff3e9; }
+.reward-art { width: 100%; height: 86px; border-radius: 6px; object-fit: cover; }
+.card-emoji { font-size: 2.25rem; }
+.card-cost { color: #21665b; font-size: 0.75rem; }
+.card-name { font-family: var(--font-display); font-size: 0.9375rem; }
+.card-effects { display: flex; gap: 7px; flex-wrap: wrap; color: #9c4334; font-size: 0.75rem; }
+.card-desc { line-height: 1.5; font-size: 0.75rem; }
+.reward-actions { display: flex; gap: 12px; justify-content: center; margin: 14px 0; }
+.other-players-status { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; padding: 12px 0; }
+.player-status { display: flex; gap: 6px; font-size: 0.75rem; color: #5b6455; }
+.waiting-host { color: #645e4e; font-size: 0.875rem; }
+@media (max-width: 600px) {
+  .floor-bar { padding-left: 12px; padding-right: 12px; gap: 8px; }
+  h1 { font-size: 1.0625rem; } .connection-state { font-size: 0.6875rem; }
+  .battle-stage { padding: 12px; }
+  .enemy-section { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .enemy-avatar { width: 90px; height: 90px; }
+  .enemy-name { font-size: 1.375rem; margin-bottom: 8px; }
+  .players-section { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-top: 12px; }
+  .player-panel { flex: 0 0 145px; padding: 7px; }
+  .player-panel.targeted { padding: 6px; }
+  .player-header { margin-bottom: 5px; }
+  .player-avatar { width: 24px; height: 24px; }
+  .player-char-name { display: none; }
+  .player-panel :deep(.hp-bar-bg) { height: 1.125rem; }
+  .player-stats { margin-top: 4px; font-size: 0.6875rem; line-height: 0.875rem; gap: 4px 8px; }
+  .player-state { margin-top: 4px; font-size: 0.625rem; line-height: 0.75rem; }
+  .player-buffs { font-size: 0.625rem; }
+  .selection-preview { padding: 7px 12px 0; font-size: 0.75rem; }
+  .selection-preview small { flex-basis: 100%; }
+  .hand-cards { padding-left: 12px; padding-right: 12px; }
+  .bottom-bar { flex-wrap: wrap; padding: 6px 12px; }
+  .turn-info { flex-basis: 100%; justify-content: space-between; }
+  .confirm-card-btn, .btn-end-turn { flex: 1; padding: 8px; }
+  .rewards-modal, .result-modal { padding: 18px 12px; }
+  .rewards-title { font-size: 1.4375rem; } .reward-card { flex-basis: 142px; }
 }
-
-/* ====== 敌人面板 ====== */
-.enemy-section {
-  padding: 12px 20px;
-  display: flex;
-  justify-content: center;
+@media (max-height: 500px) and (orientation: landscape) {
+  .floor-bar { min-height: 44px; padding: 4px 12px; }
+  .floor-bar .eyebrow { display: none; }
+  h1 { font-size: 1.0625rem; }
+  .battle-stage { display: grid; grid-template-columns: minmax(0, 1fr) 176px; align-content: start; gap: 4px 10px; padding: 6px 10px; }
+  .stage-scroll-hint { display: block; grid-column: 1 / -1; margin: 0; font-size: 0.625rem; line-height: 0.75rem; }
+  .enemy-section { grid-column: 1; grid-row: 2; width: 100%; max-width: none; grid-template-columns: 164px minmax(0, 1fr); align-items: start; gap: 8px; margin: 0; }
+  .enemy-card { gap: 6px; align-items: flex-start; }
+  .enemy-avatar { width: 64px; height: 64px; padding: 2px; }
+  .enemy-name { font-size: 1.0625rem; margin: 0 0 5px; }
+  .enemy-info :deep(.hp-bar-bg) { height: 1.125rem; }
+  .enemy-stats { font-size: 0.625rem; gap: 3px; margin-top: 3px; }
+  .enemy-section :deep(.enemy-intent) { max-height: 146px; overflow-y: auto; padding: 6px 8px; }
+  .enemy-section :deep(.intent-heading) { font-size: 0.8125rem; }
+  .enemy-section :deep(.intent-effect) { margin: 2px 0; font-size: 0.75rem; }
+  .enemy-section :deep(.intent-target) { margin: 2px 0; font-size: 0.6875rem; }
+  .enemy-section :deep(small) { font-size: 0.625rem; }
+  .players-section { grid-column: 2; grid-row: 2; display: flex; width: 100%; gap: 8px; overflow-x: auto; margin: 0; padding-bottom: 6px; }
+  .player-panel { flex: 0 0 166px; padding: 7px; }
+  .player-panel.targeted { padding: 6px; }
+  .player-header { margin-bottom: 5px; }
+  .player-avatar { width: 24px; height: 24px; }
+  .player-char-name { display: none; }
+  .player-panel :deep(.hp-bar-bg) { height: 1.125rem; }
+  .player-stats { margin-top: 4px; font-size: 0.6875rem; line-height: 0.875rem; gap: 4px 8px; }
+  .player-state { margin-top: 4px; font-size: 0.625rem; line-height: 0.75rem; }
+  .combat-log { grid-column: 1 / -1; width: 100%; margin: 0; }
+  .battle-dock { display: grid; grid-template-columns: minmax(0, 1fr) 238px; grid-template-rows: auto minmax(0, 1fr); height: 154px; max-height: 154px; overflow: hidden; padding: 0 max(12px, env(safe-area-inset-right)) env(safe-area-inset-bottom) max(12px, env(safe-area-inset-left)); }
+  .selection-preview { grid-column: 1 / -1; width: 100%; margin: 0; padding: 4px 0; font-size: 0.6875rem; max-height: 48px; overflow-y: auto; }
+  .selection-preview small { flex-basis: auto; font-size: 0.625rem; }
+  .hand-cards { grid-column: 1; grid-row: 2; width: 100%; margin: 0; padding: 6px 8px 8px 0; align-items: center; }
+  .hand-cards :deep(.card-art), .hand-cards :deep(.card-desc) { display: none; }
+  .hand-cards :deep(.game-card) { min-height: 82px; height: 82px; flex-basis: 112px; width: 112px; gap: 4px; }
+  .hand-cards :deep(.card-name) { padding-left: 20px; font-size: 0.75rem; }
+  .bottom-bar { grid-column: 2; grid-row: 2; flex-wrap: wrap; width: 100%; margin: 0; padding: 0 0 8px 8px; align-content: center; }
+  .turn-info { flex-basis: 100%; font-size: 0.75rem; gap: 3px; justify-content: space-between; }
+  .players-ended { font-size: 0.625rem; }
+  .confirm-card-btn, .btn-end-turn { flex: 1; padding: 6px 4px; font-size: 0.8125rem; min-height: 48px; }
 }
-
-.enemy-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background: var(--bg-panel);
-  border: 1px solid rgba(232, 93, 117, 0.3);
-  border-radius: 12px;
-  padding: 12px 24px;
-  min-width: 400px;
-}
-
-.enemy-avatar { font-size: 48px; }
-
-.enemy-info { flex: 1; }
-
-.enemy-name {
-  font-size: 18px;
-  font-weight: bold;
-  color: var(--red);
-  margin-bottom: 4px;
-}
-
-.hp-bar {
-  position: relative;
-  height: 20px;
-  background: var(--bg-card);
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.hp-fill {
-  height: 100%;
-  background: var(--red);
-  transition: width 0.3s;
-  border-radius: 10px;
-}
-
-.hp-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 12px;
-  font-weight: bold;
-  color: white;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-}
-
-.enemy-stats { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
-.stat-block { color: var(--blue); font-size: 13px; }
-.stat-str { color: var(--gold); font-size: 13px; }
-.enemy-buff { font-size: 12px; color: var(--text-secondary); }
-
-.enemy-intent {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  background: var(--bg-card);
-  border-radius: 8px;
-  padding: 8px 12px;
-  min-width: 80px;
-}
-
-.intent-icon { font-size: 24px; }
-.intent-label { font-size: 12px; color: var(--text-secondary); }
-.intent-value { font-size: 16px; font-weight: bold; color: var(--red); }
-.intent-target { font-size: 11px; color: var(--gold); }
-
-/* ====== 玩家面板 ====== */
-.players-section {
-  display: flex;
-  gap: 8px;
-  padding: 8px 16px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.player-panel {
-  background: var(--bg-panel);
-  border: 2px solid transparent;
-  border-radius: 10px;
-  padding: 10px 14px;
-  min-width: 140px;
-  max-width: 180px;
-  flex: 1;
-}
-
-.player-panel.is-me { border-color: var(--gold); box-shadow: 0 0 12px rgba(242, 169, 0, 0.2); }
-.player-panel.dead { opacity: 0.4; }
-.player-panel.targeted { border-color: var(--red); animation: pulse 1.5s infinite; }
-
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 0 8px rgba(232, 93, 117, 0.3); }
-  50% { box-shadow: 0 0 16px rgba(232, 93, 117, 0.6); }
-}
-
-.player-header { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; }
-.player-emoji { font-size: 18px; }
-.player-name { font-size: 13px; font-weight: bold; color: var(--text-primary); }
-.me-tag { font-size: 10px; color: var(--gold); background: rgba(242, 169, 0, 0.2); padding: 1px 6px; border-radius: 4px; }
-
-.player-hp-bar {
-  position: relative;
-  height: 16px;
-  background: var(--bg-card);
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 4px;
-}
-
-.player-stats { display: flex; gap: 6px; flex-wrap: wrap; font-size: 12px; }
-.stat-energy { color: var(--gold); }
-.ended-tag { color: var(--text-muted); font-style: italic; }
-
-.player-buffs { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px; }
-.player-buff { font-size: 11px; }
-
-/* ====== 手牌区 ====== */
-.hand-section {
-  flex: 1;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 0 16px 8px;
-  overflow: hidden;
-}
-
-.hand-cards {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-}
-
-.mp-card {
-  background: var(--bg-card);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  padding: 10px 8px;
-  min-width: 90px;
-  max-width: 110px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-}
-
-.mp-card.playable {
-  border-color: var(--gold);
-}
-.mp-card.playable:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 8px 16px rgba(242, 169, 0, 0.3);
-}
-.mp-card:not(.playable) { opacity: 0.6; cursor: default; }
-.mp-card.exhausted { border-color: var(--red); }
-
-.card-cost {
-  position: absolute;
-  top: -6px;
-  left: -6px;
-  background: var(--gold);
-  color: var(--bg-dark);
-  font-size: 12px;
-  font-weight: bold;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.card-emoji { font-size: 28px; margin: 4px 0; }
-.card-name { font-size: 12px; color: var(--text-primary); margin-bottom: 4px; }
-.card-effects { display: flex; gap: 4px; justify-content: center; }
-.card-dmg { color: var(--red); font-size: 13px; }
-.card-blk { color: var(--blue); font-size: 13px; }
-
-.no-cards { color: var(--text-muted); font-size: 14px; padding: 20px; }
-
-/* ====== 底部操作栏 ====== */
-.bottom-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 20px;
-  background: var(--bg-panel);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.turn-info { display: flex; gap: 16px; align-items: center; }
-.turn-num { color: var(--gold); font-weight: bold; font-size: 14px; }
-.turn-phase { color: var(--text-secondary); font-size: 13px; }
-.players-ended { color: var(--text-muted); font-size: 12px; }
-
-.btn-end-turn {
-  background: linear-gradient(135deg, var(--red), var(--red-dark));
-  color: white;
-  border: none;
-  padding: 10px 28px;
-  font-size: 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: var(--font-display);
-  letter-spacing: 2px;
-}
-.btn-end-turn:hover { opacity: 0.9; transform: translateY(-1px); }
-
-/* ====== 战斗日志 ====== */
-.combat-log {
-  position: absolute;
-  bottom: 60px;
-  right: 16px;
-  width: 280px;
-  max-height: 100px;
-  overflow-y: auto;
-  background: rgba(15, 14, 23, 0.8);
-  border-radius: 8px;
-  padding: 6px 10px;
-  pointer-events: none;
-}
-
-.log-line {
-  font-size: 11px;
-  color: var(--text-secondary);
-  line-height: 1.4;
-}
-
-/* ====== 战斗结果 ====== */
-.battle-result-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-}
-
-.result-modal {
-  background: var(--bg-panel);
-  border-radius: 16px;
-  padding: 40px 60px;
-  text-align: center;
-}
-
-.result-title { font-size: 36px; margin-bottom: 8px; }
-.result-title.victory { color: var(--gold); }
-.result-title.defeat { color: var(--red); }
-.result-desc { color: var(--text-secondary); margin-bottom: 24px; }
-
-/* ====== 楼层显示 + 小地图 ====== */
-.floor-bar {
-  padding: 6px 16px;
-  background: var(--bg-panel);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.floor-label {
-  color: var(--gold);
-  font-weight: bold;
-  font-size: 14px;
-  font-family: var(--font-display);
-  letter-spacing: 2px;
-  white-space: nowrap;
-}
-
-/* 小地图：玩家头像栏 */
-.mini-map {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  justify-content: flex-end;
-  min-width: 0;
-}
-
-.mini-map-title {
-  font-size: 11px;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-.mini-map-avatars {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.mini-avatar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  padding: 3px 6px;
-  background: var(--bg-card);
-  border: 2px solid transparent;
-  border-radius: 8px;
-  min-width: 50px;
-  position: relative;
-  transition: all 0.2s;
-}
-
-.mini-avatar.is-me {
-  border-color: var(--gold);
-  background: rgba(242, 169, 0, 0.15);
-  box-shadow: 0 0 8px rgba(242, 169, 0, 0.4);
-}
-
-.mini-avatar.ready {
-  border-color: var(--green, #6bce6b);
-}
-
-.mini-avatar.targeted {
-  border-color: var(--red);
-  animation: pulse 1.5s infinite;
-}
-
-.mini-avatar.ended {
-  opacity: 0.55;
-}
-
-.mini-avatar.dead {
-  filter: grayscale(1);
-  opacity: 0.35;
-}
-
-.mini-avatar-emoji {
-  font-size: 20px;
-  line-height: 1;
-}
-
-.mini-avatar-name {
-  font-size: 10px;
-  color: var(--text-primary);
-  max-width: 60px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.mini-avatar-hp {
-  font-size: 10px;
-  color: var(--green, #6bce6b);
-  font-weight: bold;
-}
-
-.mini-avatar-dead {
-  font-size: 14px;
-}
-
-/* 角色名称标签 */
-.player-char-name {
-  font-size: 11px;
-  color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.05);
-  padding: 1px 6px;
-  border-radius: 4px;
-}
-
-/* ====== 宝物选择界面 ====== */
-.rewards-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 200;
-}
-
-.rewards-modal {
-  background: var(--bg-panel);
-  border: 2px solid var(--gold);
-  border-radius: 16px;
-  padding: 32px 40px;
-  text-align: center;
-  max-width: 720px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.rewards-title {
-  font-size: 28px;
-  color: var(--gold);
-  margin-bottom: 20px;
-  font-family: var(--font-display);
-  letter-spacing: 2px;
-}
-
-.claimed-status {
-  background: rgba(242, 169, 0, 0.1);
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 16px;
-}
-
-.claimed-status p {
-  color: var(--gold);
-  font-size: 16px;
-  margin: 0;
-}
-
-.rewards-cards {
-  flex-wrap: wrap;
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-
-.reward-card {
-  background: var(--bg-card);
-  border: 2px solid rgba(242, 169, 0, 0.4);
-  border-radius: 10px;
-  padding: 16px 12px;
-  width: 160px;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-}
-
-.reward-card:hover {
-  transform: translateY(-8px);
-  border-color: var(--gold);
-  box-shadow: 0 8px 20px rgba(242, 169, 0, 0.4);
-}
-
-.reward-card .card-cost {
-  position: absolute;
-  top: -8px;
-  left: -8px;
-  background: var(--gold);
-  color: var(--bg-dark);
-  font-size: 13px;
-  font-weight: bold;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.reward-card .card-emoji { font-size: 40px; margin: 8px 0; }
-.reward-card .card-name { font-size: 14px; color: var(--text-primary); margin-bottom: 6px; font-weight: bold; }
-.reward-card .card-effects { display: flex; gap: 6px; justify-content: center; margin-bottom: 6px; }
-.reward-card .card-dmg { color: var(--red); font-size: 14px; }
-.reward-card .card-blk { color: var(--blue); font-size: 14px; }
-.reward-card .card-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
-
-.other-players-status {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-  padding: 12px;
-  background: var(--bg-card);
-  border-radius: 8px;
-  margin-bottom: 16px;
-}
-
-.player-status {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-}
-
-.player-status-emoji { font-size: 16px; }
-.player-status-name { color: var(--text-primary); margin-right: 4px; }
-.status-claimed { color: var(--gold); }
-.status-waiting { color: var(--text-muted); }
-
-.next-floor-section {
-  margin-top: 8px;
-}
-
-.btn-next-floor {
-  background: linear-gradient(135deg, var(--gold), #d4a017);
-  color: var(--bg-dark);
-  border: none;
-  padding: 12px 32px;
-  font-size: 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: var(--font-display);
-  letter-spacing: 2px;
-  font-weight: bold;
-}
-
-.btn-next-floor:hover { opacity: 0.9; transform: translateY(-1px); }
-
-.waiting-host {
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-style: italic;
-}
-
-/* 移动端 */
-@media (max-width: 768px) {
-  .enemy-card { min-width: auto; width: 100%; }
-  .players-section { gap: 4px; padding: 4px 8px; }
-  .player-panel { min-width: 100px; padding: 6px 8px; }
-  .player-name { font-size: 11px; }
-  .mp-card { min-width: 70px; padding: 6px 4px; }
-  .card-emoji { font-size: 20px; }
-  .combat-log { display: none; }
-}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto; transition: none !important; } }
 </style>

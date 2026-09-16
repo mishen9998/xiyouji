@@ -8,9 +8,15 @@
       disabled: disabled,
     }"
     @click="handleClick"
+    :role="clickable ? 'button' : undefined"
+    :tabindex="clickable && !disabled ? 0 : undefined"
+    :aria-disabled="clickable ? disabled : undefined"
+    :aria-pressed="clickable ? selected : undefined"
+    @keydown.enter.prevent="handleClick"
+    @keydown.space.prevent="handleClick"
   >
     <!-- 卡牌图片 -->
-    <div class="card-mini-art" :style="artStyle"></div>
+    <ResponsiveImage class="card-mini-art" :src="cardImgUrl(card.name, card.upgraded)" :alt="card.name" :emoji="card.emoji || '📜'" sizes="140px" object-fit="cover" />
 
     <!-- 卡牌名 -->
     <div class="card-name">
@@ -36,6 +42,7 @@
 import { computed } from 'vue'
 import type { Card } from '@/types'
 import { cardImgUrl, TYPE_LABELS } from '@/constants/images'
+import ResponsiveImage from './ResponsiveImage.vue'
 
 const props = withDefaults(defineProps<{
   card: Card
@@ -64,11 +71,6 @@ const typeColor = computed(() => {
 
 const typeLabel = computed(() => TYPE_LABELS[props.card.type] || props.card.type)
 
-const artStyle = computed(() => {
-  const url = cardImgUrl(props.card.name, props.card.upgraded)
-  return url ? { backgroundImage: `url(${url})` } : {}
-})
-
 function handleClick() {
   if (props.clickable && !props.disabled) {
     emit('click')
@@ -81,7 +83,7 @@ function handleClick() {
   font-weight: bold;
   color: var(--text-primary);
   margin: 4px 0;
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 .upgrade-mark {
@@ -94,7 +96,7 @@ function handleClick() {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 4px;
-  font-size: 11px;
+  font-size: 0.6875rem;
 }
 
 .card-cost {
@@ -113,7 +115,7 @@ function handleClick() {
 }
 
 .attr {
-  font-size: 10px;
+  font-size: 0.625rem;
   padding: 1px 4px;
   border-radius: 3px;
   font-weight: bold;

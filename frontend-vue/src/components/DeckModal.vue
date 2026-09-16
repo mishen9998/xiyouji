@@ -73,7 +73,7 @@ function close() {
 
 <style scoped>
 .piles-summary {
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--gold);
   margin-bottom: 16px;
   font-weight: bold;
@@ -81,7 +81,7 @@ function close() {
 
 .pile-title {
   margin: 8px 0;
-  font-size: 15px;
+  font-size: 0.9375rem;
   text-align: left;
 }
 

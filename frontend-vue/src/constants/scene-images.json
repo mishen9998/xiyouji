@@ -1,0 +1,11 @@
+{
+  "journey": "/images/宝物/场景/map_background.png",
+  "camp": "/images/宝物/场景/node_rest.jpg",
+  "blackwind": "/images/宝物/场景/node_battle.jpg",
+  "firemountain": "/images/宝物/场景/node_battle.jpg",
+  "lionridge": "/images/宝物/场景/node_battle.jpg",
+  "completion": "/images/宝物/场景/map_background.png",
+  "blackbear": "/images/敌人/建模/enemy_heixiongjing.jpg",
+  "bullking": "/images/敌人/建模/enemy_niumowang.jpg",
+  "roc": "/images/敌人/建模/enemy_dapeng.jpg"
+}

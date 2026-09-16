@@ -15,8 +15,7 @@
         :alt="buff.name"
       />
       <span v-else class="buff-emoji">{{ getIcon(buff.name) }}</span>
-      <span v-if="buff.value !== 1" class="buff-value">{{ buff.value }}</span>
-      <span v-if="!buff.permanent && buff.value > 0" class="buff-turns">{{ buff.value }}</span>
+      <span class="buff-label">{{ buff.name }} {{ buff.value }}</span>
     </div>
   </div>
 </template>
@@ -46,14 +45,14 @@ function buffTitle(buff: BuffEntry): string {
   if (buff.permanent) {
     return `${buff.name}: ${buff.value} (永久·本局)`
   }
-  return `${buff.name}: ${buff.value} (剩余${buff.value}回合)`
+  return `${buff.name}: ${buff.value} 层`
 }
 </script>
 
 <style scoped>
 .buff-bar {
   display: flex;
-  gap: 4px;
+  gap: 6px;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
@@ -61,13 +60,15 @@ function buffTitle(buff: BuffEntry): string {
 
 .buff-icon {
   position: relative;
-  width: 28px;
-  height: 28px;
+  min-height: 26px;
+  padding: 3px 6px;
+  gap: 4px;
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 0.8125rem;
+  color: #344a42;
   border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: visible;
 }
@@ -96,11 +97,12 @@ function buffTitle(buff: BuffEntry): string {
 }
 
 .buff-img {
-  width: 100%;
-  height: 100%;
+  width: 20px;
+  height: 20px;
   object-fit: cover;
   border-radius: 5px;
 }
+.buff-label { font-size: 0.6875rem; white-space: nowrap; }
 
 /* 数值标记 — 右下角 */
 .buff-value {
@@ -109,11 +111,11 @@ function buffTitle(buff: BuffEntry): string {
   right: -3px;
   background: rgba(0, 0, 0, 0.85);
   color: #fff;
-  font-size: 9px;
+  font-size: 0.5625rem;
   padding: 0 3px;
   border-radius: 4px;
   font-weight: bold;
-  line-height: 14px;
+  line-height: 0.875rem;
   min-width: 12px;
   text-align: center;
 }
@@ -125,11 +127,11 @@ function buffTitle(buff: BuffEntry): string {
   left: -3px;
   background: rgba(232, 93, 117, 0.9);
   color: #fff;
-  font-size: 8px;
+  font-size: 0.5rem;
   padding: 0 2px;
   border-radius: 3px;
   font-weight: bold;
-  line-height: 12px;
+  line-height: 0.75rem;
   min-width: 10px;
   text-align: center;
 }

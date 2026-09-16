@@ -1,4 +1,73 @@
 // ====== 图片资源映射常量 ======
+import manifest from './image-manifest.json'
+import sceneSources from './scene-images.json'
+
+interface ImageVariant {
+  width: number
+  height: number
+  webp: { url: string; bytes: number }
+  avif: { url: string; bytes: number }
+}
+interface ImageEntry { sourceHash: string; sourceBytes: number; width: number; height: number; variants: ImageVariant[] }
+const entries = manifest.entries as Record<string, ImageEntry>
+const imageLookup = new Map<string, ImageEntry>()
+for (const [source, entry] of Object.entries(entries)) {
+  imageLookup.set(source, entry)
+  for (const variant of entry.variants) {
+    imageLookup.set(variant.webp.url, entry)
+    imageLookup.set(variant.avif.url, entry)
+  }
+}
+
+/** Returns a small WebP for legacy img/CSS consumers; ResponsiveImage selects AVIF/size via picture. */
+export function imageUrl(source: string | null | undefined, width = 320): string | null {
+  if (!source) return null
+  const entry = imageLookup.get(source)
+  if (!entry) return source
+  return (entry.variants.find(v => v.width >= width) || entry.variants[entry.variants.length - 1]).webp.url
+}
+
+export function imageSources(source: string | null | undefined) {
+  const entry = source ? imageLookup.get(source) : undefined
+  return {
+    src: imageUrl(source),
+    width: entry?.variants[0]?.width,
+    height: entry?.variants[0]?.height,
+    webpSrcset: entry?.variants.map(v => `${v.webp.url} ${v.width}w`).join(', '),
+    avifSrcset: entry?.variants.map(v => `${v.avif.url} ${v.width}w`).join(', '),
+  }
+}
+
+export type SceneImageKey = keyof typeof sceneSources
+/** T6 only replaces scene-images.json sources, then reruns the image pipeline. */
+export function sceneImageUrl(key: SceneImageKey, width = 960): string | null {
+  return imageUrl(sceneSources[key], width)
+}
+
+const preloaded = new Set<string>()
+/** Explicit next-scene preloads only. Never scans the catalog or downloads all artwork. */
+export function preloadImages(sources: (string | null | undefined)[], options: { width?: number; limit?: number } = {}) {
+  if (typeof document === 'undefined' || document.hidden) return
+  const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection
+  if (connection?.saveData) return
+  const width = options.width ?? 320
+  for (const source of sources.filter(Boolean).slice(0, Math.max(0, Math.min(6, options.limit ?? 2)))) {
+    const entry = imageLookup.get(source!)
+    const variant = entry?.variants.find(v => v.width >= width) || entry?.variants[entry.variants.length - 1]
+    // Modern browsers that cannot decode AVIF skip this typed hint and use the WebP normally.
+    const url = variant?.avif.url
+    if (!url || preloaded.has(url)) continue
+    preloaded.add(url)
+    const link = document.createElement('link')
+    link.rel = 'preload'; link.as = 'image'; link.type = 'image/avif'; link.href = url
+    link.setAttribute('fetchpriority', 'low')
+    link.dataset.gameImagePreload = 'true'
+    document.head.append(link)
+  }
+}
+export function preloadScene(key: SceneImageKey, width = 960) {
+  preloadImages([sceneSources[key]], { width, limit: 1 })
+}
 
 export const CARD_IMG: Record<string, string> = {
   '挥棒': 'card_huibang', '格挡': 'card_gedang', '蓄力': 'card_xuli', '闪避': 'card_shanbi',
@@ -188,9 +257,9 @@ export function cardImgUrl(name: string, _upgraded?: boolean): string | null {
   const f = CARD_IMG[name]
   if (!f) return null
   const characterDir = CARD_CHARACTER_DIR[name]
-  return characterDir
+  return imageUrl(characterDir
     ? `/images/${characterDir}/卡牌/${f}.jpg`
-    : `/images/宝物/卡牌/通用/${f}.jpg`
+    : `/images/宝物/卡牌/通用/${f}.jpg`)
 }
 
 export function fullImgUrl(charClass: string): string | null {
@@ -198,30 +267,32 @@ export function fullImgUrl(charClass: string): string | null {
   if (!f) return null
   const characterDir = CHARACTER_DIR[charClass]
   if (!characterDir) return null
-  return `/images/${characterDir}/建模/${f}.jpg`
+  return imageUrl(`/images/${characterDir}/建模/${f}.jpg`)
 }
 
 export function characterAvatarUrl(charClass: string): string | null {
   const characterDir = CHARACTER_DIR[charClass]
   const filename = CHARACTER_AVATAR[charClass]
   if (!characterDir || !filename) return null
-  return `/images/${characterDir}/${filename}`
+  return imageUrl(`/images/${characterDir}/${filename}`)
 }
 
 export function enemyImgUrl(name: string): string | null {
+  const bossScene: Partial<Record<string, SceneImageKey>> = { '黑熊精': 'blackbear', '牛魔王': 'bullking', '大鹏': 'roc' }
+  if (bossScene[name]) return sceneImageUrl(bossScene[name]!, 320)
   const f = ENEMY_IMG[name]
   if (!f) return null
-  return `/images/敌人/建模/${f}.jpg`
+  return imageUrl(`/images/敌人/建模/${f}.jpg`)
 }
 
 export function relicImgUrl(name: string): string | null {
   const f = RELIC_IMG[name]
   if (!f) return null
-  return `/images/宝物/遗物/${f}.jpg`
+  return imageUrl(`/images/宝物/遗物/${f}.jpg`)
 }
 
 export function nodeImgUrl(type: string): string | null {
   const f = NODE_IMG[type]
   if (!f) return null
-  return `/images/宝物/场景/${f}.jpg`
+  return imageUrl(`/images/宝物/场景/${f}.jpg`)
 }

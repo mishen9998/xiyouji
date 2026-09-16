@@ -1,6 +1,7 @@
 <!-- ====== 游戏首页 ====== -->
 <template>
   <div class="home">
+    <ResponsiveImage class="home-backdrop" :src="sceneImageUrl('journey')" alt="西行山水旅程" sizes="100vw" object-fit="cover" critical />
     <div class="home-overlay"></div>
     <div class="identity-bar" v-if="profile">
       <span>{{ profile.username }}</span>
@@ -58,7 +59,8 @@ import { authApi } from '@/api/game'
 import { useGameStore } from '@/stores/game'
 import { useUiStore } from '@/stores/ui'
 import type { GuestSaveSlot } from '@/stores/guestSaves'
-import { EMOJI_MAP } from '@/constants/images'
+import { EMOJI_MAP, sceneImageUrl } from '@/constants/images'
+import ResponsiveImage from '@/components/ResponsiveImage.vue'
 import type { GameState } from '@/types'
 
 const router = useRouter()
@@ -183,172 +185,17 @@ function handleExit() {
 </script>
 
 <style scoped>
-.home {
-  width: 100%;
-  height: 100vh;
-  background: url('/images/宝物/场景/login_screen.jpg') center / cover no-repeat;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.home-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(15, 14, 23, 0.6);
-}
-
-.identity-bar {
-  position: absolute;
-  top: 20px;
-  right: 22px;
-  z-index: 3;
-  display: grid;
-  grid-template-columns: auto auto;
-  column-gap: 10px;
-  align-items: center;
-  padding: 9px 11px 9px 15px;
-  border: 1px solid rgba(242, 169, 0, .22);
-  border-radius: 999px;
-  background: rgba(20, 17, 25, .76);
-  backdrop-filter: blur(8px);
-}
-.identity-bar span { color: #fff2cf; font-weight: 700; }
-.identity-bar small { grid-column: 1; color: var(--text-muted); font-size: 10px; }
-.identity-bar button {
-  grid-column: 2;
-  grid-row: 1 / 3;
-  border: 0;
-  border-left: 1px solid rgba(255,255,255,.12);
-  padding-left: 10px;
-  background: transparent;
-  color: var(--gold);
-  cursor: pointer;
-}
-
-.save-picker { display: grid; gap: 10px; }
-.save-slot {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 12px;
-  align-items: center;
-  width: 100%;
-  border: 1px solid rgba(242,169,0,.2);
-  border-radius: 10px;
-  padding: 13px 14px;
-  background: rgba(255,255,255,.04);
-  color: var(--text-primary);
-  text-align: left;
-  cursor: pointer;
-}
-.save-slot:hover { border-color: var(--gold); background: rgba(242,169,0,.08); }
-.save-slot span { color: var(--gold); }
-.save-slot small { color: var(--text-muted); }
-
-.home-content {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.title {
-  font-size: 64px;
-  font-family: var(--font-display);
-  font-weight: bold;
-  background: linear-gradient(135deg, var(--gold), var(--red), var(--purple));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: 12px;
-  margin-bottom: 8px;
-  text-shadow: 0 0 40px rgba(242, 169, 0, 0.3);
-}
-
-.subtitle {
-  font-size: 16px;
-  color: var(--text-secondary);
-  letter-spacing: 4px;
-  margin-bottom: 56px;
-  font-style: italic;
-}
-
-.menu-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
-.menu-btn {
-  background: rgba(45, 42, 58, 0.8);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 24px 48px;
-  color: var(--text-primary);
-  font-size: 18px;
-  font-family: var(--font-display);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  min-width: 180px;
-}
-
-.menu-btn:hover:not(:disabled) {
-  background: rgba(242, 169, 0, 0.15);
-  border-color: var(--gold);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(242, 169, 0, 0.2);
-}
-
-.menu-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.menu-icon {
-  font-size: 32px;
-}
-
-.menu-label {
-  letter-spacing: 4px;
-}
-
-/* ====== 移动端适配 ====== */
-@media (max-width: 600px) {
-  .title {
-    font-size: 36px;
-    letter-spacing: 6px;
-  }
-  .subtitle {
-    font-size: 12px;
-    letter-spacing: 2px;
-    margin-bottom: 32px;
-  }
-  .menu-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    width: 90vw;
-    max-width: 320px;
-  }
-  .menu-btn {
-    padding: 16px 24px;
-    font-size: 16px;
-    min-width: 0;
-  }
-  .menu-icon {
-    font-size: 24px;
-  }
-}
+.home { min-height:100dvh; position:relative; display:flex; flex-direction:column; align-items:center; padding:24px 16px 40px; isolation:isolate; }
+.home-overlay {position:absolute;inset:0;z-index:-1;background:linear-gradient(#f7f1e566,#f7f1e5dd);}
+.home-backdrop {position:absolute;inset:0;z-index:-2;width:100%;height:100%;}
+.identity-bar {align-self:flex-end;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:8px 14px;border:1px solid var(--line);border-radius:12px;background:#fffaf0e8;max-width:100%;}
+.identity-bar span {font-weight:700;overflow-wrap:anywhere;}.identity-bar small {grid-column:1;color:var(--text-secondary);font-size:.75rem;}.identity-bar button {grid-column:2;grid-row:1/3;border:0;border-left:1px solid var(--line);padding:8px;background:transparent;color:var(--green);}
+.home-content {width:min(680px,100%);text-align:center;margin:auto;padding:48px 0 24px;}
+.title {font:700 clamp(2.5rem,7vw,4rem) var(--font-display);color:var(--green);letter-spacing:8px;margin-bottom:8px;}
+.subtitle {color:var(--text-secondary);letter-spacing:2px;margin-bottom:36px;font-size:.85rem;}
+.menu-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
+.menu-btn {min-width:0;display:flex;flex-direction:column;align-items:center;gap:8px;padding:24px 16px;border:1px solid var(--line);border-radius:16px;background:#fffaf0ed;font:700 1.125rem var(--font-display);box-shadow:var(--card-shadow);transition:transform .15s;}
+.menu-btn:hover:not(:disabled){border-color:var(--green);transform:translateY(-2px)}.menu-btn:disabled{opacity:.55}.menu-icon{font-size:2rem}.menu-label{letter-spacing:3px}
+.save-picker{display:grid;gap:12px}.save-slot{display:grid;gap:6px;padding:12px;text-align:left;border:1px solid var(--line);border-radius:8px;background:var(--bg-card)}.save-slot small{color:var(--text-secondary)}
+@media(max-width:400px){.home-content{padding-top:32px}.menu-btn{padding:20px 10px;font-size:1rem}.title{letter-spacing:5px}.subtitle{letter-spacing:0}}
 </style>

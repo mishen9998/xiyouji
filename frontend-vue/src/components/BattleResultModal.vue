@@ -4,8 +4,9 @@
     <div
       class="modal-box result-modal"
       :class="{ 'modal-victory': isVictory, 'modal-defeat': !isVictory }"
+      role="dialog" aria-modal="true" aria-labelledby="solo-result-title"
     >
-      <h3 class="result-title">{{ titleText }}</h3>
+      <h3 id="solo-result-title" class="result-title">{{ titleText }}</h3>
       <p class="result-message" v-if="isVictory">{{ messageText }}</p>
       <p class="result-message" v-else>{{ defeatMessage }}</p>
 
@@ -34,11 +35,12 @@
 
       <!-- 胜利: 遗物奖励 -->
       <div class="reward-relic" v-if="isVictory && relicReward">
-        <img
+        <ResponsiveImage
           v-if="relicImgUrl(relicReward.name)"
-          :src="relicImgUrl(relicReward.name) || ''"
+          :src="relicImgUrl(relicReward.name)"
           class="relic-img"
           :alt="relicReward.name"
+          emoji="🎁" sizes="72px" object-fit="cover"
         />
         <span class="relic-emoji" v-else>🎁</span>
         <span class="relic-text">🎁 获得宝物: {{ relicReward.name }}</span>
@@ -64,6 +66,7 @@ import { useUiStore } from '@/stores/ui'
 import { relicImgUrl } from '@/constants/images'
 import type { Card } from '@/types'
 import MiniCard from '@/components/MiniCard.vue'
+import ResponsiveImage from '@/components/ResponsiveImage.vue'
 
 const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits<{
@@ -146,7 +149,7 @@ async function onContinue(skip = false) {
     emit('update:visible', false)
   } catch (e) {
     console.error('Continue failed:', e)
-    showToast('操作失败，请重试')
+    showToast(e instanceof Error ? e.message : '操作失败，请核对状态后重试')
   } finally {
     continuing.value = false
   }
@@ -156,12 +159,13 @@ async function onContinue(skip = false) {
 
 <style scoped>
 .result-modal {
-  /* 放大弹窗，让三张卡牌有充足展示空间 */
-  min-width: min(520px, 92vw);
-  max-height: 90vh;
+  min-width: 0;
+  max-height: calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   overflow-y: auto;
   max-width: 880px;
   width: min(90vw, 880px);
+  color: #283c35;
+  background: #fffbf1;
 }
 
 .modal-victory {
@@ -176,7 +180,7 @@ async function onContinue(skip = false) {
 
 .result-title {
   font-family: var(--font-display);
-  font-size: 30px;
+  font-size: 1.875rem;
   margin-bottom: 18px;
 }
 
@@ -190,7 +194,7 @@ async function onContinue(skip = false) {
 
 .result-message {
   color: var(--text-secondary);
-  font-size: 17px;
+  font-size: 1.0625rem;
   margin-bottom: 22px;
 }
 
@@ -200,7 +204,7 @@ async function onContinue(skip = false) {
 
 .reward-hint {
   color: var(--text-primary);
-  font-size: 17px;
+  font-size: 1.0625rem;
   margin-bottom: 18px;
 }
 
@@ -210,13 +214,16 @@ async function onContinue(skip = false) {
 
 .reward-cards {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 18px;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 12px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding: 6px 5px 14px;
 }
 
 .reward-card-wrapper {
-  transition: all 0.25s ease;
+  flex: 0 0 auto;
 }
 
 .reward-card-wrapper.dimmed {
@@ -229,7 +236,7 @@ async function onContinue(skip = false) {
 .reward-cards :deep(.card-mini) {
   width: 220px;
   padding: 16px;
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 
 .reward-cards :deep(.card-mini .card-mini-art) {
@@ -239,21 +246,21 @@ async function onContinue(skip = false) {
 }
 
 .reward-cards :deep(.card-mini .card-name) {
-  font-size: 16px;
+  font-size: 1rem;
   margin: 6px 0;
 }
 
 .reward-cards :deep(.card-mini .card-info) {
-  font-size: 13px;
+  font-size: 0.8125rem;
   margin-bottom: 6px;
 }
 
 .reward-cards :deep(.card-mini .card-cost) {
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 
 .reward-cards :deep(.card-mini .card-attrs .attr) {
-  font-size: 12px;
+  font-size: 0.75rem;
   padding: 2px 6px;
 }
 
@@ -288,25 +295,27 @@ async function onContinue(skip = false) {
 }
 
 .relic-emoji {
-  font-size: 48px;
+  font-size: 3rem;
 }
 
 .relic-text {
   color: var(--gold);
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: bold;
 }
 
 .continue-btn {
   margin-top: 8px;
-  font-size: 16px;
+  font-size: 1rem;
   padding: 10px 24px;
+  min-height: 48px;
+  margin-right: 12px;
 }
 
 /* ====== 响应式：小屏自适应 ====== */
 @media (max-width: 768px) {
   .result-modal {
-    min-width: 300px;
+    min-width: 0;
     width: 92vw;
     padding: 20px;
   }
@@ -318,17 +327,20 @@ async function onContinue(skip = false) {
     height: 95px;
   }
   .reward-cards :deep(.card-mini .card-name) {
-    font-size: 13px;
+    font-size: 0.8125rem;
   }
   .relic-img {
     width: 56px;
     height: 56px;
   }
   .relic-emoji {
-    font-size: 36px;
+    font-size: 2.25rem;
   }
   .relic-text {
-    font-size: 15px;
+    font-size: 0.9375rem;
   }
 }
+.btn-small { min-height: 48px; margin-top: 8px; }
+.result-modal button:focus-visible { outline: 3px solid #b44736; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .reward-cards :deep(.card-mini) { transition: none; } }
 </style>

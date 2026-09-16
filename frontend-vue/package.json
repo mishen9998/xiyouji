@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:experience": "playwright test e2e/t5-experience.spec.ts",
+    "test:performance": "playwright test e2e/t5-performance.spec.ts --workers=1 --retries=0",
+    "images:derive": "node scripts/derive-images.mjs"
   },
   "dependencies": {
     "@stomp/stompjs": "^7.3.0",

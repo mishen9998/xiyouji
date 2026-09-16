@@ -15,7 +15,8 @@
     <div v-if="selectedCard" class="card-detail" data-testid="temple-card-detail">
       <button class="back-link" type="button" @click="selectedCard = null">← 返回商店</button>
       <div class="detail-layout">
-        <div class="detail-art" :style="cardArtStyle(selectedCard.card)">
+        <div class="detail-art">
+          <ResponsiveImage :src="cardImgUrl(selectedCard.card.name, selectedCard.card.upgraded)" :alt="selectedCard.card.name" sizes="(max-width:720px) 68vw, 360px" object-fit="cover" />
           <span class="detail-cost">{{ selectedCard.card.cost }}</span>
           <span class="detail-name">{{ selectedCard.card.name }}</span>
         </div>
@@ -32,10 +33,10 @@
           <button
             class="purchase-button"
             type="button"
-            :disabled="isBought(selectedCard.index) || gold < price"
+            :disabled="busy || isBought(selectedCard.index) || gold < price"
             @click="purchaseSelected"
           >
-            {{ purchaseLabel(selectedCard.index) }}
+            {{ busy ? '正在确认购买…' : purchaseLabel(selectedCard.index) }}
           </button>
         </div>
       </div>
@@ -53,8 +54,10 @@
           :aria-label="`查看卡牌 ${card.name}`"
           @click="selectedCard = { card, index }"
           @keydown.enter="selectedCard = { card, index }"
+          @keydown.space.prevent="selectedCard = { card, index }"
         >
-          <div class="shop-card-art" :style="cardArtStyle(card)">
+          <div class="shop-card-art">
+            <ResponsiveImage :src="cardImgUrl(card.name, card.upgraded)" :alt="card.name" sizes="(max-width:720px) 44vw, 210px" object-fit="cover" />
             <span class="shop-card-cost">{{ card.cost }}</span>
             <span v-if="isBought(index)" class="bought-seal">已购</span>
           </div>
@@ -78,7 +81,7 @@
 
       <footer class="temple-footer">
         <p>点击卡牌查看完整效果并确认购买。</p>
-        <button class="forward-button" type="button" data-testid="temple-forward" @click="$emit('forward')">
+        <button class="forward-button" type="button" :disabled="busy" data-testid="temple-forward" @click="$emit('forward')">
           继续前进 →
         </button>
       </footer>
@@ -90,12 +93,14 @@
 import { ref } from 'vue'
 import { cardImgUrl, TYPE_LABELS } from '@/constants/images'
 import type { Card } from '@/types'
+import ResponsiveImage from './ResponsiveImage.vue'
 
 const props = withDefaults(defineProps<{
   cards: Card[]
   gold: number
   boughtIndices: Set<number>
   price?: number
+  busy?: boolean
 }>(), {
   price: 50,
 })
@@ -111,11 +116,6 @@ function typeLabel(type: string) {
   return TYPE_LABELS[type] || type
 }
 
-function cardArtStyle(card: Card) {
-  const url = cardImgUrl(card.name, card.upgraded)
-  return url ? { backgroundImage: `url('${url}')` } : {}
-}
-
 function isBought(index: number) {
   return props.boughtIndices.has(index)
 }
@@ -127,227 +127,22 @@ function purchaseLabel(index: number) {
 }
 
 function purchaseSelected() {
-  if (!selectedCard.value || isBought(selectedCard.value.index) || props.gold < props.price) return
+  if (props.busy || !selectedCard.value || isBought(selectedCard.value.index) || props.gold < props.price) return
   emit('buy', selectedCard.value.card, selectedCard.value.index)
 }
 </script>
 
 <style scoped>
-.temple-shop {
-  width: min(1180px, 96vw);
-  min-height: min(760px, 94vh);
-  max-height: 96vh;
-  overflow-y: auto;
-  padding: 30px clamp(18px, 3vw, 44px) 26px;
-  border: 1px solid rgba(244, 190, 90, 0.72);
-  border-radius: 22px;
-  color: #fff7e4;
-  background:
-    linear-gradient(180deg, rgba(12, 12, 24, 0.2), rgba(12, 12, 24, 0.86) 55%, rgba(8, 8, 18, 0.96)),
-    url('/images/宝物/场景/temple_shop_background.jpg') center / cover no-repeat;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.72), inset 0 0 80px rgba(242, 169, 0, 0.08);
-}
-
-.temple-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 24px;
-  margin-bottom: 28px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
-}
-
-.temple-eyebrow,
-.detail-kicker {
-  margin: 0 0 4px;
-  color: #e9bd68;
-  font-size: 12px;
-  letter-spacing: 0.24em;
-}
-
-.temple-header h2 {
-  margin: 0;
-  color: #fff3c4;
-  font-family: var(--font-display);
-  font-size: clamp(34px, 5vw, 58px);
-  letter-spacing: 0.16em;
-}
-
-.temple-subtitle {
-  margin: 8px 0 0;
-  color: rgba(255, 247, 228, 0.8);
-}
-
-.gold-pouch {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 146px;
-  padding: 12px 18px;
-  border: 1px solid rgba(242, 169, 0, 0.48);
-  border-radius: 14px;
-  background: rgba(21, 17, 29, 0.78);
-  text-align: right;
-}
-
-.gold-pouch span { color: #c9bda8; font-size: 12px; }
-.gold-pouch strong { color: #ffd477; font-size: 22px; }
-
-.shop-grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: clamp(14px, 2vw, 24px);
-}
-
-.shop-card {
-  overflow: hidden;
-  border: 1px solid rgba(242, 169, 0, 0.36);
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(36, 30, 45, 0.96), rgba(18, 16, 28, 0.98));
-  cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.shop-card:hover,
-.shop-card:focus-visible {
-  outline: none;
-  transform: translateY(-7px);
-  border-color: #f2a900;
-  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.48), 0 0 22px rgba(242, 169, 0, 0.22);
-}
-
-.shop-card.bought { opacity: 0.55; filter: saturate(0.55); }
-.shop-card.unaffordable:not(.bought) .shop-price { color: #d38f8f; }
-
-.shop-card-art {
-  position: relative;
-  aspect-ratio: 4 / 3;
-  background: #171422 center / cover no-repeat;
-}
-
-.shop-card-cost,
-.detail-cost {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  display: grid;
-  width: 38px;
-  height: 38px;
-  place-items: center;
-  border: 2px solid #ffe39a;
-  border-radius: 50%;
-  color: #2c1c0c;
-  background: radial-gradient(circle at 35% 30%, #fff0a8, #d88b24 72%);
-  font-weight: 900;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6);
-}
-
-.bought-seal {
-  position: absolute;
-  inset: 50% auto auto 50%;
-  transform: translate(-50%, -50%) rotate(-8deg);
-  padding: 7px 14px;
-  border: 2px solid #e8bd70;
-  border-radius: 6px;
-  color: #ffe7aa;
-  background: rgba(82, 28, 22, 0.9);
-  font-weight: 800;
-}
-
-.shop-card-body { padding: 14px; }
-.shop-card-title { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-.shop-card-title h3 { margin: 0; color: #fff3c4; font-size: 17px; }
-.shop-card-title span { color: #d8b36d; font-size: 11px; }
-.shop-card-stats { display: flex; flex-wrap: wrap; gap: 5px; margin: 9px 0; }
-.shop-card-stats span,
-.stat-row span {
-  padding: 3px 7px;
-  border: 1px solid rgba(242, 169, 0, 0.24);
-  border-radius: 999px;
-  color: #f1dfbd;
-  background: rgba(242, 169, 0, 0.08);
-  font-size: 11px;
-}
-.shop-card-body p { min-height: 44px; margin: 0 0 10px; color: #c9c1b4; font-size: 12px; line-height: 1.55; }
-.shop-price { color: #ffd477; }
-
-.temple-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 18px;
-  margin-top: 26px;
-  padding-top: 18px;
-  border-top: 1px solid rgba(242, 169, 0, 0.28);
-}
-.temple-footer p { margin: 0; color: #bfb5a4; font-size: 13px; }
-
-.forward-button,
-.purchase-button,
-.back-link {
-  border: 1px solid rgba(255, 220, 140, 0.72);
-  color: #2b1a09;
-  background: linear-gradient(180deg, #ffe09a, #c77d1e);
-  font-weight: 800;
-  cursor: pointer;
-}
-.forward-button { padding: 12px 26px; border-radius: 999px; font-size: 15px; }
-.purchase-button { padding: 13px 22px; border-radius: 10px; font-size: 15px; }
-.purchase-button:disabled { opacity: 0.5; cursor: not-allowed; }
-.back-link { padding: 9px 16px; border-radius: 999px; margin-bottom: 18px; }
-
-.detail-layout {
-  display: grid;
-  grid-template-columns: minmax(220px, 360px) minmax(280px, 1fr);
-  gap: clamp(24px, 5vw, 68px);
-  align-items: center;
-  max-width: 900px;
-  margin: 24px auto;
-}
-.detail-art {
-  position: relative;
-  aspect-ratio: 3 / 4;
-  border: 3px solid #ddb765;
-  border-radius: 22px;
-  background: #171422 center / cover no-repeat;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.64), 0 0 26px rgba(242, 169, 0, 0.25);
-}
-.detail-name {
-  position: absolute;
-  right: 14px;
-  bottom: 14px;
-  left: 14px;
-  padding: 10px;
-  border-radius: 10px;
-  color: #fff1bf;
-  background: rgba(12, 10, 18, 0.84);
-  font-family: var(--font-display);
-  font-size: 24px;
-  text-align: center;
-}
-.detail-copy h3 { margin: 4px 0 16px; color: #fff3c4; font-size: clamp(30px, 5vw, 48px); }
-.stat-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-.stat-row span { padding: 7px 11px; font-size: 13px; }
-.detail-description { margin: 0 0 28px; color: #e4dac8; font-size: 17px; line-height: 1.8; }
-.empty-shop { margin: 18vh auto; color: #e7d7b8; text-align: center; }
-
-@media (max-width: 1000px) {
-  .shop-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-
-@media (max-width: 720px) {
-  .temple-shop { width: 100vw; min-height: 100vh; max-height: 100vh; border: 0; border-radius: 0; padding: 18px 14px 22px; }
-  .temple-header { align-items: flex-end; }
-  .temple-subtitle { font-size: 12px; }
-  .gold-pouch { min-width: 118px; padding: 9px 12px; }
-  .gold-pouch strong { font-size: 17px; }
-  .shop-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .shop-card-body { padding: 10px; }
-  .shop-card-body p { min-height: 0; }
-  .detail-layout { grid-template-columns: 1fr; }
-  .detail-art { width: min(68vw, 300px); margin: 0 auto; }
-  .detail-copy { text-align: center; }
-  .stat-row { justify-content: center; }
-  .temple-footer { align-items: flex-end; }
-}
+.temple-shop{width:min(1180px,100%);max-height:92dvh;overflow:auto;padding:24px;border:1px solid var(--line);border-radius:18px;color:var(--text-primary);background:var(--bg-panel);box-shadow:0 24px 80px #283c3533;overscroll-behavior:contain}
+.temple-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px}.temple-eyebrow,.detail-kicker{color:var(--gold);font-size:.8rem;margin-bottom:6px}.temple-header h2{font:700 2rem var(--font-display);color:var(--green)}.temple-subtitle{color:var(--text-secondary);font-size:.85rem;margin-top:8px}
+.gold-pouch{flex-shrink:0;display:grid;gap:4px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#f4e9cb}.gold-pouch span{font-size:.75rem}.gold-pouch strong{color:var(--gold)}
+.shop-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}.shop-card{border:1px solid var(--line);border-radius:12px;background:var(--bg-card);overflow:hidden}.shop-card:hover{border-color:var(--green)}.shop-card.bought{opacity:.6}
+.shop-card-art{position:relative;aspect-ratio:4/3}.shop-card-art .responsive-image,.detail-art .responsive-image{width:100%;height:100%;aspect-ratio:auto!important}
+.shop-card-cost,.detail-cost{position:absolute;top:8px;left:8px;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--green);color:white;font-weight:700}.bought-seal{position:absolute;top:8px;right:8px;padding:4px 8px;color:white;background:var(--red);border-radius:5px}
+.shop-card-body{padding:12px}.shop-card-title{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center}.shop-card-title h3{font-size:1rem}.shop-card-title>span{font-size:.75rem;color:var(--text-secondary)}.shop-card-stats,.stat-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.shop-card-stats span,.stat-row span{font-size:.75rem;padding:3px 6px;background:var(--bg-panel);border-radius:5px}.shop-card-body p{font-size:.8rem;color:var(--text-secondary);line-height:1.65;margin-bottom:12px}.shop-price{color:var(--gold)}
+.temple-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:24px;padding-top:16px;border-top:1px solid var(--line)}.temple-footer p{font-size:.85rem;color:var(--text-secondary)}
+.forward-button,.purchase-button{min-height:48px;padding:12px 20px;border:0;border-radius:9px;background:var(--green);color:white;font-weight:700}.purchase-button:disabled{opacity:.55}.back-link{padding:8px 16px;border:1px solid var(--line);border-radius:8px;background:var(--bg-card)}
+.detail-layout{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:32px;align-items:center;max-width:800px;margin:24px auto}.detail-art{position:relative;aspect-ratio:3/4;border:2px solid var(--gold);border-radius:16px;overflow:hidden}.detail-name{position:absolute;left:8px;right:8px;bottom:8px;background:#fffaf0ed;border-radius:8px;padding:8px;text-align:center;font-weight:700}.detail-copy h3{font:700 1.75rem var(--font-display);margin:8px 0}.detail-description{line-height:1.8;color:var(--text-secondary);margin:20px 0}.empty-shop{text-align:center;padding:64px 0;color:var(--text-secondary)}
+@media(max-width:1000px){.shop-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:720px){.temple-shop{width:100%;max-height:94dvh;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}.temple-header{flex-wrap:wrap}.shop-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.detail-layout{grid-template-columns:minmax(0,1fr);gap:20px}.detail-art{width:min(68vw,280px);margin:auto}.temple-footer{position:sticky;bottom:-16px;background:var(--bg-panel);padding:12px 0}.forward-button{width:100%}.shop-card-body{padding:10px}}
 </style>
