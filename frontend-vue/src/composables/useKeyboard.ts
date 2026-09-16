@@ -8,6 +8,8 @@ export function useBattleKeyboard(
   onEndTurn: () => void
 ) {
   function handler(e: KeyboardEvent) {
+    const target = e.target instanceof Element ? e.target : null
+    if (e.repeat || e.ctrlKey || e.metaKey || e.altKey || target?.closest('input, textarea, select, [contenteditable=true]')) return
     const bi = battleInfo.value
     if (!bi || !bi.playerTurn || bi.battleOver) return
     const hand = bi.player?.hand

@@ -1,190 +1,50 @@
-/* ====== 西游记 Roguelike - 全局样式 ====== */
+/* Paper, jade and vermilion. All UI numbers and labels remain real text. */
 :root {
-  --bg-dark: #0f0e17;
-  --bg-panel: #1a1825;
-  --bg-card: #2d2a3a;
-  --text-primary: #fffffe;
-  --text-secondary: #a7a9be;
-  --text-muted: #6b6d7c;
-  --gold: #f2a900;
-  --gold-dark: #b87d00;
-  --red: #e85d75;
-  --red-dark: #b84558;
-  --blue: #4fc3f7;
-  --green: #66bb6a;
-  --purple: #bb86fc;
-  --orange: #ff9800;
-  --attack-color: #e85d75;
-  --skill-color: #4fc3f7;
-  --defense-color: #66bb6a;
-  --power-color: #bb86fc;
-  --status-color: #ff9800;
-  --card-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  --bg-dark: #f7f1e5; --bg-panel: #fffaf0; --bg-card: #eee7d6;
+  --text-primary: #283c35; --text-secondary: #52635b; --text-muted: #68736a;
+  --gold: #926413; --gold-dark: #76500d; --red: #b44736; --red-dark: #933728;
+  --blue: #286b80; --green: #21665b; --purple: #765987; --orange: #a65d23;
+  --attack-color: var(--red); --skill-color: var(--blue); --defense-color: var(--green);
+  --power-color: var(--purple); --status-color: var(--orange);
+  --card-shadow: 0 4px 16px #344b3520; --line: #d2c6aa;
   --font-display: 'SimSun', 'STSong', 'Noto Serif CJK SC', serif;
   --font-body: 'Microsoft YaHei', 'PingFang SC', system-ui, sans-serif;
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: var(--font-body);
-  background: var(--bg-dark);
-  color: var(--text-primary);
-  overflow: hidden;
-  height: 100vh;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-#app {
-  width: 100%;
-  height: 100vh;
-  position: relative;
-}
-
-/* ====== 通用按钮 ====== */
-.btn-primary {
-  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-  color: #1a1a2e;
-  border: none;
-  padding: 14px 48px;
-  font-size: 18px;
-  font-weight: bold;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: var(--font-display);
-  letter-spacing: 4px;
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(242,169,0,0.4);
-}
-
-.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.btn-small {
-  background: var(--bg-card);
-  color: var(--text-secondary);
-  border: 1px solid rgba(255,255,255,0.1);
-  padding: 6px 14px;
-  font-size: 13px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-small:hover { background: #3a3650; color: var(--text-primary); }
-
-/* ====== 通用动画 ====== */
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 0 4px rgba(242,169,0,0.1); }
-  50% { box-shadow: 0 0 12px rgba(242,169,0,0.25); }
-}
-
-@keyframes glow {
-  0%, 100% { box-shadow: 0 0 12px rgba(242,169,0,0.3); }
-  50% { box-shadow: 0 0 24px rgba(242,169,0,0.5); }
-}
-
-/* ====== Modal 通用 ====== */
-.modal-overlay {
-  display: flex;
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.7);
-  z-index: 100;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-box {
-  background: var(--bg-panel);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px;
-  padding: 30px;
-  min-width: 400px;
-  max-width: 600px;
-  max-height: 80vh;
-  overflow-y: auto;
-  text-align: center;
-}
-
-.modal-box.large { max-width: 700px; }
-
-.modal-box h3 {
-  font-family: var(--font-display);
-  font-size: 22px;
-  margin-bottom: 16px;
-}
-
-.modal-box p {
-  color: var(--text-secondary);
-  font-size: 15px;
-  line-height: 1.6;
-  margin-bottom: 20px;
-}
-
-/* ====== 卡牌网格 ====== */
-.card-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-/* ====== 迷你卡牌 ====== */
-.card-mini {
-  background: var(--bg-card);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
-  padding: 12px;
-  width: 140px;
-  text-align: center;
-  font-size: 12px;
-  cursor: default;
-  transition: all 0.2s ease;
-}
-
-.card-mini .card-mini-art {
-  width: 100%;
-  height: 90px;
-  margin-bottom: 4px;
-  border-radius: 8px;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
+html, body, #app { width: 100%; min-height: 100%; }
+body { font-family: var(--font-body); background: var(--bg-dark); color: var(--text-primary); line-height: 1.5; }
+#app { position: relative; isolation: isolate; }
+button, input, select, textarea { font: inherit; }
+button, [role=button], input, select { min-width: 44px; min-height: 44px; touch-action: manipulation; }
+button { color: inherit; }
+button:not(:disabled), [role=button]:not([aria-disabled=true]) { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+summary { min-height:44px; padding:8px 0; cursor:pointer; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; }
+button, a, input { -webkit-tap-highlight-color: #21665b26; }
+img, svg, canvas { max-width: 100%; }
+button, p, h1, h2, h3 { overflow-wrap: anywhere; }
+.btn-primary { min-height: 48px; background: var(--green); color: #fffaf0; border: 1px solid #174f46; padding: 12px 24px; font-size: 1rem; font-weight: 700; border-radius: 10px; font-family: var(--font-display); letter-spacing: 2px; transition: background .15s, transform .15s; }
+.btn-primary:hover:not(:disabled) { background: #174f46; }
+.btn-primary:active:not(:disabled) { transform: translateY(1px); }
+.btn-primary:disabled { opacity: .5; }
+.btn-small, .btn-secondary { background: var(--bg-panel); color: var(--text-primary); border: 1px solid var(--line); padding: 8px 14px; font-size: .875rem; border-radius: 8px; }
+.btn-small:hover:not(:disabled), .btn-secondary:hover:not(:disabled) { background: #e3e9dc; }
+.modal-overlay { display: flex; position: fixed; inset: 0; padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); background: #243b358c; z-index: 100; align-items: center; justify-content: center; }
+.modal-box { background: var(--bg-panel); border: 1px solid var(--line); border-radius: 16px; padding: 24px; width: min(100%, 600px); min-width: 0; max-height: 88dvh; overflow: auto; overscroll-behavior: contain; text-align: center; box-shadow: 0 16px 60px #102c3533; }
+.modal-box.large { max-width: 760px; }
+.modal-box h3 { font-family: var(--font-display); font-size: 1.4rem; margin-bottom: 16px; }
+.modal-box p { color: var(--text-secondary); font-size: .95rem; line-height: 1.65; margin-bottom: 16px; }
+.modal-box > button + button { margin-left: 8px; }
+.card-grid { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 20px; }
+.card-mini { background: var(--bg-card); border: 1px solid var(--line); border-radius: 10px; padding: 10px; width: 140px; text-align: center; font-size: .8rem; }
+.card-mini .card-mini-art { width: 100%; height: 90px; margin-bottom: 4px; border-radius: 8px; background-size: cover; background-position: center; }
 .card-mini .card-emoji { font-size: 24px; display: block; }
-.card-mini .card-name { font-weight: bold; color: var(--text-primary); margin: 4px 0; }
-.card-mini .card-cost { color: var(--gold); font-size: 11px; }
-
-/* ====== 响应式 ====== */
-@media (max-width: 768px) {
-  .modal-box { min-width: 300px; padding: 20px; }
-  .card-mini { width: 110px; padding: 8px; }
-}
-
-@media (max-width: 600px) {
-  .modal-box { min-width: 260px; max-width: 92vw; padding: 16px; }
-  .modal-box h3 { font-size: 18px; }
-  .modal-box p { font-size: 13px; }
-  .card-mini { width: 90px; padding: 6px; }
-}
-
-/* ====== 触摸优化 ====== */
-@media (hover: none) and (pointer: coarse) {
-  * {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-    user-select: none;
-  }
-  button {
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-}
+.card-mini .card-name { font-weight: 700; color: var(--text-primary); margin: 4px 0; }
+.card-mini .card-cost { color: var(--gold); }
+.operation-status { padding: 6px 12px; color: var(--green); background: #e4eee3; font-size: .875rem; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 4px #92641320; } }
+@keyframes glow { 50% { box-shadow: 0 0 12px #92641345; } }
+@media(max-width:600px) { .modal-box { padding: 16px; } .card-mini { width: 120px; } }
+@media(prefers-reduced-motion:reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+html[data-page-hidden=true] *, html[data-page-hidden=true] *::before, html[data-page-hidden=true] *::after { animation-play-state: paused !important; }

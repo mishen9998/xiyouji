@@ -58,6 +58,6 @@ function newIntent() {
 </script>
 
 <style scoped>
-.command-recovery { position: fixed; bottom: 16px; left: 16px; right: 16px; z-index: 10000; padding: 16px; background: #fff4d6; color: #352b20; border: 2px solid #9c4b30; }
-.command-recovery button { min-height: 44px; padding: 8px; }
+.command-recovery { position: fixed; bottom: max(16px,env(safe-area-inset-bottom)); left: 16px; right: 16px; z-index: 10000; padding: 16px; background: #fff4d6; color: #352b20; border: 2px solid #9c4b30; max-height:60dvh;overflow:auto;border-radius:12px;display:flex;flex-wrap:wrap;gap:12px; }
+.command-recovery p {width:100%;line-height:1.6}.command-recovery button { min-height: 48px; padding: 8px 12px;border:1px solid #9c4b30;border-radius:8px;background:#fffaf0; }
 </style>

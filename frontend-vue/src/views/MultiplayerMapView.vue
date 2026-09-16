@@ -25,9 +25,10 @@
       </div>
     </div>
 
+    <p class="operation-status" role="status">{{ moving ? '正在前往下一站…' : eventSubmitting ? '正在确认本次操作…' : roomStore.connected ? (isHost ? '请选择下一站' : '由房主选择路线') : '实时连接恢复中，正在同步权威状态' }}</p>
     <!-- 可滑动的地图容器 -->
     <div class="map-scroll-wrapper" ref="scrollWrapper">
-      <div class="map-container" :style="wrapperStyle" ref="mapContainer">
+      <div class="map-container" :style="{ ...wrapperStyle, backgroundImage: `linear-gradient(#fff6da66,#e6f3dd77),url(${sceneImageUrl('journey', MAP_WIDTH < 600 ? 640 : 960)})` }" ref="mapContainer">
         <div class="map-graph-layer" :style="{ width: MAP_WIDTH + 'px', minHeight: mapHeight + 'px' }">
           <!-- SVG 连线层 -->
           <svg
@@ -53,6 +54,7 @@
             v-for="node in mapNodes"
             :key="node.id"
             :node="node"
+            :busy="moving"
             :is-current="currentNode?.id === node.id"
             :x="nodePositions[node.id]?.x ?? 0"
             :y="nodePositions[node.id]?.y ?? 0"
@@ -92,6 +94,7 @@
         :gold="myGold"
         :bought-indices="boughtIndices"
         :price="shopPrice"
+        :busy="eventSubmitting"
         @buy="buyCard"
         @forward="onEventClose"
       />
@@ -106,20 +109,23 @@
           <p v-if="bonfireUpgradesLeft > 0">🔥 剩余升级次数: {{ bonfireUpgradesLeft }} 张</p>
           <p v-else>🔥 升级次数已用完</p>
           <div class="card-grid" v-if="myDeck.length">
-            <div
+            <button
+              type="button"
               v-for="(card, i) in myDeck"
               :key="i"
               class="mini-card"
+              :disabled="bonfireUpgradesLeft <= 0 || eventSubmitting"
+              :aria-pressed="selectedUpgrade === i"
               :class="{ disabled: bonfireUpgradesLeft <= 0 || eventSubmitting, selected: selectedUpgrade === i }"
               @click="doUpgrade(i)"
             >
               <span>{{ card.emoji || '' }} {{ card.name }}</span>
-            </div>
+            </button>
           </div>
         </div>
 
         <!-- 休息 -->
-        <button v-if="currentEventType === 'rest'" class="btn-primary" @click="doRest">休息回血</button>
+        <button v-if="currentEventType === 'rest'" class="btn-primary" :disabled="eventSubmitting" @click="doRest">休息回血</button>
 
         <button v-if="currentEventType !== 'random' || !isHost" class="btn-primary" :disabled="eventSubmitting" @click="onEventClose">{{ selectedUpgrade >= 0 ? '继续前进（确认升级）' : continueText }}</button>
         <button v-if="selectedUpgrade >= 0" class="btn-small" :disabled="eventSubmitting" @click="selectedUpgrade = -1">取消选择</button>
@@ -129,12 +135,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useMapLayout } from '@/composables/useMapLayout'
 import { useRouter, useRoute } from 'vue-router'
 import { useRoomStore } from '@/stores/room'
 import { useUiStore } from '@/stores/ui'
 import { getCurrentUsername } from '@/api/room'
-import { EMOJI_MAP } from '@/constants/images'
+import { EMOJI_MAP, sceneImageUrl, preloadScene } from '@/constants/images'
 import type { MapNode, Card, EventPreview } from '@/types'
 import MapNodeComponent from '@/components/MapNodeComponent.vue'
 import TempleShop from '@/components/TempleShop.vue'
@@ -145,9 +152,7 @@ const route = useRoute()
 const roomStore = useRoomStore()
 const ui = useUiStore()
 
-const ROW_HEIGHT = 220
-const MAP_WIDTH = Math.max(360, Math.round((typeof window !== 'undefined' ? window.innerWidth : 1200) * 0.9))
-const COL_WIDTH = MAP_WIDTH / 4
+const moving = ref(false)
 
 // 本地状态
 const eventSubmitting = ref(false)
@@ -192,58 +197,17 @@ function charEmoji(charClass: string | null): string {
   return EMOJI_MAP[charClass as keyof typeof EMOJI_MAP] || '🧙'
 }
 
-const maxRow = computed(() => {
-  let m = 0
-  for (const n of mapNodes.value) {
-    if (n.row > m) m = n.row
-  }
-  return m
-})
-
-const mapHeight = computed(() => (maxRow.value + 1) * ROW_HEIGHT + 60)
-const HORIZONTAL_OFFSET = computed(() => (MAP_WIDTH - 4 * COL_WIDTH) / 2)
-
-const nodePositions = computed(() => {
-  const positions: Record<string, { x: number; y: number }> = {}
-  for (const n of mapNodes.value) {
-    const x = n.type === 'BOSS'
-      ? MAP_WIDTH / 2
-      : HORIZONTAL_OFFSET.value + n.col * COL_WIDTH + COL_WIDTH / 2
-    const y = mapHeight.value - 30 - n.row * ROW_HEIGHT
-    positions[n.id] = { x, y }
-  }
-  return positions
-})
-
-const connectionLines = computed(() => {
-  const lines: { x1: number; y1: number; x2: number; y2: number }[] = []
-  for (const n of mapNodes.value) {
-    const from = nodePositions.value[n.id]
-    if (!from || !n.connections) continue
-    for (const toId of n.connections) {
-      const to = nodePositions.value[toId]
-      if (!to) continue
-      lines.push({ x1: from.x, y1: from.y, x2: to.x, y2: to.y })
-    }
-  }
-  return lines
-})
-
-const wrapperStyle = computed(() => ({
-  position: 'relative' as const,
-  width: '100%',
-  maxWidth: 'none',
-  height: mapHeight.value + 'px',
-  minHeight: mapHeight.value + 'px',
-  margin: '0',
-}))
+const { MAP_WIDTH, maxRow, mapHeight, nodePositions, connectionLines, wrapperStyle, scrollToCurrentNode } = useMapLayout(mapNodes, currentNode, scrollWrapper)
 
 // 交互逻辑
 async function onMoveNode(node: MapNode) {
+  if (moving.value) return
   if (!isHost.value) {
     ui.showToast('只有房主才能选择路线')
     return
   }
+  moving.value = true
+  if (node.type === 'BATTLE' || node.type === 'BOSS') preloadScene(room.value?.floor === 1 ? 'blackwind' : room.value?.floor === 2 ? 'firemountain' : 'lionridge', MAP_WIDTH.value < 600 ? 640 : 960)
   try {
     const eventType = await roomStore.moveToNode(node.id)
     if (eventType === 'battle' || eventType === 'boss_battle') {
@@ -258,10 +222,13 @@ async function onMoveNode(node: MapNode) {
   } catch (e: any) {
     console.error('Move failed:', e)
     ui.showToast('移动失败: ' + (e?.message || '未知错误'))
-  }
+  } finally { moving.value = false }
 }
 
 async function handleEvent(et: string) {
+  if (eventSubmitting.value) return
+  eventSubmitting.value = true
+  try {
   selectedUpgrade.value = -1
   boughtIndices.value = new Set()
   shopCards.value = []
@@ -280,7 +247,7 @@ async function handleEvent(et: string) {
         if (result?.relic) {
           eventMessage.value = `获得遗物: ${result.relic.name}<br><small>${result.relic.description}</small>`
         }
-      } catch { /* ignore */ }
+      } catch (error: any) { eventMessage.value = error?.message || '宝箱读取失败'; ui.showToast(eventMessage.value) }
       continueText.value = '继续'
       break
     case 'shop':
@@ -289,7 +256,7 @@ async function handleEvent(et: string) {
       try {
         const result = await roomStore.handleEvent('browse')
         if (result?.shopCards) shopCards.value = result.shopCards
-      } catch { /* ignore */ }
+      } catch (error: any) { eventMessage.value = error?.message || '商店读取失败'; ui.showToast(eventMessage.value) }
       continueText.value = '继续前进'
       break
     case 'bonfire':
@@ -305,20 +272,24 @@ async function handleEvent(et: string) {
         branchEvent.value = result?.storyEvent?.event || null
         eventTitle.value = branchEvent.value?.title || eventTitle.value
         if (result?.message) eventMessage.value = result.message
-      } catch { /* ignore */ }
+      } catch (error: any) { eventMessage.value = error?.message || '事件读取失败'; ui.showToast(eventMessage.value) }
       continueText.value = '继续'
       break
     default:
       eventTitle.value = '事件'
       continueText.value = '继续'
   }
+  } finally { eventSubmitting.value = false }
 }
 
 async function doRest() {
+  if (eventSubmitting.value) return
+  eventSubmitting.value = true
   try {
     const result = await roomStore.handleEvent('rest')
     if (result?.message) eventMessage.value = result.message
-  } catch { /* ignore */ }
+  } catch (error: any) { ui.showToast(error?.message || '休息失败') }
+  finally { eventSubmitting.value = false }
 }
 
 async function chooseBranch(optionId: string) {
@@ -373,34 +344,6 @@ function goRoom() {
   router.push('/room')
 }
 
-function scrollToBottom() {
-  nextTick(() => {
-    if (scrollWrapper.value) {
-      scrollWrapper.value.scrollTop = scrollWrapper.value.scrollHeight
-    }
-  })
-}
-
-function scrollToCurrentNode() {
-  nextTick(() => {
-    const wrapper = scrollWrapper.value
-    if (!wrapper) return
-
-    const position = currentNode.value
-      ? nodePositions.value[currentNode.value.id]
-      : undefined
-    if (!position) {
-      wrapper.scrollTop = wrapper.scrollHeight
-      return
-    }
-
-    const maxScrollTop = Math.max(0, wrapper.scrollHeight - wrapper.clientHeight)
-    const centeredTop = position.y - wrapper.clientHeight / 2
-    const targetTop = Math.max(0, Math.min(centeredTop, maxScrollTop))
-    wrapper.scrollTo({ top: targetTop, behavior: 'smooth' })
-  })
-}
-
 onMounted(async () => {
   const code = route.params.code as string
   if (code && roomStore.room?.code !== code) {
@@ -424,9 +367,6 @@ onMounted(async () => {
   }
 })
 
-watch([mapNodes, currentNode], () => {
-  scrollToCurrentNode()
-})
 watch(() => room.value?.storyEvent?.event, event => {
   if (!event) return
   branchEvent.value = event
@@ -442,7 +382,7 @@ watch(() => room.value?.storyEvent?.event, event => {
 .map-screen {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
 }
 
 .map-top-bar {
@@ -468,7 +408,7 @@ watch(() => room.value?.storyEvent?.event, event => {
   background: var(--bg-card);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 .player-chip.is-me {
@@ -481,7 +421,7 @@ watch(() => room.value?.storyEvent?.event, event => {
 }
 
 .player-emoji {
-  font-size: 18px;
+  font-size: 1.125rem;
 }
 
 .floor-bar {
@@ -491,7 +431,7 @@ watch(() => room.value?.storyEvent?.event, event => {
 }
 
 .floor-label {
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: bold;
   color: var(--gold);
 }
@@ -503,21 +443,19 @@ watch(() => room.value?.storyEvent?.event, event => {
 
 .map-scroll-wrapper {
   flex: 1;
+  min-height: 120px;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 10px;
   /* The scrollable map itself owns the artwork so the scene moves with the route. */
-  background-color: #171527;
+  background-color: var(--bg-dark);
 }
 
 .map-container {
-  background-color: #252139;
-  background-image:
-    linear-gradient(180deg, rgba(15, 14, 23, 0.28), rgba(15, 14, 23, 0.12) 40%, rgba(15, 14, 23, 0.38)),
-    url('/images/宝物/场景/map_background.png');
-  background-size: cover;
+  background-color: #e5ead8;
+  background-size: 100% auto;
   background-position: center;
-  background-repeat: no-repeat;
+  background-repeat: repeat-y;
   border-radius: 18px;
   overflow: hidden;
 }
@@ -544,7 +482,7 @@ watch(() => room.value?.storyEvent?.event, event => {
 }
 
 .map-avatar-emoji {
-  font-size: 32px;
+  font-size: 2rem;
   display: block;
   text-align: center;
   line-height: 40px;
@@ -556,7 +494,7 @@ watch(() => room.value?.storyEvent?.event, event => {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: bold;
 }
 
@@ -608,7 +546,7 @@ watch(() => room.value?.storyEvent?.event, event => {
 .card-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   justify-content: center;
 }
 
@@ -618,7 +556,7 @@ watch(() => room.value?.storyEvent?.event, event => {
   border: 1px solid var(--gold);
   border-radius: 6px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 .mini-card.disabled {
@@ -636,10 +574,13 @@ watch(() => room.value?.storyEvent?.event, event => {
 
 /* 移动端适配 */
 @media (max-width: 600px) {
+  .players-bar { flex-wrap: nowrap; overflow-x: auto; padding: 4px 0; }
+  .player-chip { flex: 0 0 auto; display: grid; grid-template-columns: auto auto; min-width: 108px; }
+  .player-name { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .map-top-bar { padding: 6px 10px; gap: 4px; }
-  .player-chip { font-size: 11px; padding: 3px 6px; }
-  .player-emoji { font-size: 14px; }
-  .floor-label { font-size: 12px; }
+  .player-chip { font-size: 0.6875rem; padding: 3px 6px; }
+  .player-emoji { font-size: 0.875rem; }
+  .floor-label { font-size: 0.75rem; }
   .map-scroll-wrapper { padding: 6px; }
 }
 </style>

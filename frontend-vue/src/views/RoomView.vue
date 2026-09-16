@@ -1,6 +1,7 @@
 <!-- ====== 多人房间大厅 + 等待室 ====== -->
 <template>
   <div class="room-view">
+    <ResponsiveImage class="camp-backdrop" :src="sceneImageUrl('camp')" alt="西行营地" sizes="100vw" object-fit="cover" critical />
     <button class="btn-back" @click="handleBack">← 返回首页</button>
 
     <!-- ====== 大厅：创建/加入房间 ====== -->
@@ -20,6 +21,7 @@
         <div class="join-section">
           <input
             v-model="joinCode"
+            aria-label="8位房间码"
             class="join-input"
             placeholder="输入8位房间码"
             maxlength="8"
@@ -77,10 +79,13 @@
       <div v-if="myPlayer && !myPlayer.ready" class="char-select-section">
         <h2 class="section-title">选择你的角色</h2>
         <div class="char-grid">
-          <div
+          <button
+            type="button"
             v-for="char in characters"
             :key="char.class"
             class="char-card-mini"
+            :aria-pressed="myPlayer?.characterClass === char.class"
+            :disabled="isCharTaken(char.class) || actionPending"
             :class="{
               selected: myPlayer?.characterClass === char.class,
               taken: isCharTaken(char.class),
@@ -91,7 +96,7 @@
             <span class="char-emoji-mini">{{ char.emoji }}</span>
             <span class="char-name-mini">{{ char.name }}</span>
             <span class="char-hp-mini">HP {{ char.hp }}</span>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -123,6 +128,7 @@
           🗺️ 开始游戏
         </button>
       </div>
+      <p v-if="actionPending" class="operation-status" role="status">正在确认操作，请稍候…</p>
 
       <!-- 系统消息 -->
       <div v-if="roomStore.systemMessages.length" class="system-messages">
@@ -150,6 +156,8 @@ import { useRoomStore } from '@/stores/room'
 import { useUiStore } from '@/stores/ui'
 import { getCurrentUsername } from '@/api/room'
 import type { CharacterClass, RoomPlayer } from '@/types'
+import ResponsiveImage from '@/components/ResponsiveImage.vue'
+import { sceneImageUrl } from '@/constants/images'
 
 const router = useRouter()
 const roomStore = useRoomStore()
@@ -353,7 +361,7 @@ function handleBack() {
 }
 
 .page-title {
-  font-size: 36px;
+  font-size: 2.25rem;
   font-family: var(--font-display);
   background: linear-gradient(135deg, var(--gold), var(--red));
   -webkit-background-clip: text;
@@ -363,7 +371,7 @@ function handleBack() {
 
 .subtitle {
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 0.875rem;
   margin-bottom: 40px;
 }
 
@@ -397,9 +405,9 @@ function handleBack() {
 }
 .lobby-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.lobby-icon { font-size: 32px; }
-.lobby-label { font-size: 18px; font-family: var(--font-display); }
-.lobby-desc { font-size: 12px; color: var(--text-muted); }
+.lobby-icon { font-size: 2rem; }
+.lobby-label { font-size: 1.125rem; font-family: var(--font-display); }
+.lobby-desc { font-size: 0.75rem; color: var(--text-muted); }
 
 .lobby-divider {
   width: 100%;
@@ -420,7 +428,7 @@ function handleBack() {
   border-radius: 8px;
   padding: 12px 16px;
   color: var(--text-primary);
-  font-size: 18px;
+  font-size: 1.125rem;
   letter-spacing: 4px;
   text-align: center;
   text-transform: uppercase;
@@ -451,10 +459,10 @@ function handleBack() {
   margin-top: 12px;
 }
 
-.code-label { color: var(--text-secondary); font-size: 14px; }
+.code-label { color: var(--text-secondary); font-size: 0.875rem; }
 
 .code-value {
-  font-size: 28px;
+  font-size: 1.75rem;
   font-weight: bold;
   font-family: monospace;
   color: var(--gold);
@@ -472,7 +480,7 @@ function handleBack() {
   padding: 8px 12px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 .btn-copy:hover { border-color: var(--gold); color: var(--gold); }
 
@@ -501,27 +509,27 @@ function handleBack() {
 .player-slot.occupied { border-color: rgba(102, 187, 106, 0.3); }
 .player-slot.is-me { border-color: var(--gold); box-shadow: 0 0 12px rgba(242, 169, 0, 0.2); }
 
-.slot-emoji { font-size: 28px; }
-.slot-name { font-size: 14px; color: var(--text-primary); font-weight: bold; }
+.slot-emoji { font-size: 1.75rem; }
+.slot-name { font-size: 0.875rem; color: var(--text-primary); font-weight: bold; }
 .slot-host {
-  font-size: 10px;
+  font-size: 0.625rem;
   color: var(--gold);
   background: rgba(242, 169, 0, 0.15);
   padding: 2px 8px;
   border-radius: 4px;
 }
-.slot-char { font-size: 12px; color: var(--text-secondary); }
-.slot-ready { font-size: 12px; color: var(--text-muted); }
+.slot-char { font-size: 0.75rem; color: var(--text-secondary); }
+.slot-ready { font-size: 0.75rem; color: var(--text-muted); }
 .slot-ready.ready { color: var(--green); font-weight: bold; }
 
-.slot-empty { font-size: 14px; color: var(--text-muted); }
-.slot-waiting { font-size: 12px; color: var(--text-muted); }
+.slot-empty { font-size: 0.875rem; color: var(--text-muted); }
+.slot-waiting { font-size: 0.75rem; color: var(--text-muted); }
 
 /* 角色选择 */
 .char-select-section { width: 100%; margin-bottom: 24px; }
 
 .section-title {
-  font-size: 18px;
+  font-size: 1.125rem;
   color: var(--text-primary);
   margin-bottom: 12px;
   text-align: center;
@@ -550,9 +558,9 @@ function handleBack() {
 .char-card-mini.selected { border-color: var(--gold); background: rgba(242, 169, 0, 0.1); }
 .char-card-mini.taken { opacity: 0.3; cursor: not-allowed; }
 
-.char-emoji-mini { font-size: 24px; }
-.char-name-mini { font-size: 13px; color: var(--text-primary); }
-.char-hp-mini { font-size: 11px; color: var(--text-muted); }
+.char-emoji-mini { font-size: 1.5rem; }
+.char-name-mini { font-size: 0.8125rem; color: var(--text-primary); }
+.char-hp-mini { font-size: 0.6875rem; color: var(--text-muted); }
 
 /* 操作栏 */
 .action-bar {
@@ -566,7 +574,7 @@ function handleBack() {
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-secondary);
   padding: 12px 32px;
-  font-size: 16px;
+  font-size: 1rem;
   border-radius: 8px;
   cursor: pointer;
   font-family: var(--font-display);
@@ -577,7 +585,7 @@ function handleBack() {
 .btn-start-battle {
   background: linear-gradient(135deg, var(--red), var(--red-dark));
   color: white;
-  font-size: 18px;
+  font-size: 1.125rem;
   padding: 14px 40px;
 }
 
@@ -586,7 +594,7 @@ function handleBack() {
 
 .sys-msg {
   text-align: center;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--text-muted);
   padding: 4px;
   animation: fadeIn 0.3s;
@@ -605,7 +613,25 @@ function handleBack() {
 /* 移动端 */
 @media (max-width: 600px) {
   .char-grid { grid-template-columns: repeat(3, 1fr); }
-  .page-title { font-size: 24px; }
-  .code-value { font-size: 20px; letter-spacing: 4px; }
+  .page-title { font-size: 1.5rem; }
+  .code-value { font-size: 1.25rem; letter-spacing: 4px; }
+}
+.room-view { min-height:100dvh; height:auto; overflow:visible; background:var(--bg-dark); }
+.room-view {position:relative;isolation:isolate;}.camp-backdrop {position:fixed;inset:0;width:100%;height:100%;opacity:.14;z-index:-1;pointer-events:none;}
+.lobby { min-height:100dvh; padding-top:90px; }
+.lobby-btn { background:var(--bg-panel); border-color:var(--line); }
+.join-input { min-width:0; width:100%; border-color:var(--line); }
+.room-code-display, .action-bar { flex-wrap:wrap; justify-content:center; gap:12px; }
+.waiting-room { padding-bottom:calc(24px + env(safe-area-inset-bottom)); }
+.player-slot { min-width:0; border-color:var(--line); }
+.slot-name { overflow-wrap:anywhere; }
+.connection-status { margin:8px 0 16px; color:var(--green);font-size:.85rem; }
+.action-bar button { min-height:48px; }
+@media(max-width:600px){
+  .player-slots { grid-template-columns:repeat(2,minmax(0,1fr));gap:8px; }
+  .player-slot { padding:10px;min-height:90px; }
+  .room-code-display { gap:8px; }.code-value { padding:8px;letter-spacing:3px; }
+  .waiting-room {padding:76px 12px 24px;}.join-section{flex-direction:column;gap:12px}
+  .action-bar { width:100%; }.action-bar button { flex:1 1 120px;padding:12px; }
 }
 </style>

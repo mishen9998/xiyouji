@@ -1,0 +1,7 @@
+{
+  "name": "xiyouji-image-tools",
+  "private": true,
+  "type": "module",
+  "scripts": { "images": "node derive-images.mjs" },
+  "dependencies": { "sharp": "0.33.5" }
+}

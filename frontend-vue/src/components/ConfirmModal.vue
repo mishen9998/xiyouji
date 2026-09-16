@@ -43,7 +43,7 @@ const store = useUiStore()
   color: var(--text-secondary);
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 14px 32px;
-  font-size: 16px;
+  font-size: 1rem;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
@@ -61,7 +61,7 @@ const store = useUiStore()
   color: var(--red);
   border: 1px solid var(--red);
   padding: 14px 32px;
-  font-size: 16px;
+  font-size: 1rem;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;

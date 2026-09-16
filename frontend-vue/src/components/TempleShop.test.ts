@@ -29,6 +29,17 @@ const cards: Card[] = [
 ]
 
 describe('TempleShop', () => {
+  it('shows pending purchase and blocks purchase/exit until its receipt returns', async () => {
+    const wrapper = mount(TempleShop, { props: { cards, gold: 120, boughtIndices: new Set<number>(), busy: true } })
+    expect(wrapper.get('[data-testid="temple-forward"]').attributes('disabled')).toBeDefined()
+    await wrapper.get('[aria-label="查看卡牌 定海神针"]').trigger('keydown.space')
+    expect(wrapper.get('.purchase-button').text()).toBe('正在确认购买…')
+    await wrapper.get('.purchase-button').trigger('click')
+    expect(wrapper.emitted('buy')).toBeUndefined()
+    await wrapper.setProps({ busy: false })
+    await wrapper.get('.purchase-button').trigger('click')
+    expect(wrapper.emitted('buy')).toHaveLength(1)
+  })
   it('展示卡面数值，并支持查看、购买、返回商店和继续前进', async () => {
     const wrapper = mount(TempleShop, {
       props: {

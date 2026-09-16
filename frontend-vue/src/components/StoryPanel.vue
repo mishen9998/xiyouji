@@ -29,7 +29,7 @@ function dismiss() { const scene = queue.value.shift(); if (scene) seen.add(scen
 function skip() { queue.value.forEach(scene => seen.add(scene.id)); queue.value = []; remember() }
 </script>
 <style scoped>
-.story-panel { position: fixed; z-index: 80; top: 72px; right: 12px; width: min(360px, calc(100vw - 24px)); max-height: 45vh; overflow: auto; padding: 16px; border: 1px solid var(--gold); border-radius: 12px; background: var(--bg-panel, #25222a); box-shadow: 0 4px 16px #0006; }
-.story-panel p { line-height: 1.6; margin: 8px 0; }
-.story-panel button { min-height: 44px; min-width: 72px; margin-right: 8px; }
+.story-panel { position:fixed;z-index:80;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));width:min(380px,calc(100vw - 24px));max-height:60dvh;overflow:auto;padding:16px;border:1px solid var(--line);border-left:5px solid var(--red);border-radius:12px;background:var(--bg-panel);box-shadow:0 8px 32px #283c3530; }
+.story-panel p {line-height:1.7;margin:8px 0;color:var(--text-secondary)}
+.story-panel button {min-height:44px;min-width:72px;margin:4px 8px 0 0;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg-card)}
 </style>

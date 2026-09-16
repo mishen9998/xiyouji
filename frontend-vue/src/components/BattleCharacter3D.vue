@@ -1,13 +1,16 @@
 <!-- 程序化 WebGL 3D 战斗角色；WebGL 不可用时自动降级到立绘动画。 -->
 <template>
   <div
+    ref="rootElement"
     class="character-3d"
     :class="[`character-3d--${size}`, `character-3d--${action}`]"
     :aria-label="`${label || '战斗角色'}：${actionLabel}`"
+    :data-renderer="webglReady && !webglFailed ? 'webgl' : 'illustration'"
+    :data-motion-active="webglReady && motionAllowed"
   >
     <div v-show="webglReady" ref="host" class="character-3d__viewport" aria-hidden="true"></div>
     <BattleCharacter
-      v-if="webglFailed"
+      v-if="!webglReady || webglFailed"
       :image-url="imageUrl"
       :emoji="emoji"
       :action="action"
@@ -31,6 +34,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import * as THREE from 'three'
 import BattleCharacter from './BattleCharacter.vue'
 import type { BattleAction, BattleCharacterSize } from './BattleCharacter.vue'
+import { createVisibleFrameLoop, shouldUseLightweightIllustration, useMotionVisibility } from '@/composables/useMotionVisibility'
 
 const props = withDefaults(defineProps<{
   characterClass?: string
@@ -55,6 +59,8 @@ const props = withDefaults(defineProps<{
 })
 
 const host = ref<HTMLElement | null>(null)
+const rootElement = ref<HTMLElement | null>(null)
+const { visible, reducedMotion, motionAllowed } = useMotionVisibility(rootElement)
 const webglReady = ref(false)
 const webglFailed = ref(false)
 const resolvedToken = computed(() => props.actionToken ?? props.actionKey)
@@ -101,9 +107,11 @@ let scene: THREE.Scene | undefined
 let camera: THREE.PerspectiveCamera | undefined
 let renderer: THREE.WebGLRenderer | undefined
 let rig: CharacterRig | undefined
-let frameId = 0
 let resizeObserver: ResizeObserver | undefined
 let startedAt = performance.now()
+let disposed = false
+let slowFrames = 0
+const frameLoop = createVisibleFrameLoop(animate, 30)
 
 const palettes: Record<string, { primary: number; secondary: number; skin: number; metal: number }> = {
   SUN_WUKONG: { primary: 0xb5261e, secondary: 0xe8a420, skin: 0xb97845, metal: 0xffcf52 },
@@ -628,19 +636,21 @@ function createRig(characterClass: string): CharacterRig {
 }
 
 function setupScene() {
-  if (!host.value) return
+  if (!host.value || disposed) return
+  if (shouldUseLightweightIllustration()) { webglFailed.value = true; return }
   try {
     scene = new THREE.Scene()
     camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100)
     camera.position.set(0, 1.55, 7.2)
     camera.lookAt(0, 1.35, 0)
 
-    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' })
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false, powerPreference: 'low-power' })
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25))
     renderer.outputColorSpace = THREE.SRGBColorSpace
-    renderer.shadowMap.enabled = true
+    renderer.shadowMap.enabled = false
     renderer.shadowMap.type = THREE.PCFShadowMap
     host.value.replaceChildren(renderer.domElement)
+    renderer.domElement.addEventListener('webglcontextlost', onContextLost)
 
     scene.add(new THREE.HemisphereLight(0xffefd1, 0x182039, 2.0))
     const keyLight = new THREE.DirectionalLight(0xffd47a, 3.2)
@@ -663,10 +673,10 @@ function setupScene() {
     resizeObserver = new ResizeObserver(resize)
     resizeObserver.observe(host.value)
     webglReady.value = true
-    animate()
+    nextTick(() => { resize(); syncAnimation() })
   } catch (error) {
     console.warn('WebGL 3D character unavailable, falling back to illustration:', error)
-    webglFailed.value = true
+    fallBack()
   }
 }
 
@@ -698,6 +708,41 @@ function resize() {
   renderer.setSize(width, height, false)
   camera.aspect = width / height
   camera.updateProjectionMatrix()
+  if (visible.value) renderStatic()
+}
+
+function renderStatic() {
+  if (!renderer || !scene || !camera || !rig) return
+  if (rig.sun) animateSunRig(0, 0, 0)
+  else animateGenericRig(0, 0, 0)
+  renderer.render(scene, camera)
+}
+
+function syncAnimation() {
+  if (!webglReady.value || webglFailed.value) return
+  if (motionAllowed.value) frameLoop.start()
+  else {
+    frameLoop.stop()
+    if (visible.value && reducedMotion.value) renderStatic()
+  }
+}
+
+function onContextLost(event: Event) { event.preventDefault(); fallBack() }
+
+function fallBack() {
+  frameLoop.stop()
+  webglFailed.value = true
+  webglReady.value = false
+  resizeObserver?.disconnect()
+  if (renderer) {
+    renderer.domElement.removeEventListener('webglcontextlost', onContextLost)
+    renderer.dispose()
+    renderer.domElement.remove()
+    renderer = undefined
+  }
+  if (scene) disposeObject(scene)
+  scene = undefined
+  rig = undefined
 }
 
 function animateSunRig(now: number, phase: number, pulse: number) {
@@ -859,7 +904,8 @@ function animateGenericRig(now: number, phase: number, pulse: number) {
 }
 
 function animate(now = performance.now()) {
-  if (!renderer || !scene || !camera || !rig) return
+  if (!renderer || !scene || !camera || !rig || !motionAllowed.value) return
+  const frameStarted = performance.now()
   const elapsed = (now - startedAt) / 1000
   const phase = Math.min(1, elapsed / 0.86)
   const pulse = Math.sin(phase * Math.PI)
@@ -868,22 +914,19 @@ function animate(now = performance.now()) {
 
   rig.aura.rotation.z += 0.008
   renderer.render(scene, camera)
-  frameId = requestAnimationFrame(animate)
+  // Sustained expensive rendering automatically returns to the identical 2D action interface.
+  slowFrames = performance.now() - frameStarted > 24 ? slowFrames + 1 : Math.max(0, slowFrames - 1)
+  if (slowFrames >= 8) fallBack()
 }
 
 watch(() => [props.action, resolvedToken.value], () => { startedAt = performance.now() })
-watch(() => props.characterClass, rebuildRig)
+watch(() => props.characterClass, () => { rebuildRig(); if (visible.value) renderStatic() })
+watch([motionAllowed, visible, reducedMotion], syncAnimation, { flush: 'sync' })
 
 onMounted(() => nextTick(setupScene))
 onBeforeUnmount(() => {
-  cancelAnimationFrame(frameId)
-  resizeObserver?.disconnect()
-  if (rig && scene) {
-    scene.remove(rig.root)
-    disposeObject(rig.root)
-  }
-  renderer?.dispose()
-  renderer?.domElement.remove()
+  disposed = true
+  fallBack()
 })
 </script>
 
