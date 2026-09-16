@@ -130,6 +130,27 @@ public class RoomProgressionService {
         });
     }
 
+    /** 战斗结束后同步玩家状态并归图；整个过程只保存同一个权威房间对象。 */
+    public RoomDTO returnFromBattle(String code, String requesterId, List<MultiplayerPlayer> players) {
+        return access.withRoomLock(code, () -> {
+            Room room = access.getRoomOrThrow(code);
+            if (!room.getHostUserId().equals(requesterId)) {
+                throw new InvalidActionException("只有房主才能继续");
+            }
+            for (MultiplayerPlayer player : players) {
+                room.getPlayers().stream()
+                        .filter(member -> member.getUserId().equals(player.getUserId()))
+                        .findFirst()
+                        .ifPresent(member -> member.syncFromCharacter(player.getCharacter()));
+            }
+
+            boolean completed = mapService.isAtBoss(room) && !mapService.advanceToNextLayer(room);
+            room.setStatus(completed ? RoomStatus.FINISHED : RoomStatus.IN_MAP);
+            access.save(room);
+            return assembler.toDTO(room);
+        });
+    }
+
     /** Boss 击败后进入下一层 */
     public Map<String, Object> nextLayer(String code, String requesterId, long expectedVersion) {
         return access.withRoomLock(code, () -> {

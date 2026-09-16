@@ -32,6 +32,7 @@ public class MultiplayerBattleInfoAssembler {
         info.put("playerTurn", state.isPlayerTurn());
         info.put("battleOver", state.isBattleOver());
         info.put("victory", state.isVictory());
+        info.put("rulesVersion", EnemyForecastInfo.rulesVersion(state.getEnemy()));
 
         // 敌人信息
         Enemy enemy = state.getEnemy();
@@ -47,6 +48,9 @@ public class MultiplayerBattleInfoAssembler {
         enemyInfo.put("isBoss", enemy.isBoss());
         enemyInfo.put("buffs", enemy.getBuffs() != null ? enemy.getBuffs() : Map.of());
         enemyInfo.put("targetPlayerIndex", state.getTargetPlayerIndex());
+        Map<String, GameCharacter> forecastPlayers = new LinkedHashMap<>();
+        state.getPlayers().stream().filter(MultiplayerPlayer::isAlive).forEach(p -> forecastPlayers.put(p.getUserId(), p.getCharacter()));
+        EnemyForecastInfo.append(enemyInfo, enemy, forecastPlayers);
         info.put("enemy", enemyInfo);
 
         // 玩家信息列表

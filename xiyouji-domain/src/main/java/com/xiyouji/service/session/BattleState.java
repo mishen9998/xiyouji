@@ -2,6 +2,7 @@ package com.xiyouji.service.session;
 
 import com.xiyouji.model.*;
 import com.xiyouji.model.enums.*;
+import com.xiyouji.combat.*;
 import java.util.*;
 
 /**
@@ -26,6 +27,7 @@ public class BattleState {
     private boolean skillUsedThisTurn;
     private int totalDamageDealt;
     private int totalBlockGained;
+    private String playerUserId = EnemyCombat.SOLO_PLAYER;
 
     public BattleState() {
         this.turnNumber = 1;
@@ -47,64 +49,48 @@ public class BattleState {
 
     /** 战斗开始 */
     public void startBattle() {
+        startBattle(playerUserId);
+    }
+
+    public void startBattle(String userId) {
+        playerUserId = userId == null ? EnemyCombat.SOLO_PLAYER : userId;
+        EnemyCombat.validate(enemy);
+        enemy.setRulesVersion(CombatRules.VERSION);
         combatLog.add("⚔️ " + enemy.getName() + " 出现了！");
-        enemy.chooseIntent();
+        EnemyCombat.lockNextAction(enemy, List.of(playerUserId), 0);
     }
 
     /** 执行敌人回合 */
     public void executeEnemyTurn(GameCharacter player) {
         combatLog.add("--- 敌人回合 #" + turnNumber + " ---");
 
-        // 中毒伤害
-        if (enemy.getBuffs().containsKey(BuffType.POISON)) {
-            int poison = enemy.getBuffs().get(BuffType.POISON);
-            enemy.setHp(Math.max(0, enemy.getHp() - poison));
-            combatLog.add("☠️ 中毒造成 " + poison + " 点伤害");
+        EnemyCombat.restoreLegacyForecast(enemy, List.of(playerUserId));
+        CombatDelta delta = EnemyCombat.execute(enemy, Map.of(playerUserId, player));
+        if (delta.enemyPoisonDamage() > 0) combatLog.add("☠️ 中毒造成 " + delta.enemyPoisonDamage() + " 点伤害");
+        for (CombatDelta.Hit hit : delta.hits()) {
+            combatLog.add(enemy.getName() + " 造成 " + hit.hpLost() + " 点伤害");
         }
-
-        if (enemy.isDead()) {
+        if (enemy.getLockedAction().block() > 0) combatLog.add(enemy.getName() + " 获得 " + enemy.getLockedAction().block() + " 点格挡");
+        if (enemy.getLockedAction().strengthGain() > 0) combatLog.add(enemy.getName() + " 获得 " + enemy.getLockedAction().strengthGain() + " 点力量");
+        if (!enemy.getLockedAction().statusEffects().isEmpty()) combatLog.add(enemy.getName() + " 施加 " + enemy.getLockedAction().statusEffects());
+        if (delta.outcome() == CombatDelta.Outcome.VICTORY) {
             battleOver = true;
             victory = true;
             combatLog.add("🏆 敌人被毒死了！");
             return;
         }
-
-        switch (enemy.getIntent()) {
-            case ATTACK -> {
-                int dmg = enemy.getIntentValue();
-                int actualDmg = player.takeDamage(dmg);
-                combatLog.add(enemy.getEmoji() == null ? "" : enemy.getEmoji() + " " +
-                        enemy.getName() + " 造成 " + actualDmg + " 点伤害");
-            }
-            case DEFEND -> {
-                int block = enemy.getIntentValue();
-                enemy.gainBlock(block);
-                combatLog.add(enemy.getName() + " 获得 " + block + " 点格挡");
-            }
-            case BUFF -> {
-                enemy.addBuff(BuffType.STRENGTH, enemy.getIntentValue());
-                combatLog.add(enemy.getName() + " 获得 " + enemy.getIntentValue() + " 点力量");
-            }
-            default -> combatLog.add(enemy.getName() + " 在观察你…");
-        }
-
-        enemy.resetBlock();
-        enemy.tickBuffs();
-
-        if (player.isDead()) {
+        if (delta.outcome() == CombatDelta.Outcome.DEFEAT) {
             battleOver = true;
             victory = false;
             combatLog.add("💀 你被打败了！");
             return;
         }
 
-        enemy.chooseIntent();
         playerTurn = true;
         turnNumber++;
         cardsPlayedThisTurn = 0;
         skillUsedThisTurn = false;
         player.startTurn();
-        player.tickBuffs();
 
         // 遗物效果：龙鳞甲
         if (player.getRelics().stream().anyMatch(r -> "龙鳞甲".equals(r.getName()))) {
@@ -123,6 +109,7 @@ public class BattleState {
         }
 
         player.drawCards(5);
+        EnemyCombat.lockNextAction(enemy, List.of(playerUserId), 0);
     }
 
     /** 玩家打出卡牌 — 传入额外伤害/格挡加成，不修改卡牌自身 */
@@ -200,4 +187,6 @@ public class BattleState {
     public void setTotalDamageDealt(int totalDamageDealt) { this.totalDamageDealt = totalDamageDealt; }
     public int getTotalBlockGained() { return totalBlockGained; }
     public void setTotalBlockGained(int totalBlockGained) { this.totalBlockGained = totalBlockGained; }
+    public String getPlayerUserId() { return playerUserId; }
+    public void setPlayerUserId(String value) { playerUserId = value == null ? EnemyCombat.SOLO_PLAYER : value; }
 }

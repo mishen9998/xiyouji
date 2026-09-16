@@ -34,6 +34,7 @@ public class SoloBattleInfoAssembler {
         }
 
         info.put("inBattle", true);
+        info.put("rulesVersion", EnemyForecastInfo.rulesVersion(battle.getEnemy()));
         info.put("turnNumber", battle.getTurnNumber());
         info.put("playerTurn", battle.isPlayerTurn());
         info.put("battleOver", battle.isBattleOver());
@@ -137,6 +138,7 @@ public class SoloBattleInfoAssembler {
         enemyInfo.put("intent", battle.getEnemy().getIntent().name());
         enemyInfo.put("intentValue", battle.getEnemy().getIntentValue());
         enemyInfo.put("isBoss", battle.getEnemy().isBoss());
+        EnemyForecastInfo.append(enemyInfo, battle.getEnemy(), Map.of(battle.getPlayerUserId(), player));
 
         // 敌人Buffs — 包含永久buff和临时buff
         List<Map<String, Object>> enemyBuffsList = new ArrayList<>();

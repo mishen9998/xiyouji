@@ -35,7 +35,7 @@ public class SoloTurnCoordinator {
         battle.endPlayerTurn(session.getPlayer());
 
         // ★ 宝物回合开始效果：九转金丹（TURN_START;HEAL:N）、御赐琉璃盏（TURN_START;DRAW:N）
-        relicTriggers.applyTurnStartEffects(session.getPlayer(),
+        if (!battle.isBattleOver()) relicTriggers.applyTurnStartEffects(session.getPlayer(),
                 (relic, kind, desc) -> battle.getCombatLog().add(
                         ("HEAL".equals(kind) ? "💊 " : "🍶 ") + relic.getName() + "触发！" + desc));
 

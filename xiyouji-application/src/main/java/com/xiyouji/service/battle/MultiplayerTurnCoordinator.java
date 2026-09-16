@@ -1,6 +1,8 @@
 package com.xiyouji.service.battle;
 
 import com.xiyouji.constants.GameConstants;
+import com.xiyouji.combat.CombatDelta;
+import com.xiyouji.combat.EnemyCombat;
 import com.xiyouji.exception.InvalidActionException;
 import com.xiyouji.model.Enemy;
 import com.xiyouji.model.GameCharacter;
@@ -13,6 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 多人战斗回合协调器
@@ -68,8 +73,7 @@ public class MultiplayerTurnCoordinator {
 
     /**
      * 执行敌人回合
-     * 1. 中毒伤害 2. 敌人按意图行动 3. 重置敌人格挡 4. tick敌人buff
-     * 5. 检查玩家死亡 6. 选择新意图和目标
+     * 消费玩家阶段开始前锁定的行动。领域解析器统一处理状态生命周期与胜负。
      */
     public void executeEnemyTurn(MultiplayerBattleState state) {
         state.setPlayerTurn(false);
@@ -77,53 +81,35 @@ public class MultiplayerTurnCoordinator {
 
         state.addLog("--- 敌人回合 ---");
 
-        // 1. 中毒伤害
-        Integer poison = enemy.getBuffs().get(BuffType.POISON);
-        if (poison != null && poison > 0) {
-            int poisonDmg = poison;
-            enemy.takeDamage(poisonDmg);
-            state.addLog(enemy.getName() + " 受到中毒伤害 " + poisonDmg);
-            if (enemy.isDead()) {
-                rewardService.settleVictory(state);
-                return;
+        if (enemy.getLockedAction() == null) {
+            int index = state.getTargetPlayerIndex();
+            List<String> targets = index >= 0 && index < state.getPlayers().size()
+                    ? List.of(state.getPlayers().get(index).getUserId()) : List.of();
+            EnemyCombat.restoreLegacyForecast(enemy, targets);
+        }
+        Map<String, GameCharacter> players = new LinkedHashMap<>();
+        state.getPlayers().stream().filter(MultiplayerPlayer::isAlive)
+                .forEach(p -> players.put(p.getUserId(), p.getCharacter()));
+        CombatDelta delta = EnemyCombat.execute(enemy, players);
+        if (delta.enemyPoisonDamage() > 0) state.addLog(enemy.getName() + " 受到中毒伤害 " + delta.enemyPoisonDamage());
+        for (CombatDelta.Hit hit : delta.hits()) {
+            MultiplayerPlayer target = state.findPlayer(hit.targetUserId());
+            state.addLog(enemy.getName() + " 攻击 " + target.getUsername() + "，造成 " + hit.hpLost() + " 伤害");
+        }
+        for (MultiplayerPlayer player : state.getPlayers()) {
+            if (player.isAlive() && player.getCharacter().isDead()) {
+                player.setAlive(false);
+                state.addLog(player.getUsername() + " 阵亡了！");
             }
         }
-
-        // 2. 敌人按意图行动
-        EnemyIntent intent = enemy.getIntent();
-        int intentValue = enemy.getIntentValue();
-        MultiplayerPlayer target = state.getPlayers().get(state.getTargetPlayerIndex());
-
-        if (target != null && target.isAlive()) {
-            switch (intent) {
-                case ATTACK -> {
-                    int actualDmg = target.getCharacter().takeDamage(intentValue);
-                    state.addLog(enemy.getName() + " 攻击 " + target.getUsername() + "，造成 " + actualDmg + " 伤害");
-                    if (target.getCharacter().isDead()) {
-                        target.setAlive(false);
-                        state.addLog(target.getUsername() + " 阵亡了！");
-                    }
-                }
-                case DEFEND -> {
-                    enemy.gainBlock(intentValue);
-                    state.addLog(enemy.getName() + " 进入防御姿态，获得 " + intentValue + " 格挡");
-                }
-                case BUFF -> {
-                    enemy.addBuff(BuffType.STRENGTH, intentValue);
-                    state.addLog(enemy.getName() + " 蓄力，力量+" + intentValue);
-                }
-                default -> state.addLog(enemy.getName() + " 在观望");
-            }
+        if (delta.outcome() == CombatDelta.Outcome.VICTORY) {
+            rewardService.settleVictory(state);
+            return;
         }
-
-        // 3. 重置敌人格挡
-        enemy.resetBlock();
-
-        // 4. tick敌人buff（减少debuff回合数）
-        enemy.tickBuffs();
-
-        // 5. 检查所有玩家是否阵亡
-        if (state.alivePlayerCount() == 0) {
+        if (enemy.getLockedAction().block() > 0) state.addLog(enemy.getName() + " 获得 " + enemy.getLockedAction().block() + " 格挡");
+        if (enemy.getLockedAction().strengthGain() > 0) state.addLog(enemy.getName() + " 力量+" + enemy.getLockedAction().strengthGain());
+        if (!enemy.getLockedAction().statusEffects().isEmpty()) state.addLog(enemy.getName() + " 施加 " + enemy.getLockedAction().statusEffects());
+        if (delta.outcome() == CombatDelta.Outcome.DEFEAT) {
             state.setBattleOver(true);
             state.setVictory(false);
             state.addLog("全军覆没...战斗失败");
@@ -131,11 +117,6 @@ public class MultiplayerTurnCoordinator {
             return;
         }
 
-        // 6. 选择新意图和攻击目标
-        enemy.chooseIntent();
-        state.setTargetPlayerIndex(state.randomAlivePlayerIndex(random));
-        MultiplayerPlayer newTarget = state.getPlayers().get(state.getTargetPlayerIndex());
-        state.addLog(enemy.getName() + " 意图攻击: " + (newTarget != null ? newTarget.getUsername() : "?"));
     }
 
     /**
@@ -151,7 +132,6 @@ public class MultiplayerTurnCoordinator {
                 GameCharacter gc = player.getCharacter();
                 gc.startTurn();   // 回能量、重置格挡、抽drawNextTurn张牌
                 gc.drawCards(GameConstants.INITIAL_HAND_SIZE);  // 抽5张新手牌
-                gc.tickBuffs();   // 减少debuff回合数
 
                 // 检查中毒死亡
                 if (gc.isDead()) {
@@ -171,5 +151,13 @@ public class MultiplayerTurnCoordinator {
         }
 
         state.addLog("--- 第 " + state.getTurnNumber() + " 回合 ---");
+        lockNextAction(state, random.nextLong());
+    }
+
+    /** Shared by battle start and every subsequent player phase. */
+    public static void lockNextAction(MultiplayerBattleState state, long seed) {
+        var action = EnemyCombat.lockNextAction(state.getEnemy(), state.getPlayers().stream()
+                .filter(p -> p.isAlive() && !p.getCharacter().isDead()).map(MultiplayerPlayer::getUserId).toList(), seed);
+        if (!action.targetUserIds().isEmpty()) state.setTargetPlayerIndex(state.indexOfPlayer(action.targetUserIds().get(0)));
     }
 }

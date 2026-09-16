@@ -119,6 +119,9 @@
             <transient name="intentValue"/>
             <transient name="movePattern"/>
             <transient name="patternIndex"/>
+            <transient name="actionDefinitions"/>
+            <transient name="lockedAction"/>
+            <transient name="rulesVersion"/>
             <transient name="buffs"/>
         </attributes>
     </entity>

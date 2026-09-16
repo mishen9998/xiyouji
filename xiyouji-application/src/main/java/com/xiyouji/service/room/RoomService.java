@@ -5,6 +5,7 @@ import com.xiyouji.model.enums.CharacterClass;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -124,6 +125,12 @@ public class RoomService {
             room.setStatus(RoomStatus.IN_MAP);
             access.save(room);
         });
+    }
+
+    /** 同步战斗中的玩家状态并返回保存后的地图或通关房间。 */
+    @Transactional
+    public RoomDTO returnFromBattle(String code, String requesterId, List<MultiplayerPlayer> players) {
+        return progressionService.returnFromBattle(code, requesterId, players);
     }
 
     /** 更新房间楼层（供多人战斗系统调用） */
