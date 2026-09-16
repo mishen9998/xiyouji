@@ -142,9 +142,9 @@ public class BattleService {
             action.run();
             GameSession session = gameService.getSession(sessionId);
             if (session.getBattle() != null && session.getBattle().isBattleOver()) {
-                Map<String, Object> rewards = rewardService.resolveBattleEnd(sessionId);
-                session.setMapOpen(true);
-                gameService.saveSession(session);
+                // Resolve and save this exact aggregate. Redis GET returns detached copies;
+                // a nested GET/save followed by saving this older copy would conflict.
+                Map<String, Object> rewards = rewardService.resolveBattleEnd(session);
                 Map<String, Object> info = infoAssembler.toBattleInfo(session);
                 info.put("rewards", rewards);
                 return info;
