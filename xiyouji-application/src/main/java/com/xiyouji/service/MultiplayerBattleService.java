@@ -1,6 +1,7 @@
 package com.xiyouji.service;
 
 import com.xiyouji.constants.GameConstants;
+import com.xiyouji.dto.response.room.RoomDTO;
 import com.xiyouji.exception.BusinessException;
 import com.xiyouji.exception.InvalidActionException;
 import com.xiyouji.model.MapNode;
@@ -12,11 +13,9 @@ import com.xiyouji.service.battle.RewardService;
 import com.xiyouji.service.room.DistributedLockService;
 import com.xiyouji.service.room.MultiplayerBattleState;
 import com.xiyouji.service.room.MultiplayerBattleStore;
-import com.xiyouji.service.room.MultiplayerPlayer;
 import com.xiyouji.service.room.Room;
 import com.xiyouji.service.room.RoomEventPublisher;
 import com.xiyouji.service.room.RoomLockKeys;
-import com.xiyouji.service.room.RoomPlayer;
 import com.xiyouji.service.room.RoomService;
 import com.xiyouji.service.room.RoomStatus;
 import org.slf4j.Logger;
@@ -303,35 +302,23 @@ public class MultiplayerBattleService {
                     throw new InvalidActionException("请等待所有玩家领取奖励");
                 }
 
-                // 同步GameCharacter状态到RoomPlayer（HP、金币、牌组、遗物）
-                for (MultiplayerPlayer mp : state.getPlayers()) {
-                    RoomPlayer rp = room.getPlayers().stream()
-                            .filter(p -> p.getUserId().equals(mp.getUserId()))
-                            .findFirst()
-                            .orElse(null);
-                    if (rp != null) {
-                        rp.syncFromCharacter(mp.getCharacter());
-                    }
-                }
-
                 Map<String, Object> outcome = new HashMap<>();
                 MapNode currentNode = room.getCurrentNode();
+                // Redis 读取不共享对象引用，响应和广播必须使用保存后的房间快照。
+                RoomDTO updatedRoom = roomService.returnFromBattle(roomCode, requesterId, state.getPlayers());
 
                 // 如果是Boss节点，进入下一层
                 if (currentNode != null && GameConstants.NODE_BOSS.equals(currentNode.getType())) {
-                    boolean success = roomService.nextLayer(roomCode, requesterId).get("message") != null;
-                    // nextLayer内部已设置room状态和floor
-                    if (room.getStatus() == RoomStatus.FINISHED) {
+                    if (updatedRoom.getStatus() == RoomStatus.FINISHED) {
                         outcome.put("completed", true);
                         outcome.put("message", "恭喜通关！西天取经圆满！");
                     } else {
                         outcome.put("nextLayer", true);
-                        outcome.put("floor", room.getFloor());
-                        outcome.put("message", "进入第 " + room.getFloor() + " 层");
+                        outcome.put("floor", updatedRoom.getFloor());
+                        outcome.put("message", "进入第 " + updatedRoom.getFloor() + " 层");
                     }
                 } else {
                     // 普通战斗，恢复地图探索
-                    roomService.markInMap(roomCode);
                     outcome.put("nextLayer", false);
                     outcome.put("message", "返回地图探索");
                 }
@@ -340,7 +327,7 @@ public class MultiplayerBattleService {
                 battleStore.remove(roomCode);
 
                 // 广播
-                broadcaster.broadcastRoomUpdate(roomCode, roomService.getRoom(roomCode));
+                broadcaster.broadcastRoomUpdate(roomCode, updatedRoom);
                 broadcaster.broadcastSystemMessage(roomCode, outcome.get("message").toString());
 
                 log.info("Return to map: room={}, nextLayer={}", roomCode, outcome.get("nextLayer"));

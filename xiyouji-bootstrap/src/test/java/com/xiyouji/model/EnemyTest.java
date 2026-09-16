@@ -112,7 +112,7 @@ class EnemyTest {
         // 第二次：defend
         enemy.chooseIntent();
         assertEquals(EnemyIntent.DEFEND, enemy.getIntent(), "第 2 次意图应为 DEFEND");
-        assertEquals(10, enemy.getIntentValue(), "defend 意图值应等于 defense+5=10");
+        assertEquals(5, enemy.getIntentValue(), "defend 意图值应等于 Enemy.defense=5");
 
         // 第三次：buff
         enemy.chooseIntent();

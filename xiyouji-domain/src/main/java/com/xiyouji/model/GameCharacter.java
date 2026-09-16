@@ -1,6 +1,7 @@
 package com.xiyouji.model;
 
 import com.xiyouji.model.enums.*;
+import com.xiyouji.combat.CombatRules;
 import java.util.*;
 
 /**
@@ -174,22 +175,10 @@ public class GameCharacter {
     }
 
     public int takeDamage(int damage) {
-        if (damage <= 0) return 0;
-        int actualDamage = damage;
-        if (buffs.containsKey(BuffType.VULNERABLE) && buffs.get(BuffType.VULNERABLE) > 0) {
-            actualDamage = (int)(actualDamage * 1.5);
-        }
-        if (block > 0) {
-            if (block >= actualDamage) {
-                block -= actualDamage;
-                return 0;
-            } else {
-                actualDamage -= block;
-                block = 0;
-            }
-        }
-        hp = Math.max(0, hp - actualDamage);
-        return actualDamage;
+        CombatRules.Damage result = CombatRules.damage(hp, block, buffs, damage, false);
+        hp = result.hp();
+        block = result.block();
+        return result.hpLost();
     }
 
     public void heal(int amount) {
@@ -217,13 +206,7 @@ public class GameCharacter {
     public boolean isDead() { return hp <= 0; }
 
     public void tickBuffs() {
-        List<BuffType> toRemove = new ArrayList<>();
-        for (Map.Entry<BuffType, Integer> entry : buffs.entrySet()) {
-            int remaining = entry.getValue() - 1;
-            if (remaining <= 0) toRemove.add(entry.getKey());
-            else buffs.put(entry.getKey(), remaining);
-        }
-        toRemove.forEach(buffs::remove);
+        buffs = CombatRules.tick(buffs, true);
     }
 
     // ===== Getters/Setters =====

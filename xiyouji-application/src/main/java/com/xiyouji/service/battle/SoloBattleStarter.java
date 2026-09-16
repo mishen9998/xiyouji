@@ -1,6 +1,7 @@
 package com.xiyouji.service.battle;
 
 import com.xiyouji.constants.GameConstants;
+import com.xiyouji.combat.EnemyCombat;
 import com.xiyouji.exception.EnemyNotFoundException;
 import com.xiyouji.model.Enemy;
 import com.xiyouji.model.GameCharacter;
@@ -48,11 +49,8 @@ public class SoloBattleStarter {
                 .orElseThrow(() -> new EnemyNotFoundException("敌人不存在，节点enemyId: " + node.getEnemyId()));
 
         // 创建副本用于战斗
-        Enemy enemy = new Enemy(template.getName(), template.getMaxHp(),
-                template.getAttack(), template.getDefense(), template.isBoss(), template.getLevel());
-        enemy.setEmoji(template.getEmoji());
-        enemy.setMovePattern(template.getMovePattern() != null ?
-                new ArrayList<>(template.getMovePattern()) : List.of());
+        Enemy enemy = template.copy();
+        EnemyCombat.validate(enemy);
 
         // 根据位置调整难度（越往后越难）
         int levelScalar = Math.min(node.getPosition() / 2 + 1, 10);
@@ -170,7 +168,7 @@ public class SoloBattleStarter {
         relicTriggers.applyTurnStartEffects(player,
                 (relic, kind, desc) -> log.info("宝物[{}]第一回合触发: {}", relic.getName(), desc));
 
-        battle.startBattle();
+        battle.startBattle(session.getOwnerUserId());
         gameService.saveSession(session);
         log.info("战斗开始: sessionId={}, enemy={}", sessionId, enemy.getName());
         return battle;

@@ -1,6 +1,8 @@
 package com.xiyouji.service.battle;
 
 import com.xiyouji.constants.GameConstants;
+import com.xiyouji.combat.CombatRules;
+import com.xiyouji.combat.EnemyCombat;
 import com.xiyouji.exception.BusinessException;
 import com.xiyouji.exception.InvalidActionException;
 import com.xiyouji.model.Card;
@@ -94,6 +96,8 @@ public class MultiplayerBattleStarter {
 
         // 创建敌人：优先使用地图节点指定的enemyId
         Enemy enemy = createEnemyForNode(currentNode, room.getFloor(), players.size());
+        EnemyCombat.validate(enemy);
+        enemy.setRulesVersion(CombatRules.VERSION);
 
         // 构建战斗状态
         MultiplayerBattleState state = new MultiplayerBattleState(roomCode);
@@ -105,8 +109,7 @@ public class MultiplayerBattleStarter {
         state.setVictory(false);
 
         // 敌人选择初始意图和攻击目标
-        enemy.chooseIntent();
-        state.setTargetPlayerIndex(state.randomAlivePlayerIndex(random));
+        MultiplayerTurnCoordinator.lockNextAction(state, random.nextLong());
 
         state.addLog("战斗开始！遭遇 " + enemy.getName());
         state.addLog("敌人意图攻击: " + players.get(state.getTargetPlayerIndex()).getUsername());

@@ -1,6 +1,7 @@
 package com.xiyouji.model;
 
 import com.xiyouji.model.enums.*;
+import com.xiyouji.combat.*;
 import java.util.*;
 
 /**
@@ -34,6 +35,9 @@ public class Enemy {
     private int intentValue;        // 意图数值
     private List<String> movePattern; // 行动模式 [attack, attack_defend, attack]
     private int patternIndex;
+    private List<EnemyActionDefinition> actionDefinitions;
+    private LockedEnemyAction lockedAction;
+    private String rulesVersion;
 
     // Buff/Debuff回合计数
     private Map<BuffType, Integer> buffs = new HashMap<>();
@@ -69,27 +73,10 @@ public class Enemy {
 
     /** 受到伤害（先扣格挡） */
     public int takeDamage(int damage) {
-        if (damage <= 0) return 0;
-        int actualDamage = damage;
-
-        // 脆弱效果：受到伤害 +50%
-        if (buffs.containsKey(BuffType.VULNERABLE) && buffs.get(BuffType.VULNERABLE) > 0) {
-            actualDamage = (int)(actualDamage * 1.5);
-        }
-
-        // 先扣格挡
-        if (block > 0) {
-            if (block >= actualDamage) {
-                block -= actualDamage;
-                return 0;
-            } else {
-                actualDamage -= block;
-                block = 0;
-            }
-        }
-
-        hp = Math.max(0, hp - actualDamage);
-        return actualDamage;
+        CombatRules.Damage result = CombatRules.damage(hp, block, buffs, damage, false);
+        hp = result.hp();
+        block = result.block();
+        return result.hpLost();
     }
 
     /** 获得护盾 */
@@ -109,57 +96,22 @@ public class Enemy {
 
     /** 添加Buff/Debuff */
     public void addBuff(BuffType type, int turns) {
+        if (type == BuffType.STRENGTH) {
+            setStrength(strength + Math.max(0, turns));
+            return;
+        }
         buffs.merge(type, turns, Integer::sum);
         buffs.put(type, Math.min(buffs.get(type), 99)); // 上限99层
     }
 
     /** 每回合减少Buff计时 */
     public void tickBuffs() {
-        List<BuffType> toRemove = new ArrayList<>();
-        for (Map.Entry<BuffType, Integer> entry : buffs.entrySet()) {
-            int remaining = entry.getValue() - 1;
-            if (remaining <= 0) {
-                toRemove.add(entry.getKey());
-            } else {
-                buffs.put(entry.getKey(), remaining);
-            }
-        }
-        toRemove.forEach(buffs::remove);
+        buffs = CombatRules.tick(buffs, true);
     }
 
     /** 选择意图 */
     public void chooseIntent() {
-        if (movePattern == null || movePattern.isEmpty()) {
-            // 默认：随机攻击
-            intent = EnemyIntent.ATTACK;
-            intentValue = calculateAttackDamage();
-            return;
-        }
-        String move = movePattern.get(patternIndex % movePattern.size());
-        patternIndex++;
-        switch (move) {
-            case "attack" -> {
-                intent = EnemyIntent.ATTACK;
-                intentValue = calculateAttackDamage();
-            }
-            case "defend" -> {
-                intent = EnemyIntent.DEFEND;
-                intentValue = defense + 5;
-            }
-            case "attack_defend" -> {
-                intent = EnemyIntent.ATTACK;
-                intentValue = calculateAttackDamage() / 2;
-                gainBlock(defense + 3);
-            }
-            case "buff" -> {
-                intent = EnemyIntent.BUFF;
-                intentValue = 3;
-            }
-            default -> {
-                intent = EnemyIntent.ATTACK;
-                intentValue = calculateAttackDamage();
-            }
-        }
+        EnemyCombat.lockNextAction(this, List.of(EnemyCombat.SOLO_PLAYER), 0);
     }
 
     public boolean isDead() { return hp <= 0; }
@@ -167,10 +119,14 @@ public class Enemy {
     /** 创建此敌人的副本（用于战斗） */
     public Enemy copy() {
         Enemy e = new Enemy(this.name, this.maxHp, this.attack, this.defense, this.isBoss, this.level);
+        e.setId(id);
+        e.setDescription(description);
         e.setHp(this.hp);
         e.setEmoji(this.emoji);
         e.setMovePattern(this.movePattern != null ? new ArrayList<>(this.movePattern) : new ArrayList<>());
         e.setBuffs(new HashMap<>(this.buffs));
+        e.setActionDefinitions(actionDefinitions == null ? null : new ArrayList<>(actionDefinitions));
+        e.setRulesVersion(rulesVersion);
         return e;
     }
 
@@ -198,15 +154,21 @@ public class Enemy {
     public int getBlock() { return block; }
     public void setBlock(int block) { this.block = block; }
     public int getStrength() { return strength; }
-    public void setStrength(int strength) { this.strength = strength; }
+    public void setStrength(int strength) { this.strength = Math.max(0, Math.min(CombatRules.MAX_ENEMY_STRENGTH, strength)); }
     public EnemyIntent getIntent() { return intent; }
     public void setIntent(EnemyIntent intent) { this.intent = intent; }
-    public int getIntentValue() { return intentValue; }
+    public int getIntentValue() { return lockedAction == null ? intentValue : EnemyCombat.currentForecast(this).legacyIntentValue(); }
     public void setIntentValue(int intentValue) { this.intentValue = intentValue; }
     public List<String> getMovePattern() { return movePattern; }
     public void setMovePattern(List<String> movePattern) { this.movePattern = movePattern; }
     public int getPatternIndex() { return patternIndex; }
     public void setPatternIndex(int patternIndex) { this.patternIndex = patternIndex; }
+    public List<EnemyActionDefinition> getActionDefinitions() { return actionDefinitions; }
+    public void setActionDefinitions(List<EnemyActionDefinition> value) { this.actionDefinitions = value; }
+    public LockedEnemyAction getLockedAction() { return lockedAction; }
+    public void setLockedAction(LockedEnemyAction value) { this.lockedAction = value; }
+    public String getRulesVersion() { return rulesVersion; }
+    public void setRulesVersion(String value) { this.rulesVersion = value; }
     public Map<BuffType, Integer> getBuffs() { return buffs; }
     public void setBuffs(Map<BuffType, Integer> buffs) { this.buffs = buffs; }
 }
