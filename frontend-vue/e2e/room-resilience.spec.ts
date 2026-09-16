@@ -91,16 +91,27 @@ test('REST fallback, explicit stale-ready retry and room restoration work withou
         await route.fulfill({ status: 409, json: { error: 'STATE_VERSION_CONFLICT', message: 'stale state' } })
       } else await route.continue()
     })
-    for (let i = 0; i < 3; i++) {
-      await pages[i].locator('.char-card-mini').nth(i).click()
-      await expect(pages[i].locator('.player-slot.is-me .slot-char')).not.toHaveText('未选择')
-      await pages[i].getByRole('button', { name: '准备', exact: true }).click()
-      if (i === 1) {
-        // A rejected version check refreshes authority and asks for a new user
-        // intent; it must not infer success from the refreshed ready flag.
-        await expect(pages[i].getByRole('button', { name: '准备', exact: true })).toBeEnabled()
-        await pages[i].getByRole('button', { name: '准备', exact: true }).click()
+    const explicitAction = async (page: Page, suffix: string, selector: string) => {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const [response] = await Promise.all([
+          page.waitForResponse(response => response.request().method() === 'POST' && response.url().endsWith(suffix)),
+          page.locator(selector).click(),
+        ])
+        if (response.ok()) return
+        expect(response.status()).toBe(409)
+        const error = await response.json()
+        expect(error.error || error.code).toBe('STATE_VERSION_CONFLICT')
+        // The user must see the rejection before explicitly clicking again.
+        await expect(page.locator('.toast.show')).toBeVisible()
+        await expect(page.locator('.toast.show')).toContainText(/重试|stale state|重新操作/)
+        await expect(page.locator('.char-card-mini.pending')).toHaveCount(0)
       }
+      throw new Error('Room remains unstable after explicit attempts')
+    }
+    for (let i = 0; i < 3; i++) {
+      await explicitAction(pages[i], '/character', `.char-card-mini:nth-child(${i + 1})`)
+      await expect(pages[i].locator('.player-slot.is-me .slot-char')).not.toHaveText('未选择')
+      await explicitAction(pages[i], '/ready', '.action-bar .btn-primary:not(.btn-start-battle)')
       await expect(pages[i].locator('.player-slot.is-me .slot-ready')).toHaveText('✓ 已准备')
     }
     expect(rejectedOnce).toBe(true)

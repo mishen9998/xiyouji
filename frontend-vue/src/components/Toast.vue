@@ -7,8 +7,9 @@
 
 <script setup lang="ts">
 import { useUiStore } from '@/stores/ui'
+import { storeToRefs } from 'pinia'
 
-const { toastMessage, toastVisible } = useUiStore()
+const { toastMessage, toastVisible } = storeToRefs(useUiStore())
 </script>
 
 <style scoped>
