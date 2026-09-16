@@ -84,3 +84,6 @@ docs/code-review-learning.md
 
 # TRAE IDE 本地工作目录（计划文档等）
 .trae/
+
+# Local implementation pipeline worktrees
+pipeline-game-polish/worktrees/
