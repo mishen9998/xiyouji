@@ -120,7 +120,7 @@ function isAuthFailure(status: number): boolean {
   // Spring Security may return 403 when a cached JWT cannot be parsed or has
   // been signed with a previous deployment secret. Treat it like 401 once so
   // the browser can obtain a fresh guest token instead of getting stuck.
-  return status === 401 || status === 403
+  return status === 401
 }
 
 /** 获取用户主动选择登录/注册/游客模式后保存的 Token。 */
@@ -140,14 +140,95 @@ export async function authHeaders(): Promise<HeadersInit> {
 }
 
 // ====== 核心 HTTP 方法 ======
-export async function postJson(url: string, body?: unknown, options: CommandOptions = {}): Promise<any> {
+interface PendingCommand { key: string; url: string; body?: unknown; createdAt: number }
+const inFlight = new Map<string, Promise<any>>()
+const uncertain = new Map<string, PendingCommand>()
+const retiredKeys = new Set<string>()
+const COMMAND_STORAGE = 'xiyouji_pending_commands'
+try {
+  for (const [id, command] of JSON.parse(sessionStorage.getItem(COMMAND_STORAGE) || '[]')) uncertain.set(id, command)
+} catch { /* storage may be unavailable */ }
+function persistCommands() {
+  try { sessionStorage.setItem(COMMAND_STORAGE, JSON.stringify([...uncertain])) } catch {}
+}
+function unknown(command: PendingCommand): ApiError {
+  const error = new ApiError(409, { code: 'RESULT_UNKNOWN', message: '结果未确认。请同步状态并查询原命令回执；不要重复操作。幂等保护有时限。' })
+  window.dispatchEvent(new CustomEvent('xiyouji-command-unknown', { detail: command }))
+  return error
+}
+/** Explicit user acknowledgement only, after reading current authoritative state.
+ * Expiry itself never releases a command or generates a new key. */
+export function acknowledgeUnknownCommands() {
+  for (const command of uncertain.values()) retiredKeys.add(command.key)
+  uncertain.clear()
+  persistCommands()
+}
+export function hasUnknownCommands() { return uncertain.size > 0 }
+export function unknownCommandsPastTtl() {
+  return [...uncertain.values()].every(command => Date.now() - command.createdAt >= 10 * 60 * 1000)
+}
+export async function reconcileUnknownCommands(apply?: (command: PendingCommand, response: any) => Promise<void>) {
+  for (const [identity, command] of uncertain) {
+    const response = await readCommandReceipt(command)
+    await apply?.(command, response)
+    uncertain.delete(identity)
+  }
+  persistCommands()
+}
+async function readCommandReceipt(command: PendingCommand) {
+  const resource = (command.body as any)?.code || ''
+  let receipt
+  try {
+    receipt = await getJson(`/api/commands/receipt?path=${encodeURIComponent(command.url)}&commandId=${encodeURIComponent(command.key)}&resource=${encodeURIComponent(resource)}`)
+  } catch { throw unknown(command) }
+  if (receipt.commandId !== command.key || receipt.status !== 'COMPLETED' || !receipt.response) throw unknown(command)
+  return receipt.response
+}
+export function postJson(url: string, body?: unknown, options: CommandOptions = {}): Promise<any> {
+  return commandJson(url, body, options, 'POST')
+}
+function commandJson(url: string, body: unknown, options: CommandOptions, method: 'POST' | 'DELETE'): Promise<any> {
+  const identity = `${getToken()}:${method}:${url}:${JSON.stringify(body)}`
+  const existing = inFlight.get(identity)
+  if (existing) return existing
+  const execute = async () => {
+    const previous = uncertain.get(identity)
+    if (previous) {
+      const response = await readCommandReceipt(previous)
+      uncertain.delete(identity)
+      persistCommands()
+      return response
+    }
+    const resolved = resolveCommandOptions({ ...options, idempotencyKey: options.idempotencyKey && !retiredKeys.has(options.idempotencyKey) ? options.idempotencyKey : undefined })
+    const command = { key: resolved.idempotencyKey, url, body, createdAt: Date.now() }
+    uncertain.set(identity, command)
+    persistCommands()
+    try {
+      const response = await sendPostJson(url, body, resolved, method)
+      uncertain.delete(identity)
+      persistCommands()
+      return response
+    } catch (error: any) {
+      if (error?.status >= 400 && error.status < 500 && !['RESULT_UNKNOWN', 'IDEMPOTENCY_IN_PROGRESS'].includes(error.code)) {
+        uncertain.delete(identity)
+        persistCommands()
+        throw error
+      }
+      throw unknown(command)
+    }
+  }
+  const promise = execute().finally(() => inFlight.delete(identity))
+  inFlight.set(identity, promise)
+  return promise
+}
+async function sendPostJson(url: string, body?: unknown, options: CommandOptions = {}, method = 'POST'): Promise<any> {
   // A retry after refreshing an expired token is still the same logical
   // command. Resolve the key once so the server can replay the first result
   // instead of executing the mutation twice.
   const commandOptions = resolveCommandOptions(options)
   const headers = commandHeaders(await authHeaders(), commandOptions)
   const res = await fetch(url, {
-    method: 'POST',
+    method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
   })
@@ -161,7 +242,7 @@ export async function postJson(url: string, body?: unknown, options: CommandOpti
   if (!res.ok) {
     return parseFailure(res)
   }
-  return res.json()
+  return res.status === 204 ? undefined : res.json()
 }
 
 export async function getJson(url: string): Promise<any> {
@@ -174,25 +255,13 @@ export async function getJson(url: string): Promise<any> {
   }
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error(err.message || err.error || `HTTP ${res.status}`)
+    return parseFailure(res)
   }
   return res.json()
 }
 
 async function deleteJson(url: string, options: CommandOptions = {}): Promise<any> {
-  const commandOptions = resolveCommandOptions(options)
-  const headers = commandHeaders(await authHeaders(), commandOptions)
-  const res = await fetch(url, { method: 'DELETE', headers })
-
-  if (isAuthFailure(res.status)) {
-    clearActiveAuth(true)
-    return parseFailure(res)
-  }
-
-  if (!res.ok) {
-    return parseFailure(res)
-  }
+  return commandJson(url, undefined, options, 'DELETE')
 }
 
 // ====== 认证 API ======

@@ -40,23 +40,32 @@ public final class CommandGuard {
                 throw new IdempotencyKeyReusedException();
             }
             if (!entry.completed()) {
-                throw new IdempotencyInProgressException();
+                throw new com.xiyouji.exception.ResultUnknownException();
             }
             return entry;
         }
-        if (!store.tryAcquire(key, fingerprint, TTL)) {
+        var owner = new IdempotencyStore.Entry(fingerprint, "", false,
+                java.util.UUID.randomUUID().toString(), System.currentTimeMillis(), null);
+        if (!store.reserve(key, owner, TTL)) {
             var raced = store.find(key);
             if (raced.isPresent() && raced.get().fingerprint().equals(fingerprint) && raced.get().completed()) {
                 return raced.get();
             }
-            throw new IdempotencyInProgressException();
+            throw new com.xiyouji.exception.ResultUnknownException();
         }
-        return new IdempotencyStore.Entry(fingerprint, "", false);
+        return owner;
     }
 
     public static void checkVersion(String resource, long expected, long actual) {
         if (expected < 0 || expected != actual) {
             throw new StateVersionConflictException(resource, expected, actual);
         }
+    }
+
+    /** A known validation rejection is reportable; storage/runtime failures after entry
+     * into business code cannot establish rollback and must retain the command marker. */
+    public static RuntimeException failure(RuntimeException error) {
+        if (error instanceof com.xiyouji.exception.BusinessException business && business.getHttpStatus() < 500) return error;
+        return new com.xiyouji.exception.ResultUnknownException();
     }
 }

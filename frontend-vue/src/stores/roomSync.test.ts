@@ -25,21 +25,21 @@ it('decodes Chinese identity correctly and recognizes the host', () => {
   expect(getCurrentUsername()).toBe('玩家甲')
   expect(store.isHost).toBe(true)
 })
-it('refreshes a stale version and retries ready once', async () => {
+it('refreshes a stale version without automatically repeating ready', async () => {
   const store = useRoomStore(); store.room = dto()
   const updated = dto(3); updated.players[0].ready = true
   const ready = vi.spyOn(roomApi, 'toggleReady').mockRejectedValueOnce(conflict).mockResolvedValue(updated)
   vi.spyOn(roomApi, 'getRoom').mockResolvedValue(dto(2))
-  await store.toggleReady()
-  expect(ready.mock.calls.map(call => call[1])).toEqual([1, 2])
-  expect(store.room!.players[0].ready).toBe(true)
+  await expect(store.toggleReady()).rejects.toEqual(conflict)
+  expect(ready.mock.calls.map(call => call[1])).toEqual([1])
+  expect(store.room!.stateVersion).toBe(2)
 })
 it('does not toggle again when refreshed state already matches the requested state', async () => {
   const store = useRoomStore(); store.room = dto()
   const updated = dto(2); updated.players[0].ready = true
   const ready = vi.spyOn(roomApi, 'toggleReady').mockRejectedValue(conflict)
   vi.spyOn(roomApi, 'getRoom').mockResolvedValue(updated)
-  await store.toggleReady()
+  await expect(store.toggleReady()).rejects.toEqual(conflict)
   expect(ready).toHaveBeenCalledTimes(1)
   expect(store.room!.players[0].ready).toBe(true)
 })
@@ -48,14 +48,14 @@ it('also recovers character and start commands from version conflicts', async ()
   const selected = dto(3); selected.players[0].characterClass = 'SHA_SENG'
   vi.spyOn(roomApi, 'getRoom').mockResolvedValue(dto(2))
   const select = vi.spyOn(roomApi, 'selectCharacter').mockRejectedValueOnce(conflict).mockResolvedValue(selected)
-  await store.selectCharacter('SHA_SENG')
-  expect(select.mock.calls.map(call => call[2])).toEqual([1, 2])
+  await expect(store.selectCharacter('SHA_SENG')).rejects.toEqual(conflict)
+  expect(select.mock.calls.map(call => call[2])).toEqual([1])
   const started = dto(5); started.status = 'IN_MAP'
   vi.mocked(roomApi.getRoom).mockResolvedValue(dto(4))
   const start = vi.spyOn(roomApi, 'startGame').mockRejectedValueOnce(conflict).mockResolvedValue(started)
-  await store.startGame()
-  expect(start.mock.calls.map(call => call[1])).toEqual([3, 4])
-  expect(store.room!.status).toBe('IN_MAP')
+  await expect(store.startGame()).rejects.toEqual(conflict)
+  expect(start.mock.calls.map(call => call[1])).toEqual([2])
+  expect(store.room!.stateVersion).toBe(4)
 })
 it('polls authoritative state after missed messages and updates connection status', async () => {
   const store = useRoomStore(); store.room = dto()
@@ -94,4 +94,35 @@ it('does not let a late REST response resurrect a room after leaving', async () 
   store.reset()
   finish(dto(10)); await refresh
   expect(store.room).toBeNull()
+})
+it('clears ghost room and remembered code on HTTP 404', async () => {
+  const store = useRoomStore(); store.room = dto()
+  sessionStorage.setItem('xiyouji_room:玩家甲', 'TEST1234')
+  vi.spyOn(roomApi, 'getRoom').mockRejectedValue({ status: 404, code: 'ROOM_NOT_FOUND' })
+  await store.refreshRoomState()
+  expect(store.room).toBeNull()
+  expect(sessionStorage.getItem('xiyouji_room:玩家甲')).toBeNull()
+})
+it('switches to URL room and discards old room battle state before loading', async () => {
+  const store = useRoomStore(); store.room = dto()
+  let finish!: (value: RoomDTO) => void
+  const get = vi.spyOn(roomApi, 'getRoom').mockImplementation(() => new Promise(resolve => { finish = resolve }))
+  const loading = store.openRoom('NEWROOM1')
+  expect(store.room).toBeNull(); expect(store.battleInfo).toBeNull()
+  finish({ ...dto(1), code: 'NEWROOM1' }); await loading
+  expect(get).toHaveBeenCalledWith('NEWROOM1')
+  expect(store.roomCode).toBe('NEWROOM1')
+  expect(connect).toHaveBeenLastCalledWith('NEWROOM1', expect.any(Function), expect.any(Function), expect.any(Function), expect.any(Function), expect.any(Function))
+  await store.openRoom('NEWROOM1'); await store.connectWs('NEWROOM1')
+  expect(connect).toHaveBeenCalledTimes(1)
+})
+it('version advancement after RESULT_UNKNOWN never proves the ready command succeeded', async () => {
+  const store = useRoomStore(); store.room = dto()
+  const unknown = { status: 409, code: 'RESULT_UNKNOWN' }
+  const ready = vi.spyOn(roomApi, 'toggleReady').mockRejectedValue(unknown)
+  const latest = dto(99); latest.players[0].ready = true
+  vi.spyOn(roomApi, 'getRoom').mockResolvedValue(latest)
+  await expect(store.toggleReady()).rejects.toEqual(unknown)
+  expect(store.room?.stateVersion).toBe(99)
+  expect(ready).toHaveBeenCalledTimes(1)
 })

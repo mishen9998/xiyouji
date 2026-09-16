@@ -29,9 +29,16 @@ public class RoomMembershipService {
         this.codeGenerator = codeGenerator;
     }
 
-    /** 创建房间（全局创建锁保证房间码查重与写入原子） */
+    /** Standalone/internal creation still uses SET NX; HTTP uses atomic receipt creation. */
     public RoomDTO createRoom(String hostUserId, String hostUsername) {
-        return access.withCreateLock(() -> {
+        for (int attempt = 0; attempt < 32; attempt++) {
+            Room room = prepareRoom(hostUserId, hostUsername);
+            if (access.create(room)) return assembler.toDTO(room);
+        }
+        throw new IllegalStateException("房间码冲突过多");
+    }
+
+    public Room prepareRoom(String hostUserId, String hostUsername) {
             String code = codeGenerator.generate();
             Room room = new Room(code, hostUserId);
 
@@ -40,10 +47,8 @@ public class RoomMembershipService {
             host.setReady(false);
             room.getPlayers().add(host);
 
-            access.save(room);
-            log.info("Room created: code={}, host={}", code, hostUsername);
-            return assembler.toDTO(room);
-        });
+            room.setStateVersion(1);
+            return room;
     }
 
     /** 加入房间（房间锁防止两玩家同时加入突破 5 人上限） */
@@ -52,6 +57,8 @@ public class RoomMembershipService {
             Room room = access.getRoomOrThrow(code);
             // Re-entering after a refresh is a read, even when the room is full or already playing.
             if (room.hasPlayer(userId)) return assembler.toDTO(room);
+            // Admission is serialized by the room lock. Nonmembers cannot read the
+            // private room to obtain a version, so joining accepts no version (-1).
             access.checkVersion(code, room, expectedVersion);
 
             if (room.getStatus() != RoomStatus.WAITING) {

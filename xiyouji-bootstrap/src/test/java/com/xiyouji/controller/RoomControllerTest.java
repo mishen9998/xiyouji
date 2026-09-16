@@ -86,12 +86,14 @@ class RoomControllerTest {
     @DisplayName("创建房间: 转发服务并返回房间")
     void createRoom_forwardsAndReturns() {
         RoomDTO dto = roomDTO(CODE, USER);
-        when(roomService.createRoom(USER, USER)).thenReturn(dto);
+        var candidate = new IdempotencyStore.Creation<>("room", CODE, new Room(CODE, USER), dto);
+        when(roomService.prepareRoom(USER)).thenReturn(candidate);
+        when(idempotency.create(eq("room:create:" + USER), eq(KEY), isNull(), eq(candidate))).thenReturn(true);
 
         RoomDTO result = controller.createRoom(KEY);
 
         assertEquals(CODE, result.getCode());
-        verify(idempotency).completeResponse(eq("room:create:" + USER), eq(KEY), any(), eq(dto));
+        verify(idempotency).create(eq("room:create:" + USER), eq(KEY), isNull(), eq(candidate));
     }
 
     @Test
@@ -177,6 +179,7 @@ class RoomControllerTest {
         RoomDTO dto = roomDTO(CODE, USER);
         Map<String, Object> serviceResult = Map.of("room", dto, "node", "n1", "eventType", "battle");
         when(roomService.moveToNode(CODE, "n1", 3L, USER)).thenReturn(serviceResult);
+        when(roomService.getRoom(CODE)).thenReturn(dto);
 
         Map<String, Object> result = controller.moveToNode(CODE, moveRequest("n1"), 3L, KEY);
 

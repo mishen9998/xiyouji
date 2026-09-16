@@ -1,0 +1,51 @@
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { postJson, getJson, acknowledgeUnknownCommands } from './game'
+const fetchMock = vi.fn()
+const response = (status: number, payload: unknown) => new Response(JSON.stringify(payload), { status })
+beforeEach(() => {
+  acknowledgeUnknownCommands(); localStorage.setItem('xiyouji_jwt_token', 'test-token')
+  fetchMock.mockReset(); vi.stubGlobal('fetch', fetchMock)
+})
+afterEach(() => vi.unstubAllGlobals())
+it('preserves GET error status/code and does not log out for member authorization failures', async () => {
+  fetchMock.mockResolvedValueOnce(response(403, { error: 'ACCESS_DENIED' }))
+  await expect(getJson('/api/room/OTHER001')).rejects.toMatchObject({ status: 403, code: 'ACCESS_DENIED' })
+  expect(localStorage.getItem('xiyouji_jwt_token')).toBe('test-token')
+  fetchMock.mockResolvedValueOnce(response(404, { error: 'ROOM_NOT_FOUND' }))
+  await expect(getJson('/api/room/GONE0001')).rejects.toMatchObject({ status: 404, code: 'ROOM_NOT_FOUND' })
+})
+it('lost responses only issue read-only receipt queries, even after TTL', async () => {
+  fetchMock.mockRejectedValueOnce(new TypeError('lost response'))
+  await expect(postJson('/api/room/ROOM0001/ready', undefined, { idempotencyKey: 'same-command' })).rejects.toMatchObject({ code: 'RESULT_UNKNOWN' })
+  fetchMock.mockResolvedValueOnce(response(409, { code: 'RESULT_UNKNOWN' }))
+  vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 86400000)
+  await expect(postJson('/api/room/ROOM0001/ready')).rejects.toMatchObject({ code: 'RESULT_UNKNOWN' })
+  expect(fetchMock.mock.calls[1][0]).toContain('commandId=same-command')
+  expect(fetchMock.mock.calls.filter(call => call[1]?.method === 'POST')).toHaveLength(1)
+  vi.restoreAllMocks()
+})
+it('same command completed receipt recovers without a second write', async () => {
+  fetchMock.mockRejectedValueOnce(new TypeError('lost'))
+  await expect(postJson('/api/room/create', undefined, { idempotencyKey: 'create-1' })).rejects.toMatchObject({ code: 'RESULT_UNKNOWN' })
+  fetchMock.mockResolvedValueOnce(response(200, { commandId: 'create-1', status: 'COMPLETED', response: { code: 'CREATED1' }, resourceRef: 'room:CREATED1' }))
+  await expect(postJson('/api/room/create')).resolves.toEqual({ code: 'CREATED1' })
+  expect(fetchMock).toHaveBeenCalledTimes(2)
+})
+it('concurrent clicks share one in-flight request', async () => {
+  let finish!: (value: Response) => void
+  fetchMock.mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
+  const first = postJson('/api/room/create'); const second = postJson('/api/room/create')
+  await Promise.resolve(); await Promise.resolve()
+  finish(response(200, { code: 'ONLYONE1' }))
+  expect(await first).toEqual(await second)
+  expect(fetchMock).toHaveBeenCalledTimes(1)
+})
+it('only explicit acknowledgement permits a new intent with a new key', async () => {
+  fetchMock.mockRejectedValueOnce(new TypeError('unknown'))
+  await expect(postJson('/api/room/ROOM0001/ready', undefined, { idempotencyKey: 'expired-original' })).rejects.toMatchObject({ code: 'RESULT_UNKNOWN' })
+  acknowledgeUnknownCommands()
+  fetchMock.mockResolvedValueOnce(response(200, { stateVersion: 20 }))
+  await postJson('/api/room/ROOM0001/ready', undefined, { idempotencyKey: 'expired-original' })
+  const headers = new Headers(fetchMock.mock.calls[1][1].headers)
+  expect(headers.get('X-Idempotency-Key')).not.toBe('expired-original')
+})

@@ -19,6 +19,8 @@ public class InMemoryRoomStore implements RoomStore {
 
     private final ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
 
+    @Override public boolean createIfAbsent(Room room) { return rooms.putIfAbsent(room.getCode(), room) == null; }
+
     @Override
     public void save(Room room) {
         room.setStateVersion(room.getStateVersion() + 1);

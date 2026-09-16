@@ -8,6 +8,8 @@ import java.util.List;
  * 类似 SessionStore 的设计，便于在不同部署环境下切换。
  */
 public interface RoomStore {
+    /** Candidate must already have its initial stateVersion. Never overwrite a collision. */
+    default boolean createIfAbsent(Room room) { throw new UnsupportedOperationException(); }
 
     /** 保存房间（覆盖写） */
     void save(Room room);

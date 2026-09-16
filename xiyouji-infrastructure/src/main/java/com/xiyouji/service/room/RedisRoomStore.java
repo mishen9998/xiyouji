@@ -35,10 +35,18 @@ public class RedisRoomStore implements RoomStore {
         room.setStateVersion(room.getStateVersion() + 1);
         room.setLastActiveAt(LocalDateTime.now());
         try {
-            redisTemplate.opsForValue().set(KEY_PREFIX + room.getCode(), room, TTL_HOURS, TimeUnit.HOURS);
+            com.xiyouji.service.RedisResourceWriter.write(redisTemplate.getConnectionFactory(), KEY_PREFIX + room.getCode(),
+                    ((org.springframework.data.redis.serializer.RedisSerializer<Object>) redisTemplate.getValueSerializer()).serialize(room),
+                    java.time.Duration.ofHours(TTL_HOURS));
         } catch (Exception e) {
             throw unavailable(e);
         }
+    }
+
+    @Override public boolean createIfAbsent(Room room) {
+        try {
+            return Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent(KEY_PREFIX + room.getCode(), room, TTL_HOURS, TimeUnit.HOURS));
+        } catch (Exception e) { throw unavailable(e); }
     }
 
     @Override
@@ -54,8 +62,7 @@ public class RedisRoomStore implements RoomStore {
     @Override
     public boolean remove(String code) {
         try {
-            Boolean deleted = redisTemplate.delete(KEY_PREFIX + code);
-            return Boolean.TRUE.equals(deleted);
+            return com.xiyouji.service.RedisResourceWriter.remove(redisTemplate.getConnectionFactory(), KEY_PREFIX + code);
         } catch (Exception e) {
             throw unavailable(e);
         }

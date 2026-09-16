@@ -68,12 +68,14 @@ public class GameController {
 
         String fingerprint = CommandGuard.fingerprint("POST", "/api/game/new", charClass);
         String scope = "game:new:" + username;
-        return idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
+        return idempotent.create(scope, idempotencyKey, fingerprint, Map.class,
                 () -> {
                     String sessionId = UUID.randomUUID().toString().substring(0, 8);
-                    GameSession session = gameService.newGame(sessionId, characterClass, username);
+                    GameSession session = gameService.prepareNewGame(sessionId, characterClass, username);
+                    session.setStateVersion(1);
                     log.info("New game created successfully, sessionId: {}", sessionId);
-                    return sessionAssembler.newGame(sessionId, session);
+                    return new com.xiyouji.service.IdempotencyStore.Creation<Map>("session", sessionId, session,
+                            sessionAssembler.newGame(sessionId, session));
                 },
                 previous -> sessionAssembler.newGame(previous.value(),
                         gameService.getSessionForUser(previous.value(), username)));

@@ -78,11 +78,12 @@ class GameControllerTest {
         GameSession created = mock(GameSession.class);
         when(created.getStateVersion()).thenReturn(0L);
         when(created.getPlayer()).thenReturn(null);
-        when(gameService.newGame(any(), eq(CharacterClass.SUN_WUKONG), eq(USER))).thenReturn(created);
+        when(gameService.prepareNewGame(any(), eq(CharacterClass.SUN_WUKONG), eq(USER))).thenReturn(created);
+        when(idempotency.create(eq("game:new:" + USER), eq(KEY), isNull(), any())).thenReturn(true);
 
         Map<String, Object> result = controller.newGame(request, KEY);
 
-        verify(gameService).newGame(any(), eq(CharacterClass.SUN_WUKONG), eq(USER));
+        verify(gameService).prepareNewGame(any(), eq(CharacterClass.SUN_WUKONG), eq(USER));
         assertEquals(true, result.get("success"));
         assertNotNull(result.get("sessionId"));
         assertEquals(0L, result.get("stateVersion"));

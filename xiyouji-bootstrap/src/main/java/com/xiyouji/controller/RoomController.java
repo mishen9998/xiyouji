@@ -61,27 +61,30 @@ public class RoomController {
         log.info("Create room request from {}", username);
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/create", username);
         String scope = "room:create:" + username;
-        return idempotent.run(scope, idempotencyKey, fingerprint, RoomDTO.class,
-                () -> roomService.createRoom(username, username),
+        return idempotent.create(scope, idempotencyKey, fingerprint, RoomDTO.class,
+                () -> roomService.prepareRoom(username),
                 previous -> roomService.getRoom(previous.value()));
     }
 
     @PostMapping("/join")
     @Operation(summary = "加入房间", description = "凭8位房间码加入房间")
     public RoomDTO joinRoom(@Valid @RequestBody JoinRoomRequest request,
-                            @RequestHeader("X-Expected-State-Version") long expectedVersion,
+                            @RequestHeader(value = "X-Expected-State-Version", defaultValue = "-1") long expectedVersion,
                             @RequestHeader("X-Idempotency-Key") String idempotencyKey) {
         String username = currentUser.username();
         log.info("Join room request from {}, code={}", username, request.getCode());
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/join", request.getCode());
         String scope = "room:join:" + username + ":" + request.getCode();
-        RoomDTO room = idempotent.run(scope, idempotencyKey, fingerprint, RoomDTO.class,
-                () -> roomService.joinRoom(request.getCode(), username, username, expectedVersion),
+        return idempotent.run(scope, idempotencyKey, fingerprint, RoomDTO.class,
+                () -> roomService.assertMember(request.getCode(), username),
+                () -> {
+                    RoomDTO room = roomService.joinRoom(request.getCode(), username, username, expectedVersion);
+                    // Only a new admission emits join events; replay must not publish an old snapshot.
+                    broadcaster.broadcastRoomUpdate(request.getCode(), room);
+                    broadcaster.broadcastSystemMessage(request.getCode(), username + " 加入了房间");
+                    return room;
+                },
                 previous -> roomService.getRoom(request.getCode()));
-        // 广播房间状态变化给所有订阅者
-        broadcaster.broadcastRoomUpdate(request.getCode(), room);
-        broadcaster.broadcastSystemMessage(request.getCode(), username + " 加入了房间");
-        return room;
     }
 
     @PostMapping("/{code}/leave")
@@ -146,6 +149,7 @@ public class RoomController {
     @GetMapping("/{code}")
     @Operation(summary = "获取房间信息", description = "查询房间当前状态与玩家列表")
     public RoomDTO getRoom(@PathVariable String code) {
+        roomService.assertMember(code, currentUser.username());
         return roomService.getRoom(code);
     }
 
@@ -158,6 +162,7 @@ public class RoomController {
     @GetMapping("/{code}/canStart")
     @Operation(summary = "检查是否可开始游戏", description = "所有玩家已准备且选了角色时返回true")
     public boolean canStart(@PathVariable String code) {
+        roomService.assertMember(code, currentUser.username());
         return roomService.canStart(code);
     }
 
@@ -203,7 +208,7 @@ public class RoomController {
                     replay.put("stateVersion", existing.getStateVersion());
                     return replay;
                 });
-        broadcaster.broadcastRoomUpdate(code, (RoomDTO) result.get("room"));
+        broadcaster.broadcastRoomUpdate(code, roomService.getRoom(code));
         return result;
     }
 

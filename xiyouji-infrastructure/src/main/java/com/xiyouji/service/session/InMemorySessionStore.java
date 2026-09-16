@@ -22,6 +22,8 @@ public class InMemorySessionStore implements SessionStore {
 
     private final ConcurrentHashMap<String, GameSession> sessions = new ConcurrentHashMap<>();
 
+    @Override public boolean createIfAbsent(GameSession session) { return sessions.putIfAbsent(session.getSessionId(), session) == null; }
+
     @Override
     public void put(String sessionId, GameSession session) {
         GameSession current = sessions.get(sessionId);

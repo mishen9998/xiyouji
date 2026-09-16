@@ -48,6 +48,17 @@ public class RoomService {
         return membershipService.createRoom(hostUserId, hostUsername);
     }
 
+    public com.xiyouji.service.IdempotencyStore.Creation<RoomDTO> prepareRoom(String userId) {
+        Room room = membershipService.prepareRoom(userId, userId);
+        return new com.xiyouji.service.IdempotencyStore.Creation<>("room", room.getCode(), room, assembler.toDTO(room));
+    }
+
+    public void assertMember(String code, String userId) {
+        if (!access.getRoomOrThrow(code).hasPlayer(userId)) {
+            throw new com.xiyouji.exception.BusinessException("ACCESS_DENIED", "你不是该房间成员", 403);
+        }
+    }
+
     public RoomDTO joinRoom(String code, String userId, String username) {
         return joinRoom(code, userId, username, -1);
     }

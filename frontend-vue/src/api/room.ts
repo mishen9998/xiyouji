@@ -12,7 +12,7 @@ export const roomApi = {
   },
 
   async joinRoom(code: string, expectedStateVersion?: number, idempotencyKey?: string): Promise<RoomDTO> {
-    const version = expectedStateVersion ?? (await this.getRoom(code)).stateVersion
+    const version = expectedStateVersion ?? -1
     return postJson(`${ROOM_API}/join`, { code }, { expectedStateVersion: version, idempotencyKey })
   },
 

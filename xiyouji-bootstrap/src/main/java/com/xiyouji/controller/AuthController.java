@@ -45,11 +45,10 @@ public class AuthController {
         if (previous != null && previous.completed()) return ResponseEntity.ok(readResponse(previous.value()));
         try {
             AuthResponse response = authService.register(request);
-            idempotency.complete(scope, idempotencyKey, fingerprint, writeResponse(response));
+            idempotency.complete(scope, idempotencyKey, previous, writeResponse(response));
             return ResponseEntity.ok(response);
         } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
+            throw CommandGuard.failure(error);
         }
     }
 
@@ -76,11 +75,10 @@ public class AuthController {
         if (previous != null && previous.completed()) return ResponseEntity.ok(readResponse(previous.value()));
         try {
             AuthResponse response = authService.guestLogin();
-            idempotency.complete(scope, idempotencyKey, fingerprint, writeResponse(response));
+            idempotency.complete(scope, idempotencyKey, previous, writeResponse(response));
             return ResponseEntity.ok(response);
         } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
+            throw CommandGuard.failure(error);
         }
     }
 
