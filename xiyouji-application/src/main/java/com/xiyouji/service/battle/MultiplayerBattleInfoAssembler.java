@@ -27,6 +27,9 @@ public class MultiplayerBattleInfoAssembler {
     public Map<String, Object> toBattleInfo(MultiplayerBattleState state) {
         Map<String, Object> info = new LinkedHashMap<>();
         info.put("roomCode", state.getRoomCode());
+        info.put("battleId", state.getBattleId());
+        info.put("battleGeneration", state.getBattleGeneration());
+        info.put("encounterId", state.getEnemy().getEncounterId());
         info.put("stateVersion", state.getStateVersion());
         info.put("turnNumber", state.getTurnNumber());
         info.put("playerTurn", state.isPlayerTurn());

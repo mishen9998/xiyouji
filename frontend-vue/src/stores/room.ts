@@ -27,6 +27,25 @@ export const useRoomStore = defineStore('room', () => {
   let socketPromise: Promise<void> | null = null
   const roomReads = new Map<string, Promise<RoomDTO>>()
   const battleReads = new Map<string, Promise<MultiplayerBattleInfo>>()
+  type BattleIdentity = { battleId: string; battleGeneration: number }
+  // Retained even when a map update clears the display, so late frames cannot resurrect an old battle.
+  let battleBoundary: BattleIdentity | null = null
+  function identity(value: { battleId?: string | null; battleGeneration?: number }): BattleIdentity | null {
+    return value.battleId && Number.isSafeInteger(value.battleGeneration) && value.battleGeneration! >= 0
+      ? { battleId: value.battleId, battleGeneration: value.battleGeneration! } : null
+  }
+  function acceptIdentity(next: BattleIdentity) {
+    if (battleBoundary && (next.battleGeneration < battleBoundary.battleGeneration ||
+      next.battleGeneration === battleBoundary.battleGeneration && next.battleId !== battleBoundary.battleId)) return false
+    if (!battleBoundary || next.battleId !== battleBoundary.battleId) {
+      battleBoundary = next
+      battleInfo.value = null
+    }
+    return true
+  }
+  function battleContext() {
+    return `${navigationGeneration}:${room.value?.code}:${room.value?.currentNode?.id}:${room.value?.battleId ?? ''}`
+  }
   function readRoom(code: string) {
     if (!roomReads.has(code)) roomReads.set(code, roomApi.getRoom(code).finally(() => roomReads.delete(code)))
     return roomReads.get(code)!
@@ -82,16 +101,40 @@ export const useRoomStore = defineStore('room', () => {
 
   function applyRoom(next: RoomDTO) {
     if (room.value && room.value.code !== next.code) return
+    if (room.value && next.stateVersion < room.value.stateVersion) return
+    // A battle can arrive before its room frame. The start room version is also a room high-water mark.
+    if (battleBoundary && next.stateVersion < battleBoundary.battleGeneration) return
+    const nextIdentity = identity(next)
+    if (nextIdentity && !acceptIdentity(nextIdentity)) return
     if (next.eventId && seenEventIds.has(next.eventId)) return
     if (next.eventId) {
       seenEventIds.add(next.eventId)
       if (seenEventIds.size > 200) seenEventIds.delete(seenEventIds.values().next().value as string)
     }
-    if (!room.value || next.stateVersion >= room.value.stateVersion) room.value = next
+    room.value = next
+    if (next.status !== 'IN_BATTLE') battleInfo.value = null
   }
 
-  function applyBattle(next: MultiplayerBattleInfo) {
+  function applyBattle(next: MultiplayerBattleInfo, requestContext?: string) {
     if (!room.value || room.value.code !== next.roomCode) return
+    let nextIdentity = identity(next)
+    if (!nextIdentity) {
+      // An old wire response has no ordering identity. Never trust it as a push/command response:
+      // reconcile via a REST read bound to the unchanged room/node/navigation context instead.
+      if (!requestContext) { void refreshBattleState(); return }
+      if (requestContext !== battleContext() || room.value.status !== 'IN_BATTLE' ||
+        room.value.battleId || battleBoundary && battleBoundary.battleGeneration > 0) return
+      nextIdentity = { battleId: `legacy-wire:${requestContext}`, battleGeneration: 0 }
+      next = { ...next, ...nextIdentity }
+    }
+    const announced = identity(room.value)
+    if (announced && (nextIdentity.battleGeneration < announced.battleGeneration ||
+      nextIdentity.battleGeneration === announced.battleGeneration && nextIdentity.battleId !== announced.battleId)) return
+    if (room.value.stateVersion >= nextIdentity.battleGeneration) {
+      if (room.value.status !== 'IN_BATTLE') return
+      if (next.encounterId && room.value.currentNode?.id && next.encounterId !== room.value.currentNode.id) return
+    }
+    if (!acceptIdentity(nextIdentity)) return
     if (next.eventId && seenEventIds.has(next.eventId)) return
     if (next.eventId) {
       seenEventIds.add(next.eventId)
@@ -221,7 +264,7 @@ export const useRoomStore = defineStore('room', () => {
     const dto = await readRoom(code)
     if (generation !== navigationGeneration) return
     if (!dto.players.some(player => player.userId === getCurrentUsername())) throw new Error('你不是该房间成员')
-    room.value = dto
+    applyRoom(dto)
     void connectWs(code).catch(() => { /* periodic REST remains active */ })
     return dto
   }
@@ -355,10 +398,13 @@ export const useRoomStore = defineStore('room', () => {
   async function refreshBattleState() {
     const code = room.value?.code
     if (!code) return
+    const navigation = navigationGeneration
+    const context = battleContext()
+    const readKey = `${context}:${battleBoundary?.battleId ?? ''}`
     try {
-      if (!battleReads.has(code)) battleReads.set(code, multiplayerBattleApi.getBattleState(code).finally(() => battleReads.delete(code)))
-      const info = await battleReads.get(code)!
-      if (room.value?.code === code) applyBattle(info)
+      if (!battleReads.has(readKey)) battleReads.set(readKey, multiplayerBattleApi.getBattleState(code).finally(() => battleReads.delete(readKey)))
+      const info = await battleReads.get(readKey)!
+      if (navigation === navigationGeneration && room.value?.code === code) applyBattle(info, context)
     } catch { /* Reconcile again on the next connection or polling cycle. */ }
   }
 
@@ -404,12 +450,13 @@ export const useRoomStore = defineStore('room', () => {
   async function connectWs(code: string) {
     if (socketCode === code && socketPromise) return socketPromise
     socketCode = code
+    const navigation = navigationGeneration
     rememberRoom()
     startRoomSync(code)
     socketPromise = stomp.connect(
       code,
-      (dto) => { if (socketCode === code) applyRoom(dto) },
-      (info) => { if (socketCode === code) applyBattle(info) },
+      (dto) => { if (socketCode === code && navigation === navigationGeneration) applyRoom(dto) },
+      (info) => { if (socketCode === code && navigation === navigationGeneration) applyBattle(info) },
       (msg) => {                                  // 系统消息
         if (socketCode !== code) return
         systemMessages.value.push(msg)
@@ -447,6 +494,7 @@ export const useRoomStore = defineStore('room', () => {
     disconnect()
     room.value = null
     battleInfo.value = null
+    battleBoundary = null
     systemMessages.value = []
   }
 

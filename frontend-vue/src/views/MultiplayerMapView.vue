@@ -367,6 +367,20 @@ onMounted(async () => {
   }
 })
 
+// Guests and reconnected clients must follow the authoritative encounter without issuing start again.
+let followingBattle = false
+watch(() => [room.value?.code, room.value?.status, roomStore.battleInfo?.battleId], async () => {
+  const code = room.value?.code
+  if (followingBattle || !code || room.value?.status !== 'IN_BATTLE' || route.params.code !== code) return
+  followingBattle = true
+  try {
+    await roomStore.refreshBattleState()
+    if (route.params.code === code && room.value?.code === code && room.value.status === 'IN_BATTLE' && roomStore.battleInfo) {
+      await router.replace(`/room/${code}/battle`)
+    }
+  } finally { followingBattle = false }
+}, { immediate: true })
+
 watch(() => room.value?.storyEvent?.event, event => {
   if (!event) return
   branchEvent.value = event
