@@ -101,6 +101,8 @@ public class MultiplayerBattleStarter {
 
         // 构建战斗状态
         MultiplayerBattleState state = new MultiplayerBattleState(roomCode);
+        state.setStoryInstanceId(roomCode + ":" + currentNode.getId());
+        state.setStoryFloor(room.getFloor());
         state.setEnemy(enemy);
         state.setPlayers(players);
         state.setTurnNumber(1);
@@ -149,6 +151,7 @@ public class MultiplayerBattleStarter {
 
         // 初始化战斗状态：回满能量、清空手牌/buff、构建抽牌堆并洗牌
         gc.initBattle();
+        gc.addBlock(roomPlayer.getNextBattleBlock());
 
         // 设置初始能量并抽5张初始手牌
         gc.setEnergy(gc.getMaxEnergy());

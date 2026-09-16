@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * 单人节点事件处理器
@@ -30,15 +29,23 @@ public class GameEventProcessor {
 
     private final GameService gameService;
     private final PlayerSummaryAssembler playerSummaryAssembler;
+    private final com.xiyouji.service.event.EventEngine eventEngine;
 
     public GameEventProcessor(GameService gameService,
-                              PlayerSummaryAssembler playerSummaryAssembler) {
+                              PlayerSummaryAssembler playerSummaryAssembler,
+                              com.xiyouji.service.event.EventEngine eventEngine) {
         this.gameService = gameService;
         this.playerSummaryAssembler = playerSummaryAssembler;
+        this.eventEngine = eventEngine;
     }
 
     /** 处理节点事件（调用方须已持会话锁并已校验归属与版本） */
     public Map<String, Object> process(String sessionId, EventRequest request,
+                                       long expectedVersion, String username) {
+        return gameService.withSessionLock(sessionId, () -> processLocked(sessionId, request, expectedVersion, username));
+    }
+
+    private Map<String, Object> processLocked(String sessionId, EventRequest request,
                                        long expectedVersion, String username) {
         String action = request.getAction() != null ? request.getAction() : "none";
         log.info("Handling event action '{}' for session: {}", action, sessionId);
@@ -145,11 +152,18 @@ public class GameEventProcessor {
                 }
             }
             case "RANDOM" -> {
-                result.put("message", randomEvent(session));
+                var actors = List.of(com.xiyouji.service.event.EventActor.solo(session));
+                boolean preview = List.of("none", "view", "browse", "trigger").contains(action);
+                if (node.getEventState() == null) {
+                    if (!preview && !"leave".equals(action)) throw new InvalidActionException("请先预览事件");
+                    node.setEventState(eventEngine.create(sessionId, node, "leave".equals(action) ? List.of() : actors));
+                    persistAfterEvent = true;
+                }
+                if (!preview) persistAfterEvent |= eventEngine.resolve(node.getEventState(), action, actors);
+                var event = eventEngine.preview(node.getEventState(), actors);
+                result.put("storyEvent", com.xiyouji.service.event.StoryCatalog.event(event));
+                result.put("message", event.text());
                 result.put("player", playerSummaryAssembler.toPlayerSummary(session.getPlayer()));
-                // randomEvent mutates gold/HP/relics directly and therefore
-                // needs an explicit save before the command completes.
-                persistAfterEvent = true;
             }
         }
 
@@ -162,29 +176,4 @@ public class GameEventProcessor {
         return result;
     }
 
-    private String randomEvent(GameSession session) {
-        String[] events = {
-            "你遇到了一位老神仙，他给了你一些指引。获得10金币。",
-            "路边有棵人参果树，摘了一颗吃。回复8点生命值。",
-            "遇到小妖怪打劫！失去10金币。",
-            "发现了太上老君的丹炉遗迹，获得了一件遗物。",
-            "山间的温泉让你神清气爽。回复5点生命值。"
-        };
-
-        Random r = new Random();
-        String event = events[r.nextInt(events.length)];
-
-        // 简单效果
-        if (event.contains("10金币")) session.getPlayer().setGold(session.getPlayer().getGold() + 10);
-        if (event.contains("8点生命")) session.getPlayer().heal(8);
-        if (event.contains("10金币") && event.contains("失去"))
-            session.getPlayer().setGold(Math.max(0, session.getPlayer().getGold() - 10));
-        if (event.contains("5点生命")) session.getPlayer().heal(5);
-        if (event.contains("遗物")) {
-            Relic relic = gameService.getRandomRelic(session.getSessionId());
-            if (relic != null) session.getPlayer().getRelics().add(relic);
-        }
-
-        return event;
-    }
 }

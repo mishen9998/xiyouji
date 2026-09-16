@@ -8,6 +8,12 @@ import com.xiyouji.model.*;
 public class GameSession {
 
     private String sessionId;
+    private int nextBattleBlock;
+    private boolean completed;
+    public boolean isCompleted() { return completed; }
+    public void setCompleted(boolean value) { completed = value; }
+    public int getNextBattleBlock() { return nextBattleBlock; }
+    public void setNextBattleBlock(int value) { nextBattleBlock = value; }
     /** Owner identity is persisted with the session to prevent IDOR access. */
     private String ownerUserId;
     /** Monotonic version of the session aggregate. */

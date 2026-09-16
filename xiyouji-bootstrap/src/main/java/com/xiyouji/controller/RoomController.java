@@ -219,10 +219,12 @@ public class RoomController {
         Integer cardIndex = request.getCardIndex();
         log.info("Event request from {}, code={}, action={}", username, code, action);
         String fingerprint = CommandGuard.fingerprint("POST", "/api/room/" + code + "/event",
-                action + ":" + cardId + ":" + cardIndex);
+                action + ":" + cardId + ":" + cardIndex + ":" + request.getPrice());
         String scope = "room:event:" + username + ":" + code;
         Map<String, Object> result = idempotent.run(scope, idempotencyKey, fingerprint, Map.class,
-                () -> roomService.handleEvent(code, username, action, cardId, cardIndex, expectedVersion),
+                () -> request.getPrice() == null
+                    ? roomService.handleEvent(code, username, action, cardId, cardIndex, expectedVersion)
+                    : roomService.handleEvent(code, username, action, cardId, cardIndex, request.getPrice(), expectedVersion),
                 previous -> Map.of("room", roomService.getRoom(code)));
         broadcaster.broadcastRoomUpdate(code, roomService.getRoom(code));
         return result;

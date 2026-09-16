@@ -66,6 +66,8 @@ public class SoloBattleStarter {
         // 兼容旧会话：旧版本曾把战斗内遗物加成写入 maxEnergy，进入新战斗时恢复基础值。
         player.setMaxEnergy(GameConstants.MAX_ENERGY);
         player.initBattle();
+        player.addBlock(session.getNextBattleBlock());
+        session.setNextBattleBlock(0);
 
         // ===== 遗物效果：硬编码的老宝物（应用到 battle.getEnemy() 而非 enemy 原始对象） =====
         Enemy battleEnemy = battle.getEnemy(); // ★ 使用 BattleState 中的副本

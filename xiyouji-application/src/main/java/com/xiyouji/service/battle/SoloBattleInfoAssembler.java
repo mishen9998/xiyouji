@@ -34,6 +34,9 @@ public class SoloBattleInfoAssembler {
         }
 
         info.put("inBattle", true);
+        info.put("storyEvent",com.xiyouji.service.event.StoryCatalog.battle(session.getSessionId() + ":" +
+            (session.getCurrentNode() == null ? "battle" : session.getCurrentNode().getId()),session.getCurrentLayer(),
+            battle.getEnemy(),battle.isBattleOver(),battle.isVictory()));
         info.put("rulesVersion", EnemyForecastInfo.rulesVersion(battle.getEnemy()));
         info.put("turnNumber", battle.getTurnNumber());
         info.put("playerTurn", battle.isPlayerTurn());

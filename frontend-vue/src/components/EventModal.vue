@@ -13,6 +13,8 @@
     <div v-else class="modal-box" :class="{ 'modal-large': isLargeModal }">
       <h3>{{ title }}</h3>
       <p v-html="message"></p>
+      <BranchEventChoices v-if="eventType === 'random' && branchEvent" :event="branchEvent" :busy="submitting" @choose="chooseBranch" />
+      <button v-if="eventType === 'random' && !branchEvent" class="btn-primary" :disabled="submitting" @click="chooseBranch('leave')">离开</button>
 
       <!-- 篝火升级卡牌列表 -->
       <div v-if="eventType === 'bonfire'" class="bonfire-content">
@@ -68,7 +70,7 @@
       </div>
 
       <!-- 主按钮 -->
-      <button class="btn-primary" :disabled="submitting || (eventType === 'emperor' && !chosenRelicName)" @click="onContinue">
+      <button v-if="eventType !== 'random'" class="btn-primary" :disabled="submitting || (eventType === 'emperor' && !chosenRelicName)" @click="onContinue">
         {{ submitting ? '处理中...' : selectedUpgrade >= 0 ? '继续前进（确认升级）' : continueText }}
       </button>
       <button v-if="eventType === 'bonfire' && selectedUpgrade >= 0" class="btn-small" :disabled="submitting" @click="selectedUpgrade = -1">取消选择</button>
@@ -83,7 +85,8 @@ import { useUiStore } from '@/stores/ui'
 import { emperorRelicImgUrl, relicImgUrl } from '@/constants/images'
 import MiniCard from './MiniCard.vue'
 import TempleShop from './TempleShop.vue'
-import type { Card, Relic } from '@/types'
+import BranchEventChoices from './BranchEventChoices.vue'
+import type { Card, Relic, EventPreview } from '@/types'
 
 const props = defineProps<{ visible: boolean; eventType: string }>()
 const emit = defineEmits<{ close: [] }>()
@@ -104,6 +107,7 @@ const deckCards = ref<Card[]>([])
 const emperorChoices = ref<Relic[]>([])
 const chosenRelicName = ref<string>('')
 const treasureRelic = ref<Relic | null>(null)
+const branchEvent = ref<EventPreview | null>(null)
 
 const bonfireUpgradesLeft = computed(() => store.bonfireUpgradesLeft)
 const shopPrice = computed(() =>
@@ -131,6 +135,7 @@ async function handleEvent(et: string) {
   emperorChoices.value = []
   chosenRelicName.value = ''
   treasureRelic.value = null
+  branchEvent.value = null
 
   switch (et) {
     case 'rest':
@@ -164,8 +169,12 @@ async function handleEvent(et: string) {
     case 'random':
       title.value = '❓ 随机事件'
       continueText.value = '继续'
-      const randomData = await store.handleEvent('trigger')
-      message.value = randomData?.message || '一个奇怪的事件发生了…'
+      try {
+        const randomData = await store.handleEvent('trigger')
+        branchEvent.value = randomData?.storyEvent?.event || null
+        title.value = branchEvent.value?.title || title.value
+        message.value = randomData?.message || '正在读取事件…'
+      } catch (error: any) { message.value = error?.message || '事件读取失败，可离开后继续' }
       break
     case 'emperor': {
       title.value = '👑 唐太宗赐宝'
@@ -237,22 +246,21 @@ async function onContinue() {
 }
 
 async function buyCard(card: Card, index: number) {
+  if (submitting.value) return
   if (currentGold.value < shopPrice.value) {
     ui.showToast('🪙 金币不足，无法购买')
     return
   }
-  const data = await store.handleEvent('buy', { cardId: card.id, price: 50 })
-  if (data?.bought) {
-    boughtIndices.value = new Set([...boughtIndices.value, index])
-    if (data.player) {
-      currentGold.value = data.player.gold
-    }
-    message.value = '每张卡牌需要供奉50金币。'
-    ui.showToast('✅ 购买成功：' + card.name)
-  } else {
-    ui.showToast('🪙 金币不足，购买失败')
-  }
-  await store.refreshState()
+  submitting.value = true
+  try {
+    const data = await store.handleEvent('buy', { cardId: card.id, price: 50 })
+    if (data?.bought) {
+      boughtIndices.value = new Set([...boughtIndices.value, index])
+      if (data.player) currentGold.value = data.player.gold
+      ui.showToast('✅ 购买成功：' + card.name)
+    } else ui.showToast(data?.error || '购买失败')
+  } catch (error: any) { ui.showToast(error?.message || '购买失败') }
+  finally { submitting.value = false }
 }
 
 function doUpgrade(index: number) {
@@ -261,7 +269,18 @@ function doUpgrade(index: number) {
 
 function onBackdropClick() {
   // Choices are only committed or dismissed through their explicit buttons.
-  if (!submitting.value && !['shop', 'emperor', 'bonfire'].includes(props.eventType)) emit('close')
+  if (!submitting.value && !['shop', 'emperor', 'bonfire', 'random'].includes(props.eventType)) emit('close')
+}
+
+async function chooseBranch(optionId: string) {
+  if (submitting.value) return
+  submitting.value = true
+  try {
+    const data = await store.handleEvent(optionId)
+    branchEvent.value = data?.storyEvent?.event || branchEvent.value
+    if (branchEvent.value?.resolved || optionId === 'leave') emit('close')
+  } catch (error: any) { ui.showToast(error?.message || '事件选择失败') }
+  finally { submitting.value = false }
 }
 
 </script>

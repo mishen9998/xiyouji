@@ -25,6 +25,9 @@ public class RoomDTO {
     private MapNode currentNode;
     private int bonfireUpgradesLeft;
     private long stateVersion;
+    private com.xiyouji.dto.response.StoryEvent storyEvent;
+    public com.xiyouji.dto.response.StoryEvent getStoryEvent() { return storyEvent; }
+    public void setStoryEvent(com.xiyouji.dto.response.StoryEvent value) { storyEvent = value; }
 
     public String getCode() { return code; }
     public void setCode(String code) { this.code = code; }

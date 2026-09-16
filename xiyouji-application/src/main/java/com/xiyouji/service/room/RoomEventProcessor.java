@@ -9,7 +9,6 @@ import com.xiyouji.port.CardRepositoryPort;
 import com.xiyouji.port.RelicRepositoryPort;
 import org.springframework.stereotype.Component;
 
-import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -24,12 +23,12 @@ import java.util.Map;
 @Component
 public class RoomEventProcessor {
 
-    private final SecureRandom random = new SecureRandom();
-
     private final RoomAccess access;
     private final RelicRepositoryPort relicRepo;
     private final CardRepositoryPort cardRepo;
     private final RoomDTOAssembler assembler;
+    private final com.xiyouji.service.event.EventEngine eventEngine;
+    private final com.xiyouji.service.ShopService shopService;
 
     public RoomEventProcessor(RoomAccess access, RelicRepositoryPort relicRepo,
                               CardRepositoryPort cardRepo, RoomDTOAssembler assembler) {
@@ -37,12 +36,19 @@ public class RoomEventProcessor {
         this.relicRepo = relicRepo;
         this.cardRepo = cardRepo;
         this.assembler = assembler;
+        this.eventEngine = new com.xiyouji.service.event.EventEngine(cardRepo, relicRepo);
+        this.shopService = new com.xiyouji.service.ShopService(cardRepo);
     }
 
     /** 处理节点事件（rest/upgrade/buy/browse/trigger） */
     public Map<String, Object> handleEvent(String code, String userId,
                                            String action, Long cardId, Integer cardIndex,
                                            long expectedVersion) {
+        return handleEvent(code, userId, action, cardId, cardIndex, null, expectedVersion);
+    }
+    public Map<String, Object> handleEvent(String code, String userId,
+                                           String action, Long cardId, Integer cardIndex,
+                                           Integer quotedPrice, long expectedVersion) {
         return access.withRoomLock(code, () -> {
             Room room = access.getRoomOrThrow(code);
             access.checkVersion(code, room, expectedVersion);
@@ -61,6 +67,7 @@ public class RoomEventProcessor {
                     .orElseThrow(() -> new InvalidActionException("你不在该房间内"));
 
             Map<String, Object> result = new HashMap<>();
+            boolean changed = true;
 
             switch (node.getType()) {
                 case "REST" -> {
@@ -98,39 +105,48 @@ public class RoomEventProcessor {
                     result.put("players", room.getPlayers());
                 }
                 case "SHOP" -> {
-                    if ("buy".equals(action) && cardId != null) {
-                        int price = 50;
-                        // 通关文牒折扣
-                        boolean hasDiscount = player.getRelics().stream()
-                                .anyMatch(r -> GameConstants.RELIC_TONGGUANWENDIE.equals(r.getName()));
-                        if (hasDiscount) price = price * 80 / 100;
-
-                        if (player.getGold() >= price) {
-                            player.setGold(player.getGold() - price);
-                            cardRepo.findById(cardId).ifPresent(card ->
-                                    player.getDeck().add(card.copy()));
-                            result.put("bought", true);
-                            result.put("message", "购买成功，花费 " + price + " 金币");
-                        } else {
-                            result.put("bought", false);
-                            result.put("error", "金币不足");
-                        }
+                    if ("buy".equals(action)) {
+                        Card card = shopService.validatePurchase(node,userId,player.getCharacterClass(),cardId,quotedPrice,player.getRelics(),player.getGold());
+                        int price = shopService.price(player.getRelics());
+                        player.setGold(player.getGold() - price);
+                        player.getDeck().add(card);
+                        shopService.sold(node,userId,cardId);
+                        result.put("bought",true);
+                        result.put("message","购买成功，花费 " + price + " 金币");
                     } else {
-                        // 浏览商店
-                        List<Card> shopCards = getShopCards(player);
+                        changed = !node.getShopStock().containsKey(userId);
+                        List<Card> shopCards = shopService.stock(node,userId,player.getCharacterClass());
                         result.put("shopCards", shopCards);
                     }
+                    result.put("price",shopService.price(player.getRelics()));
                     result.put("players", room.getPlayers());
                 }
                 case "RANDOM" -> {
-                    String event = doRandomEvent(player);
-                    result.put("message", event);
+                    boolean preview = List.of("none", "view", "browse", "trigger").contains(action);
+                    if (!preview && !room.getHostUserId().equals(userId)) throw new InvalidActionException("只有房主才能选择团队事件");
+                    var actors = room.getPlayers().stream().filter(p -> p.getHp() > 0)
+                        .map(com.xiyouji.service.event.EventActor::room).toList();
+                    changed = false;
+                    if (node.getEventState() == null) {
+                        if (!preview && !"leave".equals(action)) throw new InvalidActionException("请先预览事件");
+                    node.setEventState(eventEngine.create(code, node, "leave".equals(action) ? List.of() : actors));
+                        changed = true;
+                    }
+                    if (!preview) changed |= eventEngine.resolve(node.getEventState(), action, actors);
+                    var event = eventEngine.preview(node.getEventState(), actors);
+                    result.put("storyEvent",com.xiyouji.service.event.StoryCatalog.event(event));
+                    result.put("message",event.text());
                     result.put("players", room.getPlayers());
                 }
                 default -> result.put("error", "未知节点类型: " + node.getType());
             }
 
-            access.save(room);
+            if (changed) {
+                room.getMap().stream().filter(n -> n.getId().equals(node.getId())).forEach(n -> {
+                    n.setEventState(node.getEventState()); n.setShopStock(node.getShopStock());
+                });
+                access.save(room);
+            }
             result.put("stateVersion", room.getStateVersion());
             result.put("room", assembler.toDTO(room));
             return result;
@@ -143,39 +159,4 @@ public class RoomEventProcessor {
         return relics.isEmpty() ? null : relics.get(0);
     }
 
-    private List<Card> getShopCards(RoomPlayer player) {
-        List<Card> available = cardRepo.findByCharacterClassOrCharacterClassIsNull(
-                player.getCharacterClass());
-        Collections.shuffle(available);
-        return available.subList(0, Math.min(GameConstants.CARD_REWARD_COUNT, available.size()));
-    }
-
-    private String doRandomEvent(RoomPlayer player) {
-        String[] events = {
-            "你遇到了一位老神仙，他给了你一些指引。获得10金币。",
-            "路边有棵人参果树，摘了一颗吃。回复8点生命值。",
-            "遇到小妖怪打劫！失去10金币。",
-            "发现了太上老君的丹炉遗迹，获得了一件遗物。",
-            "山间的温泉让你神清气爽。回复5点生命值。"
-        };
-        String event = events[random.nextInt(events.length)];
-
-        if (event.contains("获得10金币")) {
-            player.setGold(player.getGold() + 10);
-        }
-        if (event.contains("8点生命")) {
-            player.setHp(Math.min(player.getMaxHp(), player.getHp() + 8));
-        }
-        if (event.contains("失去")) {
-            player.setGold(Math.max(0, player.getGold() - 10));
-        }
-        if (event.contains("5点生命")) {
-            player.setHp(Math.min(player.getMaxHp(), player.getHp() + 5));
-        }
-        if (event.contains("遗物")) {
-            Relic relic = getRandomRelic();
-            if (relic != null) player.getRelics().add(relic);
-        }
-        return event;
-    }
 }
