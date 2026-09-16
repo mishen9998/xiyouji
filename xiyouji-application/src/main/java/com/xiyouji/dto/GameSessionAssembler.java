@@ -33,6 +33,7 @@ public class GameSessionAssembler {
         result.put("currentNode", session.getCurrentNode());
         result.put("mapOpen", session.isMapOpen());
         result.put("lastEvent", session.getLastEvent());
+        result.put("storyEvent", story(session));
         result.put("currentLayer", session.getCurrentLayer());
         result.put("maxLayer", session.getMaxLayer());
         result.put("inBattle", session.getBattle() != null && (!session.getBattle().isBattleOver()
@@ -48,6 +49,7 @@ public class GameSessionAssembler {
         result.put("sessionId", sessionId);
         result.put("stateVersion", session.getStateVersion());
         result.put("success", true);
+        result.put("storyEvent", story(session));
         result.put("player", playerSummaryAssembler.toPlayerSummary(session.getPlayer()));
         result.put("map", session.getMap());
         result.put("currentNode", session.getCurrentNode());
@@ -67,6 +69,7 @@ public class GameSessionAssembler {
     public Map<String, Object> nextLayerResult(GameSession session, boolean success) {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("success", success);
+        result.put("storyEvent", story(session));
         result.put("currentLayer", session.getCurrentLayer());
         result.put("maxLayer", session.getMaxLayer());
         result.put("stateVersion", session.getStateVersion());
@@ -79,5 +82,9 @@ public class GameSessionAssembler {
         result.put("stateVersion", session.getStateVersion());
         result.put("player", playerSummaryAssembler.toPlayerSummary(session.getPlayer()));
         return result;
+    }
+    private com.xiyouji.dto.response.StoryEvent story(GameSession session) {
+        return com.xiyouji.service.event.StoryCatalog.map(session.getSessionId(),session.getCurrentLayer(),
+            session.getCurrentNode(),session.isCompleted(),java.util.List.of(com.xiyouji.service.event.EventActor.solo(session)));
     }
 }

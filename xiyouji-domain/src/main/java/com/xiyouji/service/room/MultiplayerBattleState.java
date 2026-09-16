@@ -27,6 +27,12 @@ import java.util.Map;
 public class MultiplayerBattleState implements Serializable {
 
     private String roomCode;
+    private String storyInstanceId;
+    private int storyFloor = 1;
+    public String getStoryInstanceId() { return storyInstanceId; }
+    public void setStoryInstanceId(String value) { storyInstanceId = value; }
+    public int getStoryFloor() { return storyFloor; }
+    public void setStoryFloor(int value) { storyFloor = value; }
     private Enemy enemy;
     private List<MultiplayerPlayer> players = new ArrayList<>();
     private int turnNumber = 1;

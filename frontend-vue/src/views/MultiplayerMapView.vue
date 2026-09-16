@@ -98,6 +98,8 @@
       <div v-else class="modal-box">
         <h3>{{ eventTitle }}</h3>
         <p v-if="eventMessage" v-html="eventMessage"></p>
+        <BranchEventChoices v-if="currentEventType === 'random' && branchEvent" :event="branchEvent" :busy="eventSubmitting" :can-choose="isHost" @choose="chooseBranch" />
+        <button v-if="currentEventType === 'random' && !branchEvent && isHost" class="btn-primary" :disabled="eventSubmitting" @click="chooseBranch('leave')">离开</button>
 
         <!-- 篝火 -->
         <div v-if="currentEventType === 'bonfire'" class="bonfire-content">
@@ -119,7 +121,7 @@
         <!-- 休息 -->
         <button v-if="currentEventType === 'rest'" class="btn-primary" @click="doRest">休息回血</button>
 
-        <button class="btn-primary" :disabled="eventSubmitting" @click="onEventClose">{{ selectedUpgrade >= 0 ? '继续前进（确认升级）' : continueText }}</button>
+        <button v-if="currentEventType !== 'random' || !isHost" class="btn-primary" :disabled="eventSubmitting" @click="onEventClose">{{ selectedUpgrade >= 0 ? '继续前进（确认升级）' : continueText }}</button>
         <button v-if="selectedUpgrade >= 0" class="btn-small" :disabled="eventSubmitting" @click="selectedUpgrade = -1">取消选择</button>
       </div>
     </div>
@@ -133,9 +135,10 @@ import { useRoomStore } from '@/stores/room'
 import { useUiStore } from '@/stores/ui'
 import { getCurrentUsername } from '@/api/room'
 import { EMOJI_MAP } from '@/constants/images'
-import type { MapNode, Card } from '@/types'
+import type { MapNode, Card, EventPreview } from '@/types'
 import MapNodeComponent from '@/components/MapNodeComponent.vue'
 import TempleShop from '@/components/TempleShop.vue'
+import BranchEventChoices from '@/components/BranchEventChoices.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -148,6 +151,7 @@ const COL_WIDTH = MAP_WIDTH / 4
 
 // 本地状态
 const eventSubmitting = ref(false)
+const branchEvent = ref<EventPreview | null>(null)
 const selectedUpgrade = ref(-1)
 const eventModalVisible = ref(false)
 const currentEventType = ref('')
@@ -176,7 +180,7 @@ const shopPrice = computed(() =>
 )
 
 function onEventBackdropClick() {
-  if (!eventSubmitting.value && !['shop', 'bonfire'].includes(currentEventType.value)) onEventClose()
+  if (!eventSubmitting.value && !['shop', 'bonfire', 'random'].includes(currentEventType.value)) onEventClose()
 }
 const isHost = computed(() => {
   if (!room.value || !currentUserId.value) return false
@@ -298,6 +302,8 @@ async function handleEvent(et: string) {
       eventTitle.value = '❓ 神秘事件'
       try {
         const result = await roomStore.handleEvent('trigger')
+        branchEvent.value = result?.storyEvent?.event || null
+        eventTitle.value = branchEvent.value?.title || eventTitle.value
         if (result?.message) eventMessage.value = result.message
       } catch { /* ignore */ }
       continueText.value = '继续'
@@ -315,7 +321,20 @@ async function doRest() {
   } catch { /* ignore */ }
 }
 
+async function chooseBranch(optionId: string) {
+  if (eventSubmitting.value || !isHost.value) return
+  eventSubmitting.value = true
+  try {
+    const result = await roomStore.handleEvent(optionId)
+    branchEvent.value = result?.storyEvent?.event || branchEvent.value
+    if (branchEvent.value?.resolved || optionId === 'leave') eventModalVisible.value = false
+  } catch (error: any) { ui.showToast(error?.message || '事件选择失败') }
+  finally { eventSubmitting.value = false }
+}
+
 async function buyCard(card: Card, index: number) {
+  if (eventSubmitting.value) return
+  eventSubmitting.value = true
   try {
     const result = await roomStore.handleEvent('buy', { cardId: card.id })
     if (result?.bought) {
@@ -324,7 +343,8 @@ async function buyCard(card: Card, index: number) {
     } else if (result?.error) {
       ui.showToast(result.error)
     }
-  } catch { /* ignore */ }
+  } catch (error: any) { ui.showToast(error?.message || '购买失败') }
+  finally { eventSubmitting.value = false }
 }
 
 function doUpgrade(cardIndex: number) {
@@ -397,11 +417,24 @@ onMounted(async () => {
     return
   }
   scrollToCurrentNode()
+  if (roomStore.room.currentNode?.type === 'RANDOM' && !roomStore.room.storyEvent?.event) {
+    currentEventType.value = 'random'
+    eventModalVisible.value = true
+    await handleEvent('random')
+  }
 })
 
 watch([mapNodes, currentNode], () => {
   scrollToCurrentNode()
 })
+watch(() => room.value?.storyEvent?.event, event => {
+  if (!event) return
+  branchEvent.value = event
+  eventTitle.value = event.title
+  eventMessage.value = event.text
+  if (!event.resolved) { currentEventType.value = 'random'; eventModalVisible.value = true }
+  else if (currentEventType.value === 'random') eventModalVisible.value = false
+}, { immediate: true })
 </script>
 
 <style scoped>

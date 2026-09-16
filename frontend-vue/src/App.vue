@@ -3,6 +3,7 @@
   <router-view />
   <Toast />
   <ConfirmModal />
+  <StoryPanel />
   <aside v-if="unknownResult" class="command-recovery" role="alert">
     <p>{{ recoveryMessage }}</p>
     <button :disabled="recovering" @click="recover">同步状态并查询原命令回执</button>
@@ -13,6 +14,7 @@
 <script setup lang="ts">
 import Toast from '@/components/Toast.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
+import StoryPanel from '@/components/StoryPanel.vue'
 import { ref, onMounted, onUnmounted } from 'vue'
 import { reconcileUnknownCommands, acknowledgeUnknownCommands, hasUnknownCommands, unknownCommandsPastTtl } from '@/api/game'
 import { useRoomStore } from '@/stores/room'

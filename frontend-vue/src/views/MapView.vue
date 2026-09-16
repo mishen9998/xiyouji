@@ -285,6 +285,10 @@ onMounted(async () => {
     }
   }
   scrollToCurrentNode()
+  if (store.currentNode?.type === 'RANDOM') {
+    currentEventType.value = 'random'
+    eventModalVisible.value = true
+  }
 })
 
 watch([mapNodes, currentNode], () => {

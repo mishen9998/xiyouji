@@ -1,8 +1,9 @@
 package com.xiyouji.service;
 
 import com.xiyouji.constants.GameConstants;
+import com.xiyouji.combat.EncounterCatalog;
+import com.xiyouji.service.battle.EnemyBehaviorGuard;
 import com.xiyouji.exception.InvalidActionException;
-import com.xiyouji.model.Enemy;
 import com.xiyouji.model.MapNode;
 import com.xiyouji.model.Relic;
 import com.xiyouji.port.EnemyRepositoryPort;
@@ -41,8 +42,14 @@ public class MapService {
      * @return 该层所有节点列表
      */
     public List<MapNode> generateLayer(int layer) {
+        return generateLayer(layer, new Random().nextLong());
+    }
+
+    /** Stable seed replays node layout, pools and enemy IDs together. */
+    public List<MapNode> generateLayer(int layer, long seed) {
         List<MapNode> nodes = new ArrayList<>();
-        Random rand = new Random();
+        Random rand = new Random(seed);
+        EncounterCatalog encounters = new EncounterCatalog(EnemyBehaviorGuard.read(enemyRepo::findAll));
         int nameIdx = (layer - 1) * GameConstants.ROWS_PER_LAYER;
 
         // 按行生成节点
@@ -61,7 +68,7 @@ public class MapService {
                 String id = "L" + layer + "-R" + row + "-C1";
                 MapNode n = new MapNode(id, layer, row, 1, GameConstants.NODE_BOSS,
                         layer == 1 ? "黑风洞" : layer == 2 ? "火焰山" : "大雷音寺");
-                assignEnemy(n, true, layer);
+                assignEnemy(n, true, layer, encounters, rand.nextLong());
                 rowNodes.add(n);
             } else {
                 // 中间行（1~25）：2-4个节点，随机类型
@@ -75,7 +82,7 @@ public class MapService {
                             : GameConstants.PLACE_NAMES[(nameIdx + row + i) % GameConstants.PLACE_NAMES.length];
                     MapNode n = new MapNode(id, layer, row, col, type, name);
                     if (GameConstants.NODE_BATTLE.equals(type)) {
-                        assignEnemy(n, false, layer);
+                        assignEnemy(n, false, layer, encounters, rand.nextLong());
                     }
                     rowNodes.add(n);
                 }
@@ -142,17 +149,8 @@ public class MapService {
      * @param isBoss 是否Boss节点
      * @param layer  当前层号
      */
-    private void assignEnemy(MapNode node, boolean isBoss, int layer) {
-        int enemyLevel = Math.min(layer, GameConstants.MAX_LAYERS);
-        List<Enemy> enemies = enemyRepo.findByIsBossAndLevel(isBoss, enemyLevel);
-        if (enemies.isEmpty()) {
-            enemies = enemyRepo.findByIsBoss(isBoss);
-        }
-        if (!enemies.isEmpty()) {
-            Random rand = new Random();
-            Enemy e = enemies.get(rand.nextInt(enemies.size()));
-            node.setEnemyId(String.valueOf(e.getId()));
-        }
+    private void assignEnemy(MapNode node, boolean isBoss, int layer, EncounterCatalog catalog, long seed) {
+        node.setEnemyId(String.valueOf(catalog.select(layer, isBoss, seed).template().getId()));
     }
 
     // ====== 地图移动逻辑 ======

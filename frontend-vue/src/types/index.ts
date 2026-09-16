@@ -80,6 +80,7 @@ export interface Enemy {
 }
 
 export interface BattleInfo {
+  storyEvent?: StoryEvent
   stateVersion: number
   inBattle: boolean
   /** 当前回合序号；用于在敌人行动后精准触发受击动画 */
@@ -103,6 +104,7 @@ export interface Rewards {
 }
 
 export interface GameState {
+  storyEvent?: StoryEvent
   sessionId: string
   stateVersion: number
   player: Player
@@ -114,6 +116,7 @@ export interface GameState {
 }
 
 export interface NewGameResponse {
+  storyEvent?: StoryEvent
   sessionId: string
   stateVersion: number
   player: Player
@@ -128,6 +131,7 @@ export interface MoveResponse {
 }
 
 export interface EventResponse {
+  storyEvent?: StoryEvent
   stateVersion?: number
   relic?: Relic
   choices?: Relic[]
@@ -168,6 +172,7 @@ export interface RoomPlayer {
 }
 
 export interface RoomDTO {
+  storyEvent?: StoryEvent
   eventId?: string
   code: string
   hostUserId: string
@@ -233,6 +238,7 @@ export interface MultiplayerEnemyInfo {
 }
 
 export interface MultiplayerBattleInfo {
+  storyEvent?: StoryEvent
   eventId?: string
   roomCode: string
   stateVersion: number
@@ -249,4 +255,21 @@ export interface MultiplayerBattleInfo {
   rewardsHandled?: boolean
   rewards?: Record<string, MultiplayerCardInfo[]>
   claimedRewards?: Record<string, string>
+}
+
+export interface EventPreview {
+  eventInstanceId: string
+  definitionId: string
+  title: string
+  text: string
+  resolved: boolean
+  selectedOption?: string
+  options: Array<{
+    id: string; label: string; enabled: boolean; disabledReason?: string
+    members: Record<string, { hpCost: number; goldCost: number; reward: string; amount: number; goldReward: number; targetName?: string }>
+  }>
+}
+export interface StoryEvent {
+  scenes: Array<{ id: string; trigger: string; title: string; text: string; skippable: boolean }>
+  event?: EventPreview | null
 }

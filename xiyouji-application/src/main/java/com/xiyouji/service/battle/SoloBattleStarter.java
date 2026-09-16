@@ -1,7 +1,6 @@
 package com.xiyouji.service.battle;
 
 import com.xiyouji.constants.GameConstants;
-import com.xiyouji.combat.EnemyCombat;
 import com.xiyouji.exception.EnemyNotFoundException;
 import com.xiyouji.model.Enemy;
 import com.xiyouji.model.GameCharacter;
@@ -44,13 +43,14 @@ public class SoloBattleStarter {
         GameSession session = gameService.getSession(sessionId);
         MapNode node = session.getCurrentNode();
 
-        Enemy template = enemyRepo.findById(node.getEnemyId() != null ?
-                        Long.valueOf(node.getEnemyId()) : 1L)
+        Enemy template = EnemyBehaviorGuard.read(() -> enemyRepo.findById(node.getEnemyId() != null ?
+                        Long.valueOf(node.getEnemyId()) : 1L))
                 .orElseThrow(() -> new EnemyNotFoundException("敌人不存在，节点enemyId: " + node.getEnemyId()));
 
         // 创建副本用于战斗
         Enemy enemy = template.copy();
-        EnemyCombat.validate(enemy);
+        enemy.setEncounterId(node.getId());
+        EnemyBehaviorGuard.validate(enemy);
 
         // 根据位置调整难度（越往后越难）
         int levelScalar = Math.min(node.getPosition() / 2 + 1, 10);
@@ -66,6 +66,8 @@ public class SoloBattleStarter {
         // 兼容旧会话：旧版本曾把战斗内遗物加成写入 maxEnergy，进入新战斗时恢复基础值。
         player.setMaxEnergy(GameConstants.MAX_ENERGY);
         player.initBattle();
+        player.addBlock(session.getNextBattleBlock());
+        session.setNextBattleBlock(0);
 
         // ===== 遗物效果：硬编码的老宝物（应用到 battle.getEnemy() 而非 enemy 原始对象） =====
         Enemy battleEnemy = battle.getEnemy(); // ★ 使用 BattleState 中的副本

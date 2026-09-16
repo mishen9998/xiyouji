@@ -166,6 +166,12 @@ public class GameService {
      */
     @Transactional
     public void saveSession(GameSession session) {
+        if (session.getCurrentNode() != null && session.getMap() != null) {
+            MapNode current = session.getCurrentNode();
+            session.getMap().stream().filter(n -> n.getId().equals(current.getId())).forEach(n -> {
+                n.setEventState(current.getEventState()); n.setShopStock(current.getShopStock());
+            });
+        }
         sessionStore.put(session.getSessionId(), session);
     }
 
@@ -200,6 +206,7 @@ public class GameService {
             if (userId != null) ensureOwner(session, userId);
             checkVersion(sessionId, session, expectedVersion);
             boolean success = mapService.advanceToNextLayer(session);
+            session.setCompleted(!success);
             sessionStore.put(sessionId, session);
             return success;
         });
@@ -279,15 +286,21 @@ public class GameService {
         return withSessionLock(sessionId, () -> {
             GameSession session = getSession(sessionId);
             boolean result = shopService.buyCard(session, cardId, price);
-            sessionStore.put(sessionId, session);
+            saveSession(session);
             return result;
         });
     }
 
     /** 获取商店卡牌列表（委托给ShopService） */
     public List<Card> getShopCards(String sessionId) {
-        GameSession session = getSession(sessionId);
-        return shopService.getShopCards(session);
+        return withSessionLock(sessionId, () -> {
+            GameSession session = getSession(sessionId);
+            String userId = session.getOwnerUserId() == null ? "solo" : session.getOwnerUserId();
+            boolean known = session.getCurrentNode() != null && session.getCurrentNode().getShopStock().containsKey(userId);
+            List<Card> stock = shopService.getShopCards(session);
+            if (!known) saveSession(session);
+            return stock;
+        });
     }
 
     public Relic getRandomRelic(String sessionId) {
