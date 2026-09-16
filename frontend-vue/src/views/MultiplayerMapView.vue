@@ -386,7 +386,7 @@ onMounted(async () => {
   if (code && roomStore.room?.code !== code) {
     // 从URL恢复房间状态
     try {
-      const dto = await roomStore.refreshRoomState()
+      await roomStore.openRoom(code)
     } catch {
       router.replace('/room')
       return

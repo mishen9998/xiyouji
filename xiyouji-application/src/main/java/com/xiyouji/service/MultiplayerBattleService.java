@@ -110,6 +110,7 @@ public class MultiplayerBattleService {
         if (entry != null && entry.completed()) {
             MultiplayerBattleState existing = battleStore.get(roomCode);
             if (existing != null) return existing;
+            throw new com.xiyouji.exception.ResultUnknownException();
         }
         try {
             MultiplayerBattleState result = withRoomLock(roomCode, () -> {
@@ -125,11 +126,10 @@ public class MultiplayerBattleService {
                 broadcaster.broadcastSystemMessage(roomCode, "战斗开始！");
                 return state;
             });
-            complete(key, fingerprint, "");
+            complete(key, entry, infoAssembler.toBattleInfo(result));
             return result;
         } catch (RuntimeException error) {
-            abort(key);
-            throw error;
+            throw CommandGuard.failure(error);
         }
     }
 
@@ -150,6 +150,7 @@ public class MultiplayerBattleService {
         if (entry != null && entry.completed()) {
             MultiplayerBattleState existing = battleStore.get(roomCode);
             if (existing != null) return existing;
+            throw new com.xiyouji.exception.ResultUnknownException();
         }
         try {
             MultiplayerBattleState result = withRoomLock(roomCode, () -> {
@@ -160,11 +161,10 @@ public class MultiplayerBattleService {
                 cardPlayHandler.play(state, userId, handIndex);
                 return saveAndBroadcast(roomCode, state);
             });
-            complete(key, fingerprint, "");
+            complete(key, entry, infoAssembler.toBattleInfo(result));
             return result;
         } catch (RuntimeException error) {
-            abort(key);
-            throw error;
+            throw CommandGuard.failure(error);
         }
     }
 
@@ -184,6 +184,7 @@ public class MultiplayerBattleService {
         if (entry != null && entry.completed()) {
             MultiplayerBattleState existing = battleStore.get(roomCode);
             if (existing != null) return existing;
+            throw new com.xiyouji.exception.ResultUnknownException();
         }
         try {
             MultiplayerBattleState result = withRoomLock(roomCode, () -> {
@@ -194,11 +195,10 @@ public class MultiplayerBattleService {
                 turnCoordinator.endTurn(state, userId);
                 return saveAndBroadcast(roomCode, state);
             });
-            complete(key, fingerprint, "");
+            complete(key, entry, infoAssembler.toBattleInfo(result));
             return result;
         } catch (RuntimeException error) {
-            abort(key);
-            throw error;
+            throw CommandGuard.failure(error);
         }
     }
 
@@ -244,6 +244,7 @@ public class MultiplayerBattleService {
         if (entry != null && entry.completed()) {
             MultiplayerBattleState existing = battleStore.get(roomCode);
             if (existing != null) return existing;
+            throw new com.xiyouji.exception.ResultUnknownException();
         }
         try {
             MultiplayerBattleState result = withRoomLock(roomCode, () -> {
@@ -258,11 +259,10 @@ public class MultiplayerBattleService {
                 }
                 return saveAndBroadcast(roomCode, state);
             });
-            complete(key, fingerprint, "");
+            complete(key, entry, infoAssembler.toBattleInfo(result));
             return result;
         } catch (RuntimeException error) {
-            abort(key);
-            throw error;
+            throw CommandGuard.failure(error);
         }
     }
 
@@ -333,11 +333,10 @@ public class MultiplayerBattleService {
                 log.info("Return to map: room={}, nextLayer={}", roomCode, outcome.get("nextLayer"));
                 return outcome;
             });
-            complete(key, fingerprint, "");
+            complete(key, entry, result);
             return result;
         } catch (RuntimeException error) {
-            abort(key);
-            throw error;
+            throw CommandGuard.failure(error);
         }
     }
 
@@ -378,12 +377,12 @@ public class MultiplayerBattleService {
         return key == null ? null : CommandGuard.begin(idempotencyStore, key, fingerprint);
     }
 
-    private void complete(String key, String fingerprint, String value) {
-        if (key != null) idempotencyStore.complete(key, fingerprint, value, CommandGuard.TTL);
-    }
-
-    private void abort(String key) {
-        if (key != null) idempotencyStore.remove(key);
+    private void complete(String key, IdempotencyStore.Entry owner, Object value) {
+        if (key == null) return;
+        try {
+            if (!idempotencyStore.complete(key, owner, new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(value), CommandGuard.TTL))
+                throw new com.xiyouji.exception.ResultUnknownException();
+        } catch (Exception failure) { throw new com.xiyouji.exception.ResultUnknownException(); }
     }
 
     /** 获取战斗状态，不存在则抛异常 */

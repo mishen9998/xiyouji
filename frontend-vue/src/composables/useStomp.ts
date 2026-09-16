@@ -28,6 +28,7 @@ export function useStomp() {
     // Return control to the lobby even if the server never completes the handshake.
     const timeout = setTimeout(() => rejectFirst(new Error('实时连接超时，正在自动重连')), 8000)
     cancelPending = () => { clearTimeout(timeout); rejectFirst(new Error('连接已取消')) }
+    let subscribed = false
     const socket = new Client({
       reconnectDelay: 3000,
       connectionTimeout: 7000,
@@ -44,6 +45,8 @@ export function useStomp() {
       },
       onConnect: () => {
         if (client !== socket) return
+        if (subscribed) return
+        subscribed = true
         // STOMP subscriptions belong to a connection; always recreate them after reconnect.
         socket.subscribe(`/topic/room/${roomCode}`, msg => {
           if (client !== socket) return
@@ -64,7 +67,7 @@ export function useStomp() {
         resolveFirst()
         Promise.resolve(onConnected?.()).catch(error => console.warn('Room reconciliation failed', error))
       },
-      onWebSocketClose: () => { if (client === socket) onConnectionChange?.(false) },
+      onWebSocketClose: () => { subscribed = false; if (client === socket) onConnectionChange?.(false) },
       onWebSocketError: () => { if (client === socket) onConnectionChange?.(false) },
       onStompError: () => {
         if (client !== socket) return

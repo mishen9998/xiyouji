@@ -13,7 +13,7 @@ export function createCommandRetry() {
       return result
     } catch (error: any) {
       // Validation/version failures did not commit. Network/server errors may have committed.
-      if (error?.status >= 400 && error.status < 500 && error?.code !== 'IDEMPOTENCY_IN_PROGRESS') pending.delete(identity)
+      if (error?.status >= 400 && error.status < 500 && !['IDEMPOTENCY_IN_PROGRESS', 'RESULT_UNKNOWN'].includes(error?.code)) pending.delete(identity)
       throw error
     }
   }

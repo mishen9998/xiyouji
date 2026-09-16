@@ -175,6 +175,6 @@ class BattleControllerTest {
 
         assertThrows(InvalidActionException.class, () -> controller.startBattle(SESSION, 3L, KEY));
 
-        verify(idempotency).abort(eq("game:battle:start:" + USER + ":" + SESSION), eq(KEY));
+        verify(idempotency, never()).abort(any(), any(), any());
     }
 }

@@ -59,6 +59,13 @@ public class GameService {
     /** 创建新游戏会话并绑定到认证用户。 */
     @Transactional
     public GameSession newGame(String sessionId, CharacterClass charClass, String ownerUserId) {
+        GameSession session = prepareNewGame(sessionId, charClass, ownerUserId);
+        sessionStore.put(sessionId, session);
+        return session;
+    }
+
+    /** Detached candidate; the HTTP creation runner atomically persists it with its receipt. */
+    public GameSession prepareNewGame(String sessionId, CharacterClass charClass, String ownerUserId) {
         GameCharacter gc = characterRepo.findByCharacterClass(charClass)
                 .orElseThrow(() -> new CharacterNotFoundException("角色不存在: " + charClass));
 
@@ -92,7 +99,6 @@ public class GameService {
         session.setOwnerUserId(ownerUserId);
         session.setCurrentLayer(1);
         session.setMaxLayer(GameConstants.MAX_LAYERS);
-        sessionStore.put(sessionId, session);
         log.info("新游戏创建: sessionId={}, character={}", sessionId, charClass);
         return session;
     }

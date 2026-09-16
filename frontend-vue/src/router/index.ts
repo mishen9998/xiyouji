@@ -61,10 +61,16 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   if (!to.meta.requiresAuth) return true
   try {
-    return localStorage.getItem('xiyouji_jwt_token') ? true : { name: 'auth' }
+    if (!localStorage.getItem('xiyouji_jwt_token')) return { name: 'auth' }
+    if (to.params.code) {
+      const { useRoomStore } = await import('@/stores/room')
+      try { await useRoomStore().openRoom(String(to.params.code)) }
+      catch { return { name: 'room' } }
+    }
+    return true
   } catch {
     return { name: 'auth' }
   }

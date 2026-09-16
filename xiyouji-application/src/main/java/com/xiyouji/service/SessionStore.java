@@ -5,6 +5,7 @@ package com.xiyouji.service.session;
  * 定义游戏会话的存储操作，支持内存和Redis两种实现
  */
 public interface SessionStore {
+    default boolean createIfAbsent(GameSession session) { throw new UnsupportedOperationException(); }
 
     /**
      * 存储或更新会话

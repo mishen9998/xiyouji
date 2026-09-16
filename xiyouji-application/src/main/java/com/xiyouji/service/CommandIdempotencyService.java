@@ -21,9 +21,14 @@ public class CommandIdempotencyService {
         return CommandGuard.begin(store, scope + ":" + key, fingerprint);
     }
 
-    public void complete(String scope, String key, String fingerprint, String value) {
+    public void complete(String scope, String key, IdempotencyStore.Entry owner, String value) {
         if (key != null && !key.isBlank()) {
-            store.complete(scope + ":" + key, fingerprint, value, CommandGuard.TTL);
+            try {
+                if (!store.complete(scope + ":" + key, owner, value, CommandGuard.TTL))
+                    throw new com.xiyouji.exception.ResultUnknownException();
+            } catch (RuntimeException failure) {
+                throw new com.xiyouji.exception.ResultUnknownException();
+            }
         }
     }
 
@@ -33,8 +38,8 @@ public class CommandIdempotencyService {
      * contains a random reward or a newly generated resource identifier: a
      * retry must not reconstruct a different response from the current state.
      */
-    public void completeResponse(String scope, String key, String fingerprint, Object response) {
-        complete(scope, key, fingerprint, serialize(response));
+    public void completeResponse(String scope, String key, IdempotencyStore.Entry owner, Object response) {
+        complete(scope, key, owner, serialize(response));
     }
 
     public String serialize(Object response) {
@@ -62,7 +67,16 @@ public class CommandIdempotencyService {
         }
     }
 
-    public void abort(String scope, String key) {
-        if (key != null && !key.isBlank()) store.remove(scope + ":" + key);
+    public void abort(String scope, String key, IdempotencyStore.Entry owner) {
+        if (key != null && !key.isBlank()) store.abort(scope + ":" + key, owner);
+    }
+
+    public boolean create(String scope, String key, IdempotencyStore.Entry owner,
+                          IdempotencyStore.Creation<?> creation) {
+        return store.create(scope + ":" + key, owner, creation, serialize(creation.response()));
+    }
+
+    public IdempotencyStore.Entry receipt(String scope, String key) {
+        return store.find(scope + ":" + key).orElseThrow(com.xiyouji.exception.ResultUnknownException::new);
     }
 }

@@ -10,7 +10,7 @@ import java.util.function.Supplier;
  *
  * 封装 Controller 写端点的标准幂等流程：
  *   begin → 缓存命中重放 → 已完成状态回放 → 执行命令 → 记录响应
- * 执行失败时中断当前幂等标记并原样抛出，由全局异常处理器兜底。
+ * 进入业务后失败保留标记，未知结果只通过同命令回执恢复。
  *
  * 原先该样板在 Game/Room/Battle 三个控制器中重复出现 20 余次，
  * 统一收拢后端点只保留：指纹与作用域计算、命令执行与完成态回放策略。
@@ -42,11 +42,37 @@ public class IdempotentCommandRunner {
         }
         try {
             T result = execute.get();
-            idempotency.completeResponse(scope, idempotencyKey, fingerprint, result);
+            try { idempotency.completeResponse(scope, idempotencyKey, previous, result); }
+            catch (RuntimeException failure) { throw new com.xiyouji.exception.ResultUnknownException(); }
             return result;
         } catch (RuntimeException error) {
-            idempotency.abort(scope, idempotencyKey);
-            throw error;
+            // execute may already have persisted or broadcast. Retain the reservation even
+            // on failure; only explicitly proven pre-business failures may be aborted.
+            throw CommandGuard.failure(error);
+        }
+    }
+
+    public <T> T create(String scope, String key, String fingerprint, Class<T> type,
+                        Supplier<IdempotencyStore.Creation<T>> candidate,
+                        Function<IdempotencyStore.Entry, T> legacyReplay) {
+        var owner = idempotency.begin(scope, key, fingerprint);
+        T cached = idempotency.replay(owner, type);
+        if (cached != null) return cached;
+        if (owner != null && owner.completed()) return legacyReplay.apply(owner);
+        try {
+            for (int attempt = 0; attempt < 32; attempt++) {
+                var creation = candidate.get();
+                if (idempotency.create(scope, key, owner, creation)) return creation.response();
+            }
+            throw new IllegalStateException("资源编号冲突，请查询原命令状态");
+        } catch (RuntimeException failure) {
+            // A Lua reply can be lost after all three writes committed. The same command's
+            // completed receipt/resource association is the only valid recovery proof.
+            try {
+                T recovered = idempotency.replay(idempotency.receipt(scope, key), type);
+                if (recovered != null) return recovered;
+            } catch (RuntimeException ignored) { /* unknown remains unknown */ }
+            throw new com.xiyouji.exception.ResultUnknownException();
         }
     }
 }

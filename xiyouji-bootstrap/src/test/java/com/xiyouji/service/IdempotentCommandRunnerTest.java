@@ -70,7 +70,7 @@ class IdempotentCommandRunnerTest {
         Map<String, Object> result = run("k1", () -> null, p -> rebuilt);
 
         assertSame(rebuilt, result);
-        verify(idempotency, never()).abort(any(), any());
+        verify(idempotency, never()).abort(any(), any(), any());
     }
 
     @Test
@@ -82,7 +82,7 @@ class IdempotentCommandRunnerTest {
         Map<String, Object> result = run("k1", () -> fresh, p -> Map.of());
 
         assertSame(fresh, result);
-        verify(idempotency).completeResponse(SCOPE, "k1", "fp", fresh);
+        verify(idempotency).completeResponse(SCOPE, "k1", null, fresh);
     }
 
     @Test
@@ -91,8 +91,8 @@ class IdempotentCommandRunnerTest {
         when(idempotency.begin(eq(SCOPE), eq("k1"), eq("fp"))).thenReturn(null);
         IllegalArgumentException boom = new IllegalArgumentException("boom");
 
-        assertThrows(IllegalArgumentException.class, () -> run("k1", () -> { throw boom; }, p -> Map.of()));
+        assertThrows(com.xiyouji.exception.ResultUnknownException.class, () -> run("k1", () -> { throw boom; }, p -> Map.of()));
 
-        verify(idempotency).abort(SCOPE, "k1");
+        verify(idempotency, never()).abort(any(), any(), any());
     }
 }

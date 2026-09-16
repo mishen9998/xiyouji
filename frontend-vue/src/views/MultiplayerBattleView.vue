@@ -267,13 +267,10 @@ onMounted(async () => {
   const code = route.params.code as string
 
   // 如果还没有连接 WebSocket，先连接
-  if (!roomStore.connected && roomStore.roomCode !== code) {
+  if (roomStore.roomCode !== code) {
     // 尝试获取房间信息
     try {
-      const { roomApi } = await import('@/api/room')
-      const room = await roomApi.getRoom(code)
-      roomStore.room = room
-      await roomStore.connectWs(code)
+      await roomStore.openRoom(code)
     } catch {
       uiStore.showToast('房间不存在或已结束')
       router.push('/room')

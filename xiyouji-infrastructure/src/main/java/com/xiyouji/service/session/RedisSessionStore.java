@@ -63,7 +63,8 @@ public class RedisSessionStore implements SessionStore {
             session.setStateVersion(session.getStateVersion() + 1);
             // 手动序列化为 JSON 字符串后存入 Redis
             String json = objectMapper.writeValueAsString(session);
-            redisTemplate.opsForValue().set(key, json, SESSION_TTL);
+            com.xiyouji.service.RedisResourceWriter.write(redisTemplate.getConnectionFactory(), key,
+                    json.getBytes(java.nio.charset.StandardCharsets.UTF_8), SESSION_TTL);
             log.debug("会话已存入Redis: sessionId={}, size={}bytes", sessionId, json.length());
         } catch (StateVersionConflictException e) {
             throw e;
@@ -71,6 +72,16 @@ public class RedisSessionStore implements SessionStore {
             log.error("Redis存储失败，拒绝写入本机内存: sessionId={}, error={}", sessionId, e.getMessage());
             throw new StorageUnavailableException("共享会话存储暂不可用，请稍后重试", e);
         }
+    }
+
+    public String serialize(GameSession session) throws com.fasterxml.jackson.core.JsonProcessingException {
+        return objectMapper.writeValueAsString(session);
+    }
+
+    @Override public boolean createIfAbsent(GameSession session) {
+        try {
+            return Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent(buildKey(session.getSessionId()), serialize(session), SESSION_TTL));
+        } catch (Exception e) { throw new StorageUnavailableException("共享会话存储暂不可用", e); }
     }
 
     @Override
@@ -95,7 +106,7 @@ public class RedisSessionStore implements SessionStore {
     public boolean remove(String sessionId) {
         String key = buildKey(sessionId);
         try {
-            boolean removedFromRedis = Boolean.TRUE.equals(redisTemplate.delete(key));
+            boolean removedFromRedis = com.xiyouji.service.RedisResourceWriter.remove(redisTemplate.getConnectionFactory(), key);
             if (removedFromRedis) {
                 log.debug("会话已移除: sessionId={}", sessionId);
             }

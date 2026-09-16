@@ -22,6 +22,15 @@ export const useRoomStore = defineStore('room', () => {
   let syncTimer: ReturnType<typeof setInterval> | null = null
   let syncGeneration = 0
   let stopFocusSync: (() => void) | null = null
+  let navigationGeneration = 0
+  let socketCode: string | null = null
+  let socketPromise: Promise<void> | null = null
+  const roomReads = new Map<string, Promise<RoomDTO>>()
+  const battleReads = new Map<string, Promise<MultiplayerBattleInfo>>()
+  function readRoom(code: string) {
+    if (!roomReads.has(code)) roomReads.set(code, roomApi.getRoom(code).finally(() => roomReads.delete(code)))
+    return roomReads.get(code)!
+  }
 
   function rememberRoom() {
     const user = getCurrentUsername()
@@ -48,7 +57,6 @@ export const useRoomStore = defineStore('room', () => {
       document.removeEventListener('visibilitychange', onVisible)
     }
     syncTimer = setInterval(() => { void reconcile() }, 5000)
-    void reconcile()
   }
 
   function stopRoomSync() {
@@ -96,7 +104,7 @@ export const useRoomStore = defineStore('room', () => {
     if (error?.status === 409 || error?.code === 'STATE_VERSION_CONFLICT') {
       await refreshRoomState()
       if (room.value?.status === 'IN_BATTLE') await refreshBattleState()
-      uiStore.showToast('房间状态已更新，请根据最新状态重新操作')
+      uiStore.showToast(error?.code === 'RESULT_UNKNOWN' ? '已同步状态，但原命令结果仍未确认，请查询回执' : '房间状态已更新，请根据最新状态重新操作')
     }
     throw error
   }
@@ -116,24 +124,16 @@ export const useRoomStore = defineStore('room', () => {
     }
   }
 
-  // Retry only a rejected version check. A successful ready toggle is never repeated.
-  async function lobbyCommand(identity: string, send: (key: string) => Promise<RoomDTO>, alreadyApplied: () => boolean) {
+  async function lobbyCommand(identity: string, send: (key: string) => Promise<RoomDTO>, _alreadyApplied: () => boolean) {
     if (!room.value) throw new Error('房间不存在')
     const code = room.value.code
-    for (let attempt = 0; attempt < 2; attempt++) {
-      try {
+    try {
         const dto = await retryCommand(identity, send)
         if (room.value?.code === code) applyRoom(dto)
         return dto
-      } catch (error: any) {
-        if (error?.code !== 'STATE_VERSION_CONFLICT') throw error
-        await refreshRoomState(true)
-        if (room.value?.code !== code) throw error
-        if (alreadyApplied()) return room.value
-        if (attempt === 1) throw new Error('房间状态正在变化，请再试一次')
-      }
+    } catch (error: any) {
+      return recoverFromConflict(error)
     }
-    throw new Error('房间操作失败')
   }
 
   /** 移动到地图节点 */
@@ -191,10 +191,10 @@ export const useRoomStore = defineStore('room', () => {
     const code = room.value?.code
     if (!code) return
     try {
-      const dto = await roomApi.getRoom(code)
+      const dto = await readRoom(code)
       if (room.value?.code === code) applyRoom(dto)
     } catch (error: any) {
-      if (error?.code === 'ROOM_NOT_FOUND' && room.value?.code === code) {
+      if ((error?.status === 403 || error?.status === 404) && room.value?.code === code) {
         reset()
         uiStore.showToast('房间已结束，请重新创建或加入')
       }
@@ -207,17 +207,23 @@ export const useRoomStore = defineStore('room', () => {
     const code = user ? sessionStorage.getItem(`xiyouji_room:${user}`) : null
     if (!code) return
     try {
-      const dto = await roomApi.getRoom(code)
-      if (!dto.players.some(player => player.userId === user)) {
-        sessionStorage.removeItem(`xiyouji_room:${user}`)
-        return
-      }
-      room.value = dto
-      try { await connectWs(code) } catch { /* REST reconciliation remains active. */ }
-      return dto
+      return await openRoom(code)
     } catch (error: any) {
-      if (error?.code === 'ROOM_NOT_FOUND') sessionStorage.removeItem(`xiyouji_room:${user}`)
+      if (error?.status === 403 || error?.status === 404) sessionStorage.removeItem(`xiyouji_room:${user}`)
     }
+  }
+
+  /** Route changes load and authorize the requested code before subscribing. */
+  async function openRoom(code: string) {
+    if (room.value?.code === code && socketCode === code) return room.value
+    reset()
+    const generation = navigationGeneration
+    const dto = await readRoom(code)
+    if (generation !== navigationGeneration) return
+    if (!dto.players.some(player => player.userId === getCurrentUsername())) throw new Error('你不是该房间成员')
+    room.value = dto
+    void connectWs(code).catch(() => { /* periodic REST remains active */ })
+    return dto
   }
 
   /** 创建房间 */
@@ -350,7 +356,8 @@ export const useRoomStore = defineStore('room', () => {
     const code = room.value?.code
     if (!code) return
     try {
-      const info = await multiplayerBattleApi.getBattleState(code)
+      if (!battleReads.has(code)) battleReads.set(code, multiplayerBattleApi.getBattleState(code).finally(() => battleReads.delete(code)))
+      const info = await battleReads.get(code)!
       if (room.value?.code === code) applyBattle(info)
     } catch { /* Reconcile again on the next connection or polling cycle. */ }
   }
@@ -395,13 +402,16 @@ export const useRoomStore = defineStore('room', () => {
 
   /** 连接 WebSocket */
   async function connectWs(code: string) {
+    if (socketCode === code && socketPromise) return socketPromise
+    socketCode = code
     rememberRoom()
     startRoomSync(code)
-    await stomp.connect(
+    socketPromise = stomp.connect(
       code,
-      (dto) => { applyRoom(dto) },           // 房间更新
-      (info) => { applyBattle(info) },     // 战斗更新
+      (dto) => { if (socketCode === code) applyRoom(dto) },
+      (info) => { if (socketCode === code) applyBattle(info) },
       (msg) => {                                  // 系统消息
+        if (socketCode !== code) return
         systemMessages.value.push(msg)
         if (systemMessages.value.length > 20) {
           systemMessages.value.shift()
@@ -410,15 +420,19 @@ export const useRoomStore = defineStore('room', () => {
       async () => {
         // Pub/Sub is transient; reconcile authoritative state after every
         // initial connection and reconnect.
+        if (socketCode !== code) return
         await refreshRoomState()
         if (room.value?.status === 'IN_BATTLE') await refreshBattleState()
       },
       (value) => { if (room.value?.code === code) connected.value = value },
     )
+    return socketPromise
   }
 
   /** 断开 WebSocket */
   function disconnect() {
+    socketCode = null
+    socketPromise = null
     stopRoomSync()
     stomp.disconnect()
     connected.value = false
@@ -426,6 +440,7 @@ export const useRoomStore = defineStore('room', () => {
 
   /** 重置状态 */
   function reset() {
+    navigationGeneration++
     const user = getCurrentUsername()
     if (user) sessionStorage.removeItem(`xiyouji_room:${user}`)
     seenEventIds.clear()
@@ -441,7 +456,7 @@ export const useRoomStore = defineStore('room', () => {
     // getters
     roomCode, isHost, canStart, allReady,
     // actions
-    createRoom, joinRoom, restoreRoom, leaveRoom, toggleReady, selectCharacter,
+    createRoom, joinRoom, restoreRoom, openRoom, leaveRoom, toggleReady, selectCharacter,
     startGame, moveToNode, handleEvent, nextLayer, refreshRoomState,
     startBattle, playCard, endTurn, refreshBattleState,
     claimReward, skipReward, nextFloor,

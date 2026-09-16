@@ -1,6 +1,6 @@
 package com.xiyouji.service;
 
-import com.xiyouji.exception.IdempotencyInProgressException;
+import com.xiyouji.exception.ResultUnknownException;
 import com.xiyouji.exception.IdempotencyKeyReusedException;
 import com.xiyouji.exception.StateVersionConflictException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +31,7 @@ class CommandGuardTest {
                 try {
                     CommandGuard.begin(store, "same-key", fingerprint);
                     return true;
-                } catch (IdempotencyInProgressException e) {
+                } catch (ResultUnknownException e) {
                     return false;
                 }
             }));
@@ -49,9 +49,9 @@ class CommandGuardTest {
         String key = "reuse-key";
         String first = CommandGuard.fingerprint("POST", "/test", "one");
         String second = CommandGuard.fingerprint("POST", "/test", "two");
-        CommandGuard.begin(store, key, first);
+        var owner = CommandGuard.begin(store, key, first);
         assertThrows(IdempotencyKeyReusedException.class, () -> CommandGuard.begin(store, key, second));
-        store.remove(key);
+        store.abort(key, owner);
         assertFalse(CommandGuard.begin(store, key, second).completed());
     }
 
@@ -68,10 +68,10 @@ class CommandGuardTest {
         LocalIdempotencyStore store = new LocalIdempotencyStore();
         CommandIdempotencyService service = new CommandIdempotencyService(store, new ObjectMapper());
         String fingerprint = CommandGuard.fingerprint("POST", "/test", "{}");
-        service.begin("scope", "key", fingerprint);
+        var owner = service.begin("scope", "key", fingerprint);
 
         Map<String, Object> original = Map.of("stateVersion", 7, "reward", "宝箱遗物");
-        service.completeResponse("scope", "key", fingerprint, original);
+        service.completeResponse("scope", "key", owner, original);
 
         IdempotencyStore.Entry entry = store.find("scope:key").orElseThrow();
         assertEquals(original, service.replay(entry, Map.class));

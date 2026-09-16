@@ -16,8 +16,6 @@ import java.util.function.Supplier;
 @Component
 public class RoomAccess {
 
-    private static final String CREATE_LOCK_KEY = "xiyouji:lock:room:create";
-
     private final RoomStore roomStore;
     private final DistributedLockService lockService;
 
@@ -47,6 +45,8 @@ public class RoomAccess {
         roomStore.save(room);
     }
 
+    boolean create(Room room) { return roomStore.createIfAbsent(room); }
+
     void remove(String code) {
         roomStore.remove(code);
     }
@@ -68,8 +68,4 @@ public class RoomAccess {
         lockService.executeWithLock(RoomLockKeys.forRoom(code), 5, action);
     }
 
-    /** 全局创建锁（保证房间码查重与写入原子） */
-    public <T> T withCreateLock(Supplier<T> action) {
-        return lockService.executeWithLock(CREATE_LOCK_KEY, 5, action);
-    }
 }

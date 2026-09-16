@@ -65,6 +65,7 @@ public class StrictCommandHeadersFilter extends OncePerRequestFilter {
         return !(relative.equals("/api/auth/register")
                 || relative.equals("/api/auth/guest")
                 || relative.equals("/api/game/new")
+                || relative.equals("/api/room/join")
                 || relative.equals("/api/room/create"));
     }
 

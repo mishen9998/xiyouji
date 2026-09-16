@@ -26,11 +26,26 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final WebSocketAuthInterceptor authInterceptor;
     private final String[] allowedOrigins;
+    private final RoomSubscriptionInterceptor subscriptions;
 
     public WebSocketConfig(WebSocketAuthInterceptor authInterceptor,
+                           RoomSubscriptionInterceptor subscriptions,
                            @Value("${app.cors.allowed-origins:http://localhost:8080}") String[] allowedOrigins) {
         this.authInterceptor = authInterceptor;
+        this.subscriptions = subscriptions;
         this.allowedOrigins = allowedOrigins;
+    }
+
+    @Override public void configureClientInboundChannel(org.springframework.messaging.simp.config.ChannelRegistration registration) {
+        registration.interceptors(subscriptions);
+    }
+    @Override public void configureClientOutboundChannel(org.springframework.messaging.simp.config.ChannelRegistration registration) {
+        registration.interceptors(new org.springframework.messaging.support.ChannelInterceptor() {
+            @Override public org.springframework.messaging.Message<?> preSend(org.springframework.messaging.Message<?> message,
+                    org.springframework.messaging.MessageChannel channel) {
+                return subscriptions.authorizeOutbound(message);
+            }
+        });
     }
 
     @Override
