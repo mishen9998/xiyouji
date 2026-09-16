@@ -109,6 +109,13 @@
             <basic name="defense"/>
             <basic name="isBoss"/>
             <basic name="level"/>
+            <basic name="contentKey"><column name="content_key" length="120"/></basic>
+            <basic name="contentVersion"><column name="content_version"/></basic>
+            <basic name="rulesVersion"><column name="rules_version" length="32"/></basic>
+            <basic name="actionDefinitions">
+                <column name="action_definitions" column-definition="TEXT"/>
+                <convert converter="com.xiyouji.repository.EnemyActionDefinitionsConverter"/>
+            </basic>
             <basic name="emoji">
                 <column length="100"/>
             </basic>
@@ -119,9 +126,8 @@
             <transient name="intentValue"/>
             <transient name="movePattern"/>
             <transient name="patternIndex"/>
-            <transient name="actionDefinitions"/>
             <transient name="lockedAction"/>
-            <transient name="rulesVersion"/>
+            <transient name="encounterId"/>
             <transient name="buffs"/>
         </attributes>
     </entity>

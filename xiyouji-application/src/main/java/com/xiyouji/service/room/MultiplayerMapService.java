@@ -1,8 +1,9 @@
 package com.xiyouji.service.room;
 
 import com.xiyouji.constants.GameConstants;
+import com.xiyouji.combat.EncounterCatalog;
+import com.xiyouji.service.battle.EnemyBehaviorGuard;
 import com.xiyouji.exception.InvalidActionException;
-import com.xiyouji.model.Enemy;
 import com.xiyouji.model.MapNode;
 import com.xiyouji.port.EnemyRepositoryPort;
 import org.slf4j.Logger;
@@ -22,7 +23,6 @@ public class MultiplayerMapService {
     private static final Logger log = LoggerFactory.getLogger(MultiplayerMapService.class);
 
     private final EnemyRepositoryPort enemyRepo;
-    private final Random rand = new Random();
 
     public MultiplayerMapService(EnemyRepositoryPort enemyRepo) {
         this.enemyRepo = enemyRepo;
@@ -32,6 +32,12 @@ public class MultiplayerMapService {
      * 生成一层地图（复用单机算法）
      */
     public List<MapNode> generateLayer(int layer) {
+        return generateLayer(layer, new Random().nextLong());
+    }
+
+    public List<MapNode> generateLayer(int layer, long seed) {
+        Random rand = new Random(seed);
+        EncounterCatalog encounters = new EncounterCatalog(EnemyBehaviorGuard.read(enemyRepo::findAll));
         List<MapNode> nodes = new ArrayList<>();
         int nameIdx = (layer - 1) * GameConstants.ROWS_PER_LAYER;
 
@@ -46,7 +52,7 @@ public class MultiplayerMapService {
                     MapNode n = new MapNode(id, layer, row, c, GameConstants.NODE_BATTLE,
                             GameConstants.PLACE_NAMES[(nameIdx + row) % GameConstants.PLACE_NAMES.length]);
                     n.setAccessible(true);
-                    assignEnemy(n, false, layer);
+                    assignEnemy(n, false, layer, encounters, rand.nextLong());
                     rowNodes.add(n);
                 }
             } else if (row == GameConstants.ROWS_PER_LAYER - 1) {
@@ -54,7 +60,7 @@ public class MultiplayerMapService {
                 String id = "L" + layer + "-R" + row + "-C1";
                 MapNode n = new MapNode(id, layer, row, 1, GameConstants.NODE_BOSS,
                         layer == 1 ? "黑风洞" : layer == 2 ? "火焰山" : "大雷音寺");
-                assignEnemy(n, true, layer);
+                assignEnemy(n, true, layer, encounters, rand.nextLong());
                 rowNodes.add(n);
             } else {
                 // 中间行：2-4个节点，随机类型
@@ -62,13 +68,13 @@ public class MultiplayerMapService {
                 for (int i = 0; i < nodeCount; i++) {
                     int col = (int) ((i + 0.5) * 4.0 / nodeCount);
                     String id = "L" + layer + "-R" + row + "-C" + col;
-                    String type = randomNodeType();
+                    String type = randomNodeType(rand);
                     String name = GameConstants.NODE_SHOP.equals(type)
                             ? "土地庙"
                             : GameConstants.PLACE_NAMES[(nameIdx + row + i) % GameConstants.PLACE_NAMES.length];
                     MapNode n = new MapNode(id, layer, row, col, type, name);
                     if (GameConstants.NODE_BATTLE.equals(type)) {
-                        assignEnemy(n, false, layer);
+                        assignEnemy(n, false, layer, encounters, rand.nextLong());
                     }
                     rowNodes.add(n);
                 }
@@ -111,7 +117,7 @@ public class MultiplayerMapService {
         return nodes;
     }
 
-    private String randomNodeType() {
+    private String randomNodeType(Random rand) {
         double r = rand.nextDouble();
         if (r < GameConstants.BATTLE_NODE_PROBABILITY) return GameConstants.NODE_BATTLE;
         if (r < GameConstants.REST_NODE_PROBABILITY) return GameConstants.NODE_REST;
@@ -121,16 +127,8 @@ public class MultiplayerMapService {
         return GameConstants.NODE_RANDOM;
     }
 
-    private void assignEnemy(MapNode node, boolean isBoss, int layer) {
-        int enemyLevel = Math.min(layer, GameConstants.MAX_LAYERS);
-        List<Enemy> enemies = enemyRepo.findByIsBossAndLevel(isBoss, enemyLevel);
-        if (enemies.isEmpty()) {
-            enemies = enemyRepo.findByIsBoss(isBoss);
-        }
-        if (!enemies.isEmpty()) {
-            Enemy e = enemies.get(rand.nextInt(enemies.size()));
-            node.setEnemyId(String.valueOf(e.getId()));
-        }
+    private void assignEnemy(MapNode node, boolean isBoss, int layer, EncounterCatalog catalog, long seed) {
+        node.setEnemyId(String.valueOf(catalog.select(layer, isBoss, seed).template().getId()));
     }
 
     /**

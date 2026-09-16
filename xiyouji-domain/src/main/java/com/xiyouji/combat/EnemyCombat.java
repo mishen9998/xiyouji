@@ -2,6 +2,7 @@ package com.xiyouji.combat;
 
 import com.xiyouji.model.Enemy;
 import com.xiyouji.model.GameCharacter;
+import com.xiyouji.exception.EnemyActionDataException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,15 +33,35 @@ public final class EnemyCombat {
     }
 
     /** Validate the entire cycle before entering combat, not halfway through a battle. */
-    public static void validate(Enemy enemy) { definitions(enemy); }
+    public static void validate(Enemy enemy) {
+        try {
+            if ((enemy.getActionDefinitions() == null || enemy.getActionDefinitions().isEmpty())
+                    && (enemy.getMovePattern() == null || enemy.getMovePattern().isEmpty())) {
+                throw new IllegalArgumentException("Missing enemy action cycle");
+            }
+            if (enemy.getRulesVersion() != null && !CombatRules.VERSION.equals(enemy.getRulesVersion())
+                    && !CombatRules.LEGACY_VERSION.equals(enemy.getRulesVersion())) {
+                throw new IllegalArgumentException("Unsupported rules version");
+            }
+            definitions(enemy);
+        }
+        catch (RuntimeException e) {
+            throw new EnemyActionDataException("Invalid enemy behavior: id=" + enemy.getId()
+                    + ", name=" + enemy.getName() + ", contentKey=" + enemy.getContentKey()
+                    + ", rulesVersion=" + enemy.getRulesVersion() + ": " + e.getMessage(), e);
+        }
+    }
 
     private static List<EnemyActionDefinition> definitions(Enemy enemy) {
         if (enemy.getActionDefinitions() != null && !enemy.getActionDefinitions().isEmpty()) {
             return List.copyOf(enemy.getActionDefinitions());
         }
         if (enemy.getMovePattern() == null || enemy.getMovePattern().isEmpty()) {
-            // Unversioned old templates have no persisted pattern. T2 supplies the versioned catalog.
-            return List.of(EnemyActionDefinition.attack(100));
+            if (CombatRules.LEGACY_VERSION.equals(enemy.getRulesVersion())) {
+                // Only a restored, already-running pre-versioned battle may use the old default.
+                return List.of(EnemyActionDefinition.attack(100));
+            }
+            throw new IllegalArgumentException("Missing enemy action cycle");
         }
         return enemy.getMovePattern().stream().map(EnemyActionDefinition::legacyMove).toList();
     }
@@ -61,6 +82,7 @@ public final class EnemyCombat {
     /** Existing snapshots have an intent and target but no locked packet. Preserve that forecast. */
     public static LockedEnemyAction restoreLegacyForecast(Enemy enemy, List<String> existingTargetIds) {
         if (enemy.getLockedAction() != null) return enemy.getLockedAction();
+        if (enemy.getRulesVersion() == null) enemy.setRulesVersion(CombatRules.LEGACY_VERSION);
         var intent = enemy.getIntent();
         if (intent == null) throw new IllegalStateException("Enemy snapshot has no intent");
         int value = Math.max(0, enemy.getIntentValue());
