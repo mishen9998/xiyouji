@@ -38,6 +38,9 @@ public class Enemy {
     private List<EnemyActionDefinition> actionDefinitions;
     private LockedEnemyAction lockedAction;
     private String rulesVersion;
+    private String contentKey;
+    private int contentVersion;
+    private String encounterId;
 
     // Buff/Debuff回合计数
     private Map<BuffType, Integer> buffs = new HashMap<>();
@@ -127,6 +130,9 @@ public class Enemy {
         e.setBuffs(new HashMap<>(this.buffs));
         e.setActionDefinitions(actionDefinitions == null ? null : new ArrayList<>(actionDefinitions));
         e.setRulesVersion(rulesVersion);
+        e.setContentKey(contentKey);
+        e.setContentVersion(contentVersion);
+        e.setEncounterId(encounterId);
         return e;
     }
 
@@ -169,6 +175,15 @@ public class Enemy {
     public void setLockedAction(LockedEnemyAction value) { this.lockedAction = value; }
     public String getRulesVersion() { return rulesVersion; }
     public void setRulesVersion(String value) { this.rulesVersion = value; }
+    public String getContentKey() { return contentKey; }
+    public void setContentKey(String value) { contentKey = value; }
+    public int getContentVersion() { return contentVersion; }
+    public void setContentVersion(int value) { contentVersion = value; }
+    public String getEncounterId() { return encounterId; }
+    public void setEncounterId(String value) { encounterId = value; }
+    /** Optional snapshot alias; patternIndex remains the legacy wire-compatible cursor. */
+    public int getActionIndex() { return patternIndex; }
+    public void setActionIndex(int value) { patternIndex = value; }
     public Map<BuffType, Integer> getBuffs() { return buffs; }
     public void setBuffs(Map<BuffType, Integer> buffs) { this.buffs = buffs; }
 }

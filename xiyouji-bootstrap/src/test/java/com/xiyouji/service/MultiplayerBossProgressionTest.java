@@ -95,8 +95,16 @@ class MultiplayerBossProgressionTest {
         LocalDistributedLockService locks = new LocalDistributedLockService();
         RoomAccess access = new RoomAccess(roomStore, locks);
         RoomDTOAssembler assembler = new RoomDTOAssembler();
+        EnemyRepositoryPort enemyRepository = mock(EnemyRepositoryPort.class);
+        java.util.concurrent.atomic.AtomicLong enemyIds = new java.util.concurrent.atomic.AtomicLong(1);
+        when(enemyRepository.findAll()).thenReturn(com.xiyouji.combat.EnemyContentCatalog.entries().stream()
+                .map(entry -> {
+                    var enemy = new com.xiyouji.model.Enemy(entry.name(), 100, 10, 5, entry.boss(), entry.level());
+                    enemy.setId(enemyIds.getAndIncrement());
+                    return enemy;
+                }).toList());
         RoomProgressionService progression = new RoomProgressionService(access,
-                new MultiplayerMapService(mock(EnemyRepositoryPort.class)),
+                new MultiplayerMapService(enemyRepository),
                 mock(CharacterRepositoryPort.class), mock(CardRepositoryPort.class), assembler);
         RoomService roomService = new RoomService(access, assembler,
                 mock(RoomMembershipService.class), progression, mock(RoomEventProcessor.class));

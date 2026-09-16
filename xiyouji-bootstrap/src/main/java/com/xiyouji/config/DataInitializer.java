@@ -1,6 +1,7 @@
 package com.xiyouji.config;
 
 import com.xiyouji.constants.GameConstants;
+import com.xiyouji.combat.EnemyContentCatalog;
 import com.xiyouji.model.*;
 import com.xiyouji.model.enums.*;
 import com.xiyouji.port.CardRepositoryPort;
@@ -56,6 +57,10 @@ public class DataInitializer {
         migrateExtraRelics();
         // 增量迁移：扩展更多敌人（按西游妖怪榜）
         migrateExtraEnemies();
+        // Upgrade definitions in place; IDs/stats/artwork remain stable on existing databases.
+        for (Enemy enemy : er.findAll()) {
+            if (EnemyContentCatalog.upgrade(enemy)) er.save(enemy);
+        }
         // 增量迁移：唐朝皇帝8件御赐宝物
         migrateEmperorRelics();
         // 同步卡牌"下回合"效果字段（兼容已有数据库，补齐新增字段）
@@ -355,6 +360,7 @@ public class DataInitializer {
         Enemy e = new Enemy(name, hp, atk, def, boss, level);
         e.setDescription(desc);
         e.setMovePattern(Arrays.asList(moves));
+        EnemyContentCatalog.upgrade(e);
         er.save(e);
     }
 

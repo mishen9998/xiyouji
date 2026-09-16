@@ -2,7 +2,7 @@ package com.xiyouji.service.battle;
 
 import com.xiyouji.constants.GameConstants;
 import com.xiyouji.combat.CombatRules;
-import com.xiyouji.combat.EnemyCombat;
+import com.xiyouji.combat.EncounterCatalog;
 import com.xiyouji.exception.BusinessException;
 import com.xiyouji.exception.InvalidActionException;
 import com.xiyouji.model.Card;
@@ -96,7 +96,8 @@ public class MultiplayerBattleStarter {
 
         // 创建敌人：优先使用地图节点指定的enemyId
         Enemy enemy = createEnemyForNode(currentNode, room.getFloor(), players.size());
-        EnemyCombat.validate(enemy);
+        enemy.setEncounterId(currentNode.getId());
+        EnemyBehaviorGuard.validate(enemy);
         enemy.setRulesVersion(CombatRules.VERSION);
 
         // 构建战斗状态
@@ -166,7 +167,7 @@ public class MultiplayerBattleStarter {
         if (node.getEnemyId() != null && !node.getEnemyId().isEmpty()) {
             try {
                 Long enemyId = Long.valueOf(node.getEnemyId());
-                Enemy template = enemyRepo.findById(enemyId).orElse(null);
+                Enemy template = EnemyBehaviorGuard.read(() -> enemyRepo.findById(enemyId)).orElse(null);
                 if (template != null) {
                     Enemy combat = template.copy();
                     boolean isBoss = GameConstants.NODE_BOSS.equals(node.getType());
@@ -182,33 +183,15 @@ public class MultiplayerBattleStarter {
         }
 
         // 回退：按楼层随机选择
-        return createEnemyForRoom(floor, playerCount);
+        return createEnemyForRoom(floor, playerCount, GameConstants.NODE_BOSS.equals(node.getType()));
     }
 
     /**
      * 为房间创建敌人（回退用，按楼层随机选择）
      */
-    private Enemy createEnemyForRoom(int floor, int playerCount) {
-        // 尝试按楼层查找敌人
-        List<Enemy> candidates = enemyRepo.findByLevel(floor);
-        if (candidates.isEmpty()) {
-            candidates = enemyRepo.findAll();
-        }
-        if (candidates.isEmpty()) {
-            // 数据库无敌人数据，创建默认敌人
-            Enemy fallback = new Enemy("黑风妖", 80, 10, 2, false, 1);
-            List<String> pattern = new ArrayList<>();
-            pattern.add("attack");
-            pattern.add("attack");
-            pattern.add("defend");
-            fallback.setMovePattern(pattern);
-            Enemy combat = fallback.copy();
-            scaleEnemy(combat, playerCount);
-            return combat;
-        }
-
-        // 随机选一个敌人模板
-        Enemy template = candidates.get(random.nextInt(candidates.size()));
+    private Enemy createEnemyForRoom(int floor, int playerCount, boolean boss) {
+        Enemy template = new EncounterCatalog(EnemyBehaviorGuard.read(enemyRepo::findAll))
+                .select(floor, boss, random.nextLong()).template();
         Enemy combat = template.copy();
 
         // 按玩家数量缩放

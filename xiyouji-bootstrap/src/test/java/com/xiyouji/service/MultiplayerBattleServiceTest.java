@@ -153,8 +153,10 @@ class MultiplayerBattleServiceTest {
 
         // 敌人
         Enemy enemy = new Enemy("黑风怪", 50, 10, 2, false, 1);
+        enemy.setId(1L);
+        testRoom.getCurrentNode().setEnemyId("1");
         enemy.setMovePattern(List.of("attack", "defend"));
-        lenient().when(enemyRepo.findByLevel(anyInt())).thenReturn(List.of(enemy));
+        lenient().when(enemyRepo.findById(1L)).thenReturn(Optional.of(enemy));
     }
 
     @Test

@@ -156,6 +156,7 @@ class BattleServiceTest {
         // 手牌为空
 
         Enemy enemy = new Enemy("小妖", 30, 10, 2, false, 1);
+        enemy.setMovePattern(List.of("attack"));
         BattleState battle = new BattleState(enemy);
         battle.startBattle();
 
