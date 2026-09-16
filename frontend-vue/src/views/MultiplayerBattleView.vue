@@ -10,8 +10,8 @@
       <p class="stage-scroll-hint">↕ 上下滑动战场，查看完整预告与队伍</p>
       <section class="enemy-section" aria-label="敌人与攻击预告">
         <div class="enemy-card">
-          <div class="enemy-avatar">
-            <ResponsiveImage v-if="enemyImgUrl(battle.enemy.name)" :src="enemyImgUrl(battle.enemy.name)" :alt="battle.enemy.name" :emoji="battle.enemy.emoji || '👹'" sizes="(max-width: 600px) 90px, 136px" object-fit="cover" critical />
+          <div class="enemy-avatar" :class="{ boss: battle.enemy.isBoss }">
+            <ResponsiveImage v-if="enemyImgUrl(battle.enemy.name)" :src="enemyImgUrl(battle.enemy.name)" :alt="battle.enemy.name" :emoji="battle.enemy.emoji || '👹'" sizes="(max-width: 600px) 90px, 136px" :object-fit="battle.enemy.isBoss ? 'contain' : 'cover'" critical />
             <span v-else>{{ battle.enemy.emoji || '👹' }}</span>
             <span v-if="battle.enemy.isBoss" class="boss-seal">关主</span>
           </div>
@@ -143,7 +143,7 @@ onMounted(() => { currentUsername.value = getCurrentUsername(); void loadBattle(
 watch(() => route.params.code, (code, old) => { if (code && code !== old) { selectedHandIndex.value = null; void loadBattle(code as string) } })
 watch(() => roomStore.room?.status, (status) => {
   if (status === 'IN_MAP') router.push(`/room/${roomStore.roomCode}/map`)
-  else if (status === 'FINISHED') { uiStore.showToast('恭喜通关！'); router.push('/menu') }
+  else if (status === 'FINISHED') router.push(`/room/${roomStore.roomCode}/complete`)
   else if (status === 'WAITING') router.push('/room')
 })
 function canPlay(card: MultiplayerCardInfo): boolean {
@@ -185,7 +185,7 @@ async function handleNextFloor() {
   try {
     const result = await roomStore.nextFloor()
     if (!result) throw new Error('房间不存在')
-    await router.push(result.completed || roomStore.room?.status === 'FINISHED' ? '/menu' : `/room/${roomStore.roomCode}/map`)
+    await router.push(`/room/${roomStore.roomCode}/${result.completed || roomStore.room?.status === 'FINISHED' ? 'complete' : 'map'}`)
   } catch { /* Store displays the error. */ }
   finally { rewardSubmitting.value = false }
 }
@@ -212,6 +212,9 @@ h1 { font: 1.25rem var(--font-display); margin: 2px 0 0; }
 .enemy-card { display: flex; align-items: center; gap: 18px; min-width: 0; }
 .enemy-avatar { flex-shrink: 0; width: 136px; height: 136px; position: relative; border: 1px solid #b6bda0; border-radius: 50%; padding: 5px; background: #fffaf0; }
 .enemy-avatar :deep(.responsive-image), .enemy-avatar :deep(img) { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+.enemy-avatar.boss { border-color: #b18a47; border-radius: 16px; background: radial-gradient(ellipse at bottom, #e9e1be, #fffaf066); }
+.enemy-avatar.boss :deep(.responsive-image) { background: transparent; border-radius: 0; }
+.enemy-avatar.boss :deep(img) { object-fit: contain; border-radius: 0; }
 .enemy-avatar > span:not(.boss-seal) { display: grid; place-items: center; font-size: 3.75rem; height: 100%; }
 .boss-seal { position: absolute; right: 0; bottom: 0; padding: 4px 8px; border-radius: 4px; background: #b44736; color: #fffaf0; font-size: 0.75rem; }
 .enemy-info { flex: 1; min-width: 0; }

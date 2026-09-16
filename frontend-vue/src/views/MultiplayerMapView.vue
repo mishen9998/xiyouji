@@ -375,6 +375,11 @@ watch(() => room.value?.storyEvent?.event, event => {
   if (!event.resolved) { currentEventType.value = 'random'; eventModalVisible.value = true }
   else if (currentEventType.value === 'random') eventModalVisible.value = false
 }, { immediate: true })
+
+watch(() => room.value?.status, status => {
+  if (status === 'FINISHED') void router.replace(`/room/${roomStore.roomCode}/complete`)
+  else if (status === 'IN_BATTLE') void router.replace(`/room/${roomStore.roomCode}/battle`)
+}, { immediate: true })
 </script>
 
 <style scoped>

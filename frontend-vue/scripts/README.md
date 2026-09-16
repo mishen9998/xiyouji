@@ -29,10 +29,22 @@ not a request to load every image.
   hints for the explicit next scene, never bulk-download the library. Avoid preloading
   sizes different from the next view. Hidden tabs / data-saving mode skip hints.
 
-## Adding the nine T6 images
+## Nine T6 generated assets
 
-Place the actual generated originals in `assets/images/旅程/` with stable filenames,
-replace the matching source URLs in `src/constants/scene-images.json`, and rerun the
-pipeline. The existing scene and three Boss mappings then pick up the new pictures.
-Current scene mappings intentionally reuse existing artwork for T5; they are not claimed
-to be T6's generated final artwork.
+The nine actual built-in imagegen PNG originals now live in `assets/images/旅程/`.
+The centralized mapping uses these sources for journey, camp, three chapter arenas,
+completion and three transparent Boss portraits. Exact prompts, reference roles and
+generator provenance are in `docs/art/t6-scene-prompts.md` and `t6-boss-prompts.md`.
+All 203 pre-existing source files remain untouched. Boss portraits use `contain` and
+alpha-preserving AVIF/WebP variants, not circular cropping or an artificial checkerboard.
+
+After regeneration, run the read-only provenance/alpha/size audit:
+
+```powershell
+node frontend-vue/scripts/verify-art.mjs
+```
+
+Each final source has three widths in both formats (54 new runtime files). The audit
+checks nine distinct source hashes, decoded dimensions, real alpha, and actual file
+sizes against the 200 KiB budget. Do not confuse the whole catalog's bytes with
+first-screen transfers; use the controlled browser performance test for network data.

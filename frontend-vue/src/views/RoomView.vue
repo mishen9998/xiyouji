@@ -193,6 +193,7 @@ onMounted(async () => {
   }
   if (roomStore.room?.status === 'IN_BATTLE') router.push(`/room/${roomStore.roomCode}/battle`)
   else if (roomStore.room?.status === 'IN_MAP') router.push(`/room/${roomStore.roomCode}/map`)
+  else if (roomStore.room?.status === 'FINISHED') router.push(`/room/${roomStore.roomCode}/complete`)
 })
 
 // 监听房间状态变化，进入战斗
@@ -201,6 +202,8 @@ watch(() => roomStore.room?.status, (status) => {
     router.push(`/room/${roomStore.roomCode}/map`)
   } else if (status === 'IN_BATTLE') {
     router.push(`/room/${roomStore.roomCode}/battle`)
+  } else if (status === 'FINISHED') {
+    router.push(`/room/${roomStore.roomCode}/complete`)
   }
 })
 

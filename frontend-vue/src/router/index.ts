@@ -31,6 +31,18 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/complete',
+    name: 'complete',
+    component: () => import('@/views/CompletionView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/room/:code/complete',
+    name: 'mp-complete',
+    component: () => import('@/views/CompletionView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/battle',
     name: 'battle',
     component: () => import('@/views/BattleView.vue'),

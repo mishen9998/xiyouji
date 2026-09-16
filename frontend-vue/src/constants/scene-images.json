@@ -1,11 +1,11 @@
 {
-  "journey": "/images/宝物/场景/map_background.png",
-  "camp": "/images/宝物/场景/node_rest.jpg",
-  "blackwind": "/images/宝物/场景/node_battle.jpg",
-  "firemountain": "/images/宝物/场景/node_battle.jpg",
-  "lionridge": "/images/宝物/场景/node_battle.jpg",
-  "completion": "/images/宝物/场景/map_background.png",
-  "blackbear": "/images/敌人/建模/enemy_heixiongjing.jpg",
-  "bullking": "/images/敌人/建模/enemy_niumowang.jpg",
-  "roc": "/images/敌人/建模/enemy_dapeng.jpg"
+  "journey": "/images/旅程/journey.png",
+  "camp": "/images/旅程/camp.png",
+  "blackwind": "/images/旅程/blackwind.png",
+  "firemountain": "/images/旅程/firemountain.png",
+  "lionridge": "/images/旅程/lionridge.png",
+  "completion": "/images/旅程/completion.png",
+  "blackbear": "/images/旅程/blackbear.png",
+  "bullking": "/images/旅程/bullking.png",
+  "roc": "/images/旅程/roc.png"
 }

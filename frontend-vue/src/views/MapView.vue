@@ -213,6 +213,10 @@ onMounted(async () => {
       return
     }
   }
+  if (store.storyEvent?.scenes.some(scene => scene.trigger === 'COMPLETE')) {
+    await router.replace('/complete')
+    return
+  }
   scrollToCurrentNode()
   if (store.currentNode?.type === 'RANDOM') {
     currentEventType.value = 'random'
