@@ -389,6 +389,11 @@ watch(() => room.value?.storyEvent?.event, event => {
   if (!event.resolved) { currentEventType.value = 'random'; eventModalVisible.value = true }
   else if (currentEventType.value === 'random') eventModalVisible.value = false
 }, { immediate: true })
+
+watch(() => room.value?.status, status => {
+  const code = room.value?.code
+  if (status === 'FINISHED' && code && route.params.code === code) void router.replace(`/room/${code}/complete`)
+}, { immediate: true })
 </script>
 
 <style scoped>

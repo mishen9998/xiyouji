@@ -49,3 +49,18 @@ it('does not let a late battle read redirect a changed room URL', async () => {
   expect(replace).not.toHaveBeenCalled()
   wrapper.unmount()
 })
+it('opens the completion illustration only for the current finished room', async () => {
+  const { store, read, wrapper } = setup()
+  store.room!.status = 'FINISHED'; await flushPromises()
+  expect(replace).toHaveBeenCalledOnce()
+  expect(replace).toHaveBeenCalledWith('/room/FOLLOW01/complete')
+  expect(read).not.toHaveBeenCalled()
+  wrapper.unmount()
+})
+it('does not let a different room completion redirect the current URL', async () => {
+  const { store, wrapper } = setup()
+  route.params.code = 'OTHER002'
+  store.room!.status = 'FINISHED'; await flushPromises()
+  expect(replace).not.toHaveBeenCalled()
+  wrapper.unmount()
+})

@@ -3,7 +3,7 @@
   <router-view />
   <Toast />
   <ConfirmModal />
-  <StoryPanel />
+  <StoryPanel v-if="storyContext" :key="storyContext.key" :stories="storyContext.stories" />
   <aside v-if="unknownResult" class="command-recovery" role="alert">
     <p>{{ recoveryMessage }}</p>
     <button :disabled="recovering" @click="recover">同步状态并查询原命令回执</button>
@@ -15,12 +15,28 @@
 import Toast from '@/components/Toast.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
 import StoryPanel from '@/components/StoryPanel.vue'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { reconcileUnknownCommands, acknowledgeUnknownCommands, hasUnknownCommands, unknownCommandsPastTtl } from '@/api/game'
 import { useRoomStore } from '@/stores/room'
 import { useGameStore } from '@/stores/game'
 import { useRouter } from 'vue-router'
 const router = useRouter()
+const game = useGameStore()
+const room = useRoomStore()
+// Only the active journey owns the narrative queue. Completion has its own
+// fresh, authoritative story; changing journeys discards the old local queue.
+const storyContext = computed(() => {
+  const route = router.currentRoute.value
+  if (route.name === 'map' || route.name === 'battle') {
+    return game.sessionId ? { key: `solo:${game.sessionId}`, stories: [game.storyEvent, game.battleInfo?.storyEvent] } : null
+  }
+  if (route.name === 'mp-map' || route.name === 'mp-battle') {
+    const code = String(route.params.code)
+    return { key: `room:${code}`, stories: room.room?.code === code
+      ? [room.room.storyEvent, room.battleInfo?.roomCode === code ? room.battleInfo.storyEvent : undefined] : [] }
+  }
+  return null
+})
 const unknownResult = ref(hasUnknownCommands())
 const canStartNewIntent = ref(false)
 const recovering = ref(false)

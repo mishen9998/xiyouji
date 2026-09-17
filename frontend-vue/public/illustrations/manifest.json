@@ -6106,6 +6106,402 @@
         }
       ]
     },
+    "/images/旅程/blackbear.png": {
+      "sourceHash": "f34d4df671b9328085fb985778a1842ee7b52a4fea06ddfc67db8e6ea7eb6861",
+      "sourceBytes": 1218598,
+      "width": 1254,
+      "height": 1254,
+      "variants": [
+        {
+          "width": 320,
+          "height": 320,
+          "webp": {
+            "url": "/illustrations/f1220648827e-320.webp",
+            "bytes": 22016
+          },
+          "avif": {
+            "url": "/illustrations/f1220648827e-320.avif",
+            "bytes": 15354
+          }
+        },
+        {
+          "width": 640,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/f1220648827e-640.webp",
+            "bytes": 60668
+          },
+          "avif": {
+            "url": "/illustrations/f1220648827e-640.avif",
+            "bytes": 37837
+          }
+        },
+        {
+          "width": 960,
+          "height": 960,
+          "webp": {
+            "url": "/illustrations/f1220648827e-960.webp",
+            "bytes": 112636
+          },
+          "avif": {
+            "url": "/illustrations/f1220648827e-960.avif",
+            "bytes": 66478
+          }
+        }
+      ]
+    },
+    "/images/旅程/blackwind.png": {
+      "sourceHash": "e53164f40986211b991b9a9cd834436c3c6ab805a3388a7e594b1090bfc0738f",
+      "sourceBytes": 3164066,
+      "width": 1672,
+      "height": 941,
+      "variants": [
+        {
+          "width": 320,
+          "height": 180,
+          "webp": {
+            "url": "/illustrations/8d1eb2fa7a52-320.webp",
+            "bytes": 18996
+          },
+          "avif": {
+            "url": "/illustrations/8d1eb2fa7a52-320.avif",
+            "bytes": 16549
+          }
+        },
+        {
+          "width": 640,
+          "height": 360,
+          "webp": {
+            "url": "/illustrations/8d1eb2fa7a52-640.webp",
+            "bytes": 70482
+          },
+          "avif": {
+            "url": "/illustrations/8d1eb2fa7a52-640.avif",
+            "bytes": 59230
+          }
+        },
+        {
+          "width": 960,
+          "height": 540,
+          "webp": {
+            "url": "/illustrations/8d1eb2fa7a52-960.webp",
+            "bytes": 145354
+          },
+          "avif": {
+            "url": "/illustrations/8d1eb2fa7a52-960.avif",
+            "bytes": 121640
+          }
+        }
+      ]
+    },
+    "/images/旅程/bullking.png": {
+      "sourceHash": "af2caba92a9fa59335abfcf79dc1d5e9bf13ef9f1a7ecfe214ed8842dcd68182",
+      "sourceBytes": 1407193,
+      "width": 1254,
+      "height": 1254,
+      "variants": [
+        {
+          "width": 320,
+          "height": 320,
+          "webp": {
+            "url": "/illustrations/15ee9da55fff-320.webp",
+            "bytes": 27342
+          },
+          "avif": {
+            "url": "/illustrations/15ee9da55fff-320.avif",
+            "bytes": 20375
+          }
+        },
+        {
+          "width": 640,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/15ee9da55fff-640.webp",
+            "bytes": 78162
+          },
+          "avif": {
+            "url": "/illustrations/15ee9da55fff-640.avif",
+            "bytes": 52139
+          }
+        },
+        {
+          "width": 960,
+          "height": 960,
+          "webp": {
+            "url": "/illustrations/15ee9da55fff-960.webp",
+            "bytes": 148830
+          },
+          "avif": {
+            "url": "/illustrations/15ee9da55fff-960.avif",
+            "bytes": 92057
+          }
+        }
+      ]
+    },
+    "/images/旅程/camp.png": {
+      "sourceHash": "b2d850e59ce28b8c5395882d942a1be53c2232191f59fb96f676c76b741b8bd8",
+      "sourceBytes": 3056872,
+      "width": 1672,
+      "height": 941,
+      "variants": [
+        {
+          "width": 320,
+          "height": 180,
+          "webp": {
+            "url": "/illustrations/cd5f36ac69a4-320.webp",
+            "bytes": 17806
+          },
+          "avif": {
+            "url": "/illustrations/cd5f36ac69a4-320.avif",
+            "bytes": 16166
+          }
+        },
+        {
+          "width": 640,
+          "height": 360,
+          "webp": {
+            "url": "/illustrations/cd5f36ac69a4-640.webp",
+            "bytes": 65322
+          },
+          "avif": {
+            "url": "/illustrations/cd5f36ac69a4-640.avif",
+            "bytes": 55672
+          }
+        },
+        {
+          "width": 960,
+          "height": 540,
+          "webp": {
+            "url": "/illustrations/cd5f36ac69a4-960.webp",
+            "bytes": 131458
+          },
+          "avif": {
+            "url": "/illustrations/cd5f36ac69a4-960.avif",
+            "bytes": 110960
+          }
+        }
+      ]
+    },
+    "/images/旅程/completion.png": {
+      "sourceHash": "5775525d53bf4735e839fe9885f36c22cb8990601def6d15dd48d404035738ab",
+      "sourceBytes": 2688884,
+      "width": 1672,
+      "height": 941,
+      "variants": [
+        {
+          "width": 320,
+          "height": 180,
+          "webp": {
+            "url": "/illustrations/0ffb551808a0-320.webp",
+            "bytes": 13182
+          },
+          "avif": {
+            "url": "/illustrations/0ffb551808a0-320.avif",
+            "bytes": 11606
+          }
+        },
+        {
+          "width": 640,
+          "height": 360,
+          "webp": {
+            "url": "/illustrations/0ffb551808a0-640.webp",
+            "bytes": 46272
+          },
+          "avif": {
+            "url": "/illustrations/0ffb551808a0-640.avif",
+            "bytes": 38021
+          }
+        },
+        {
+          "width": 960,
+          "height": 540,
+          "webp": {
+            "url": "/illustrations/0ffb551808a0-960.webp",
+            "bytes": 95772
+          },
+          "avif": {
+            "url": "/illustrations/0ffb551808a0-960.avif",
+            "bytes": 75318
+          }
+        }
+      ]
+    },
+    "/images/旅程/firemountain.png": {
+      "sourceHash": "7771ad12d770d4965d4ab0d3331651b14d26ef10e18c6176d5e7bd93f16b56b4",
+      "sourceBytes": 2801254,
+      "width": 1672,
+      "height": 941,
+      "variants": [
+        {
+          "width": 320,
+          "height": 180,
+          "webp": {
+            "url": "/illustrations/bd3c9bcd8171-320.webp",
+            "bytes": 14940
+          },
+          "avif": {
+            "url": "/illustrations/bd3c9bcd8171-320.avif",
+            "bytes": 12378
+          }
+        },
+        {
+          "width": 640,
+          "height": 360,
+          "webp": {
+            "url": "/illustrations/bd3c9bcd8171-640.webp",
+            "bytes": 52010
+          },
+          "avif": {
+            "url": "/illustrations/bd3c9bcd8171-640.avif",
+            "bytes": 41002
+          }
+        },
+        {
+          "width": 960,
+          "height": 540,
+          "webp": {
+            "url": "/illustrations/bd3c9bcd8171-960.webp",
+            "bytes": 105724
+          },
+          "avif": {
+            "url": "/illustrations/bd3c9bcd8171-960.avif",
+            "bytes": 81054
+          }
+        }
+      ]
+    },
+    "/images/旅程/journey.png": {
+      "sourceHash": "51eefc5db571b9b4823860d3cb2ff28a211e94759ae901b1500b89963c78fd26",
+      "sourceBytes": 2936752,
+      "width": 1672,
+      "height": 941,
+      "variants": [
+        {
+          "width": 320,
+          "height": 180,
+          "webp": {
+            "url": "/illustrations/f60127e6a842-320.webp",
+            "bytes": 16400
+          },
+          "avif": {
+            "url": "/illustrations/f60127e6a842-320.avif",
+            "bytes": 13763
+          }
+        },
+        {
+          "width": 640,
+          "height": 360,
+          "webp": {
+            "url": "/illustrations/f60127e6a842-640.webp",
+            "bytes": 57180
+          },
+          "avif": {
+            "url": "/illustrations/f60127e6a842-640.avif",
+            "bytes": 46066
+          }
+        },
+        {
+          "width": 960,
+          "height": 540,
+          "webp": {
+            "url": "/illustrations/f60127e6a842-960.webp",
+            "bytes": 117446
+          },
+          "avif": {
+            "url": "/illustrations/f60127e6a842-960.avif",
+            "bytes": 96026
+          }
+        }
+      ]
+    },
+    "/images/旅程/lionridge.png": {
+      "sourceHash": "b1389b276fc9ccb5e792b18297a23163c619667e3929984ecef0c76cafaebf58",
+      "sourceBytes": 3025328,
+      "width": 1672,
+      "height": 941,
+      "variants": [
+        {
+          "width": 320,
+          "height": 180,
+          "webp": {
+            "url": "/illustrations/dd8e4dc38591-320.webp",
+            "bytes": 17398
+          },
+          "avif": {
+            "url": "/illustrations/dd8e4dc38591-320.avif",
+            "bytes": 14874
+          }
+        },
+        {
+          "width": 640,
+          "height": 360,
+          "webp": {
+            "url": "/illustrations/dd8e4dc38591-640.webp",
+            "bytes": 61856
+          },
+          "avif": {
+            "url": "/illustrations/dd8e4dc38591-640.avif",
+            "bytes": 50247
+          }
+        },
+        {
+          "width": 960,
+          "height": 540,
+          "webp": {
+            "url": "/illustrations/dd8e4dc38591-960.webp",
+            "bytes": 124570
+          },
+          "avif": {
+            "url": "/illustrations/dd8e4dc38591-960.avif",
+            "bytes": 100881
+          }
+        }
+      ]
+    },
+    "/images/旅程/roc.png": {
+      "sourceHash": "f50c4c2d53c5d0ebb0620a83463b33cdf70e492ee4cac20080782b76c5cbcc22",
+      "sourceBytes": 1529295,
+      "width": 1254,
+      "height": 1254,
+      "variants": [
+        {
+          "width": 320,
+          "height": 320,
+          "webp": {
+            "url": "/illustrations/d617a8ba17d6-320.webp",
+            "bytes": 31544
+          },
+          "avif": {
+            "url": "/illustrations/d617a8ba17d6-320.avif",
+            "bytes": 24308
+          }
+        },
+        {
+          "width": 640,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/d617a8ba17d6-640.webp",
+            "bytes": 91362
+          },
+          "avif": {
+            "url": "/illustrations/d617a8ba17d6-640.avif",
+            "bytes": 61938
+          }
+        },
+        {
+          "width": 960,
+          "height": 960,
+          "webp": {
+            "url": "/illustrations/d617a8ba17d6-960.webp",
+            "bytes": 176850
+          },
+          "avif": {
+            "url": "/illustrations/d617a8ba17d6-960.avif",
+            "bytes": 109366
+          }
+        }
+      ]
+    },
     "/images/沙僧/卡牌/card_fuzhongqianxing.jpg": {
       "sourceHash": "9b1920a64e3aa91e437c4b32faf9221fdf9f7e286778d9a4794c5efc90fe01bc",
       "sourceBytes": 91631,

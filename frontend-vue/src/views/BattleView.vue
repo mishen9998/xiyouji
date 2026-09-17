@@ -30,7 +30,7 @@
           </section>
           <section v-if="battleEnemy" class="arena-enemy">
             <div class="enemy-portrait" :class="{ boss: battleEnemy.isBoss }">
-              <ResponsiveImage v-if="enemyImgUrl(battleEnemy.name)" :src="enemyImgUrl(battleEnemy.name)" :alt="battleEnemy.name" :emoji="battleEnemy.emoji || '👹'" sizes="(max-width: 600px) 112px, 180px" object-fit="cover" critical />
+              <ResponsiveImage v-if="enemyImgUrl(battleEnemy.name)" :src="enemyImgUrl(battleEnemy.name)" :alt="battleEnemy.name" :emoji="battleEnemy.emoji || '👹'" sizes="(max-width: 600px) 112px, 180px" :object-fit="battleEnemy.isBoss ? 'contain' : 'cover'" critical />
               <span v-else>{{ battleEnemy.emoji || '👹' }}</span>
               <span v-if="battleEnemy.isBoss" class="boss-seal">关主</span>
             </div>
@@ -246,8 +246,7 @@ function onNextLayer() {
 
 function onGameComplete() {
   resetBattle()
-  clearAll()
-  router.push('/menu')
+  router.push('/complete')
 }
 
 onMounted(async () => {
@@ -311,7 +310,9 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .enemy-portrait { position: relative; width: 150px; height: 150px; padding: 5px; border: 1px solid #a8bda2; border-radius: 50%; background: #f7f1e5; box-shadow: 0 8px 22px #48654112; }
 .enemy-portrait :deep(.responsive-image), .enemy-portrait :deep(img) { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
 .enemy-portrait > span:not(.boss-seal) { display: grid; place-items: center; height: 100%; font-size: 4.5rem; }
-.enemy-portrait.boss { border-color: #b18a47; }
+.enemy-portrait.boss { border-color: #b18a47; border-radius: 16px; background: radial-gradient(ellipse at bottom, #e9e1be, #fffaf066); }
+.enemy-portrait.boss :deep(.responsive-image) { background: transparent; border-radius: 0; }
+.enemy-portrait.boss :deep(img) { object-fit: contain; border-radius: 0; }
 .boss-seal { position: absolute; bottom: 0; right: -4px; padding: 5px 8px; color: #fffaf0; border-radius: 4px; background: #b44736; font-size: 0.75rem; transform: rotate(-6deg); }
 h2 { font: 1.3125rem var(--font-display); margin: 0; }
 .arena-enemy > .hp-bar-container { max-width: 240px; }

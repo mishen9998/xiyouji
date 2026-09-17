@@ -50,7 +50,7 @@ it('explicit skip is displayed as handled and enables host after everyone finish
   expect(wrapper.find('.btn-next-floor').exists()).toBe(true)
   vi.spyOn(store, 'nextFloor').mockResolvedValue({ completed: true })
   await wrapper.get('.btn-next-floor').trigger('click'); await flushPromises()
-  expect(push).toHaveBeenCalledWith('/menu')
+  expect(push).toHaveBeenCalledWith('/room/TEST/complete')
 })
 it('failed confirmation keeps selection and allows retry', async () => {
   const store = setup()
