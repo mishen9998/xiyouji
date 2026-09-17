@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createVisibleFrameLoop, shouldUseLightweightIllustration, useMotionVisibility } from './useMotionVisibility'
+import { createVisibleFrameLoop, useMotionVisibility } from './useMotionVisibility'
 
 afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks() })
 
@@ -43,11 +43,5 @@ describe('motion scheduling', () => {
     expect(motion.visible.value).toBe(true); expect(motion.motionAllowed.value).toBe(false)
     media.matches = false; preferenceChange(); expect(motion.motionAllowed.value).toBe(true)
     wrapper.unmount(); expect(disconnect).toHaveBeenCalled(); expect(remove).toHaveBeenCalled()
-  })
-  it('keeps low-memory, low-core and data-saving devices on illustration rendering', () => {
-    expect(shouldUseLightweightIllustration({ hardwareConcurrency: 4 } as Navigator)).toBe(true)
-    expect(shouldUseLightweightIllustration({ hardwareConcurrency: 8, deviceMemory: 2 } as any)).toBe(true)
-    expect(shouldUseLightweightIllustration({ hardwareConcurrency: 8, connection: { saveData: true } } as any)).toBe(true)
-    expect(shouldUseLightweightIllustration({ hardwareConcurrency: 8, deviceMemory: 8 } as any)).toBe(false)
   })
 })

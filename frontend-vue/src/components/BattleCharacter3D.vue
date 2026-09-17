@@ -1,24 +1,19 @@
-<!-- 程序化 WebGL 3D 战斗角色；WebGL 不可用时自动降级到立绘动画。 -->
+<!-- 程序化 WebGL 3D 战斗角色；不再切换到 2D 插画渲染。 -->
 <template>
   <div
     ref="rootElement"
     class="character-3d"
     :class="[`character-3d--${size}`, `character-3d--${action}`]"
     :aria-label="`${label || '战斗角色'}：${actionLabel}`"
-    :data-renderer="webglReady && !webglFailed ? 'webgl' : 'illustration'"
+    :data-renderer="webglReady ? 'webgl' : webglFailed ? 'unavailable' : 'loading'"
     :data-motion-active="webglReady && motionAllowed"
   >
     <div v-show="webglReady" ref="host" class="character-3d__viewport" aria-hidden="true"></div>
-    <BattleCharacter
-      v-if="!webglReady || webglFailed"
-      :image-url="imageUrl"
-      :emoji="emoji"
-      :action="action"
-      :action-token="resolvedToken"
-      :label="label"
-      :size="size"
-      :show-action-label="false"
-    />
+    <div v-if="!webglReady" class="character-3d__status" role="status">
+      <strong>{{ label }}</strong>
+      <span>{{ webglFailed ? '3D 显示暂不可用，出牌不受影响' : '正在唤醒 3D 角色…' }}</span>
+      <button v-if="webglFailed" type="button" @click="setupScene">重试 3D</button>
+    </div>
     <div v-if="webglReady" class="character-3d__plate">
       <span class="character-3d__sigil">{{ emoji }}</span>
       <span>{{ label }}</span>
@@ -32,13 +27,11 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import * as THREE from 'three'
-import BattleCharacter from './BattleCharacter.vue'
-import type { BattleAction, BattleCharacterSize } from './BattleCharacter.vue'
-import { createVisibleFrameLoop, shouldUseLightweightIllustration, useMotionVisibility } from '@/composables/useMotionVisibility'
+import type { BattleAction, BattleCharacterSize } from '@/types/battleCharacter'
+import { createVisibleFrameLoop, useMotionVisibility } from '@/composables/useMotionVisibility'
 
 const props = withDefaults(defineProps<{
   characterClass?: string
-  imageUrl?: string | null
   emoji?: string
   action?: BattleAction
   actionKey?: string | number
@@ -48,7 +41,6 @@ const props = withDefaults(defineProps<{
   showActionLabel?: boolean
 }>(), {
   characterClass: 'SUN_WUKONG',
-  imageUrl: null,
   emoji: '🦸',
   action: 'idle',
   actionKey: 0,
@@ -636,8 +628,9 @@ function createRig(characterClass: string): CharacterRig {
 }
 
 function setupScene() {
-  if (!host.value || disposed) return
-  if (shouldUseLightweightIllustration()) { webglFailed.value = true; return }
+  if (!host.value || disposed || webglReady.value) return
+  webglFailed.value = false
+  slowFrames = 0
   try {
     scene = new THREE.Scene()
     camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100)
@@ -675,8 +668,9 @@ function setupScene() {
     webglReady.value = true
     nextTick(() => { resize(); syncAnimation() })
   } catch (error) {
-    console.warn('WebGL 3D character unavailable, falling back to illustration:', error)
-    fallBack()
+    console.warn('WebGL 3D character unavailable:', error)
+    releaseScene()
+    webglFailed.value = true
   }
 }
 
@@ -727,11 +721,10 @@ function syncAnimation() {
   }
 }
 
-function onContextLost(event: Event) { event.preventDefault(); fallBack() }
+function onContextLost(event: Event) { event.preventDefault(); releaseScene(); webglFailed.value = true }
 
-function fallBack() {
+function releaseScene() {
   frameLoop.stop()
-  webglFailed.value = true
   webglReady.value = false
   resizeObserver?.disconnect()
   if (renderer) {
@@ -914,9 +907,13 @@ function animate(now = performance.now()) {
 
   rig.aura.rotation.z += 0.008
   renderer.render(scene, camera)
-  // Sustained expensive rendering automatically returns to the identical 2D action interface.
+  // Lower pixel cost under sustained load, but always retain the 3D scene.
   slowFrames = performance.now() - frameStarted > 24 ? slowFrames + 1 : Math.max(0, slowFrames - 1)
-  if (slowFrames >= 8) fallBack()
+  if (slowFrames >= 8 && renderer.getPixelRatio() > 0.75) {
+    renderer.setPixelRatio(0.75)
+    resize()
+    slowFrames = 0
+  }
 }
 
 watch(() => [props.action, resolvedToken.value], () => { startedAt = performance.now() })
@@ -926,7 +923,7 @@ watch([motionAllowed, visible, reducedMotion], syncAnimation, { flush: 'sync' })
 onMounted(() => nextTick(setupScene))
 onBeforeUnmount(() => {
   disposed = true
-  fallBack()
+  releaseScene()
 })
 </script>
 
@@ -938,13 +935,16 @@ onBeforeUnmount(() => {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  width: var(--viewport-width);
+  width: var(--battle-viewport-width, var(--viewport-width));
   filter: drop-shadow(0 18px 16px rgba(0, 0, 0, 0.45));
 }
 .character-3d--sm { --viewport-width: 118px; --viewport-height: 172px; }
 .character-3d--lg { --viewport-width: 230px; --viewport-height: 330px; }
-.character-3d__viewport { width: var(--viewport-width); height: var(--viewport-height); }
+.character-3d__viewport { width: var(--battle-viewport-width, var(--viewport-width)); height: var(--battle-viewport-height, var(--viewport-height)); }
 .character-3d__viewport :deep(canvas) { display: block; width: 100%; height: 100%; }
+.character-3d__status { width: var(--battle-viewport-width, var(--viewport-width)); min-height: var(--battle-viewport-height, var(--viewport-height)); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; text-align: center; color: #dfc79c; font-size: 12px; }
+.character-3d__status button { min-height: 44px; padding: 8px 16px; border: 1px solid #b38c45; border-radius: 8px; background: #241b29; color: #ffe0a2; cursor: pointer; }
+.character-3d__status button:focus-visible { outline: 2px solid #ffd477; outline-offset: 3px; }
 .character-3d__plate {
   display: flex;
   align-items: center;

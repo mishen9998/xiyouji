@@ -1,6 +1,6 @@
 <!-- ====== 事件弹窗组件 ====== -->
 <template>
-  <div v-if="visible" class="modal-overlay" :class="{ 'temple-overlay': eventType === 'shop' }" @click.self="onBackdropClick">
+  <div v-if="visible" class="modal-overlay battle-theme" :class="{ 'temple-overlay': eventType === 'shop' }" @click.self="onBackdropClick">
     <TempleShop
       v-if="eventType === 'shop'"
       :cards="shopCards"
@@ -474,7 +474,7 @@ async function chooseBranch(optionId: string) {
     font-size: 1.375rem;
   }
   .emperor-relic-card {
-    width: 150px;
+    width: min(150px, calc(50% - 9px));
     padding: 12px 8px;
   }
   .emperor-relic-img {

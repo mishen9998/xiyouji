@@ -84,7 +84,7 @@
     <!-- 事件弹窗 -->
     <div
       v-if="eventModalVisible"
-      class="modal-overlay"
+      class="modal-overlay battle-theme"
       :class="{ 'temple-overlay': currentEventType === 'shop' }"
       @click.self="onEventBackdropClick"
     >

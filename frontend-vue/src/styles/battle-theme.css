@@ -1,0 +1,19 @@
+/* Restore the original dark/gold battle and event identity without changing map/entrance palettes. */
+.battle-theme {
+  --bg-dark: #0f0e17; --bg-panel: #1a1825; --bg-card: #242033;
+  --text-primary: #f3e8d5; --text-secondary: #c5bdd0; --text-muted: #b5a8bd;
+  --gold: #f2bc58; --gold-dark: #9b7134; --red: #ff8793; --red-dark: #983947;
+  --blue: #80d6ff; --green: #7eddaa; --purple: #c4a0ff; --orange: #ffb96c;
+  --line: #594632;
+  color: var(--text-primary);
+}
+.battle-theme.modal-overlay, .battle-theme .modal-overlay { background: #070610cf; }
+.battle-theme .modal-box { background: linear-gradient(145deg, #252033, #15131f); border: 1px solid var(--gold-dark); box-shadow: 0 24px 80px #0009; }
+.battle-theme .modal-box h3 { color: var(--gold); }
+.battle-theme .btn-primary { color: #201421; border-color: var(--gold-dark); background: linear-gradient(135deg, #f2bc58, #cf8e39); }
+.battle-theme .btn-primary:hover:not(:disabled) { background: #ffd477; }
+.battle-theme .btn-small:hover:not(:disabled) { background: #332b40; }
+.battle-theme button:focus-visible { outline-color: var(--gold); }
+.battle-theme .action-hint { color: var(--text-secondary); font-size: .75rem; }
+.battle-theme .end-turn-btn, .battle-theme .btn-end-turn { color: #fff0dd; background: linear-gradient(135deg, #96344e, #5c223f); border-color: #c06676; }
+.battle-theme .character-3d__plate { color: var(--text-primary); }

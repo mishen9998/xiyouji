@@ -32,14 +32,6 @@ export function useMotionVisibility(target: Ref<HTMLElement | null>) {
   return { visible, reducedMotion, motionAllowed }
 }
 
-/** Capability gate only. Users still opt into 3D in the battle UI. */
-export function shouldUseLightweightIllustration(nav: Navigator = navigator): boolean {
-  const device = nav as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } }
-  return device.connection?.saveData === true
-    || (device.deviceMemory !== undefined && device.deviceMemory <= 4)
-    || (device.hardwareConcurrency > 0 && device.hardwareConcurrency <= 4)
-}
-
 /** Single-owner RAF loop: repeated resume cannot schedule duplicates; pause cancels synchronously. */
 export function createVisibleFrameLoop(render: (timestamp: number) => void, fps = 30) {
   let frame: number | null = null

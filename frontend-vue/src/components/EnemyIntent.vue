@@ -20,16 +20,16 @@ const forecast = computed(() => describeIntent(props.enemy, props.players))
 const damageRows = computed(() => [...forecast.value.forecast].sort((a, b) => Number(b.id === props.focusUserId) - Number(a.id === props.focusUserId)))
 </script>
 <style scoped>
-.enemy-intent { width: 100%; min-width: 0; padding: 10px 12px; color: #344a42; background: #fffbf1; border: 1px solid #d8cbb0; border-left: 4px solid #b44736; border-radius: 10px; text-align: left; overflow-wrap: anywhere; }
-.intent-heading { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; color: #8d3328; font-size: 0.9375rem; }
+.enemy-intent { width: 100%; min-width: 0; padding: 10px 12px; color: var(--text-primary); background: var(--bg-panel); border: 1px solid var(--line); border-left: 4px solid var(--red); border-radius: 10px; text-align: left; overflow-wrap: anywhere; }
+.intent-heading { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; color: var(--red); font-size: 0.9375rem; }
 .intent-icon { font-size: 1.1875rem; }
-.intent-kicker { margin-left: auto; color: #6b6555; font-size: 0.6875rem; }
+.intent-kicker { margin-left: auto; color: var(--text-muted); font-size: 0.6875rem; }
 .intent-effect { font-size: 0.875rem; font-weight: 650; margin: 4px 0; }
 .intent-target { font-size: 0.75rem; margin: 4px 0; }
-.intent-damage { list-style: none; padding: 6px 0 0; margin: 0; border-top: 1px dashed #d8cbb0; }
+.intent-damage { list-style: none; padding: 6px 0 0; margin: 0; border-top: 1px dashed var(--line); }
 .intent-damage--multiple { max-height: 3.25rem; overflow-y: auto; overscroll-behavior-y: contain; scrollbar-width: thin; }
-.intent-damage--multiple:focus-visible { outline: 2px solid #21665b; outline-offset: 2px; }
+.intent-damage--multiple:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .intent-damage li { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 0.75rem; line-height: 1.6; }
-.intent-damage strong { color: #963b2d; font-weight: 600; }
-small { display: block; margin-top: 5px; color: #686452; font-size: 0.6875rem; line-height: 1.5; }
+.intent-damage strong { color: var(--red); font-weight: 600; }
+small { display: block; margin-top: 5px; color: var(--text-muted); font-size: 0.6875rem; line-height: 1.5; }
 </style>
