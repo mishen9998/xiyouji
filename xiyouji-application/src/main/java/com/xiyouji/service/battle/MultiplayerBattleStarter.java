@@ -118,7 +118,7 @@ public class MultiplayerBattleStarter {
         state.addLog("敌人意图攻击: " + players.get(state.getTargetPlayerIndex()).getUsername());
 
         // 标记房间为战斗中
-        roomService.markInBattle(roomCode);
+        state.setBattleGeneration(roomService.markInBattle(roomCode, state.getBattleId()));
 
         log.info("Multiplayer battle started: room={}, players={}, node={}",
                 roomCode, players.size(), currentNode.getId());

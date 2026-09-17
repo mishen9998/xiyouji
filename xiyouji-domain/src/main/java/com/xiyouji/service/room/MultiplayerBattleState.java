@@ -27,6 +27,9 @@ import java.util.Map;
 public class MultiplayerBattleState implements Serializable {
 
     private String roomCode;
+    private String battleId;
+    /** Room version at admission, monotonic across battles; stateVersion is only per battle. */
+    private long battleGeneration;
     private String storyInstanceId;
     private int storyFloor = 1;
     public String getStoryInstanceId() { return storyInstanceId; }
@@ -58,6 +61,7 @@ public class MultiplayerBattleState implements Serializable {
 
     public MultiplayerBattleState(String roomCode) {
         this.roomCode = roomCode;
+        this.battleId = java.util.UUID.randomUUID().toString();
     }
 
     /** 添加战斗日志（保留最近30条） */
@@ -112,6 +116,17 @@ public class MultiplayerBattleState implements Serializable {
 
     public String getRoomCode() { return roomCode; }
     public void setRoomCode(String roomCode) { this.roomCode = roomCode; }
+
+    public String getBattleId() {
+        if (battleId != null && !battleId.isBlank()) return battleId;
+        // Old snapshots have no identity. A deterministic restored identity is stable across nodes/reads.
+        String encounter = storyInstanceId != null ? storyInstanceId
+                : enemy != null && enemy.getEncounterId() != null ? enemy.getEncounterId() : "restored";
+        return "legacy:" + roomCode + ":" + encounter;
+    }
+    public void setBattleId(String battleId) { this.battleId = battleId; }
+    public long getBattleGeneration() { return battleGeneration; }
+    public void setBattleGeneration(long battleGeneration) { this.battleGeneration = battleGeneration; }
 
     public Enemy getEnemy() { return enemy; }
     public void setEnemy(Enemy enemy) { this.enemy = enemy; }

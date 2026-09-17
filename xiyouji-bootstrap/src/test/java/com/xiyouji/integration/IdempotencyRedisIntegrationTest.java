@@ -157,4 +157,48 @@ class IdempotencyRedisIntegrationTest {
         assertEquals("session:session1", store.find("game:new:host:key").orElseThrow().resourceRef());
         assertTrue(redis.getExpire(RedisIdempotencyStore.LINK_PREFIX + "game:new:host:key") > 86000);
     }
+
+    @Test void battleIdentitySurvivesReplicaReadsAndSecondBattleVersionReset() {
+        Room room = (Room) room("BATTLE01").resource();
+        room.setStatus(RoomStatus.IN_MAP);
+        rooms.save(room);
+        var service = new RoomService(new RoomAccess(rooms, new LocalDistributedLockService()), new RoomDTOAssembler(), null, null, null);
+        var battles = new RedisMultiplayerBattleStore(resources);
+        var replica = new RedisMultiplayerBattleStore(new RedisConfig().redisTemplate(factory));
+        var first = new MultiplayerBattleState(room.getCode());
+        first.setBattleGeneration(service.markInBattle(room.getCode(), first.getBattleId()));
+        for (int i = 0; i < 6; i++) battles.save(first);
+        assertEquals(6, replica.get(room.getCode()).getStateVersion());
+        assertEquals(first.getBattleId(), replica.get(room.getCode()).getBattleId());
+        service.markInMap(room.getCode());
+        battles.remove(room.getCode());
+        var second = new MultiplayerBattleState(room.getCode());
+        second.setBattleGeneration(service.markInBattle(room.getCode(), second.getBattleId()));
+        battles.save(second);
+        var reloaded = replica.get(room.getCode());
+        assertEquals(1, reloaded.getStateVersion());
+        assertNotEquals(first.getBattleId(), reloaded.getBattleId());
+        assertTrue(reloaded.getBattleGeneration() > first.getBattleGeneration());
+        assertEquals(second.getBattleId(), service.getRoom(room.getCode()).getBattleId());
+        assertEquals(second.getBattleGeneration(), service.getRoom(room.getCode()).getBattleGeneration());
+        assertEquals(second.getBattleGeneration(), service.getRoom(room.getCode()).getStateVersion());
+        service.markInMap(room.getCode());
+        assertEquals(second.getBattleId(), service.getRoom(room.getCode()).getBattleId());
+    }
+
+    @Test void oldBattleSnapshotWithoutIdentityRestoresDeterministicallyAcrossRedisInstances() {
+        String key = "multiplayer-battle:LEGACY02";
+        redis.opsForValue().set(key, "{\"@class\":\"com.xiyouji.service.room.MultiplayerBattleState\",\"roomCode\":\"LEGACY02\",\"storyInstanceId\":\"LEGACY02:node1\",\"stateVersion\":6}");
+        var first = new RedisMultiplayerBattleStore(resources);
+        var replica = new RedisMultiplayerBattleStore(new RedisConfig().redisTemplate(factory));
+        var restored = first.get("LEGACY02");
+        assertEquals(0, restored.getBattleGeneration());
+        assertEquals("legacy:LEGACY02:LEGACY02:node1", restored.getBattleId());
+        assertEquals(restored.getBattleId(), replica.get("LEGACY02").getBattleId());
+        first.save(restored);
+        assertEquals(restored.getBattleId(), replica.get("LEGACY02").getBattleId());
+        assertEquals(7, replica.get("LEGACY02").getStateVersion());
+        redis.opsForValue().set(key, "{\"@class\":\"com.xiyouji.service.room.MultiplayerBattleState\",\"roomCode\":\"LEGACY02\",\"stateVersion\":3}");
+        assertEquals("legacy:LEGACY02:restored", replica.get("LEGACY02").getBattleId());
+    }
 }

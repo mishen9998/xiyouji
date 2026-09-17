@@ -1,0 +1,59 @@
+# Disposable local T4 battle-generation regression. Never uses production/T6 services.
+x-app: &app
+  image: eclipse-temurin:17.0.13_11-jre-alpine
+  command: ["java", "-Xms128m", "-Xmx512m", "-jar", "/app/app.jar"]
+  volumes: ["./xiyouji-bootstrap/target/xiyouji-bootstrap-1.0.0.jar:/app/app.jar:ro"]
+  depends_on:
+    mysql: { condition: service_healthy }
+    redis: { condition: service_healthy }
+  environment: &environment
+    SPRING_PROFILES_ACTIVE: distributed
+    SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/xiyouji_t4_round2?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    SPRING_DATASOURCE_USERNAME: root
+    DB_PASSWORD: t4-round2-disposable-only
+    SPRING_DATASOURCE_PASSWORD: t4-round2-disposable-only
+    SPRING_DATA_REDIS_HOST: redis
+    SPRING_DATA_REDIS_PORT: 6379
+    JWT_SECRET: t4-round2-local-only-integration-key-not-for-production-20260917
+    ENFORCE_JWT: "true"
+    CORS_ORIGINS: http://127.0.0.1:18088,http://127.0.0.1:18089
+    MANAGEMENT_TRACING_ENABLED: "false"
+    APP_ROOM_CLEANUP_ENABLED: "false"
+  healthcheck:
+    test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/actuator/health"]
+    interval: 5s
+    timeout: 3s
+    retries: 24
+    start_period: 90s
+  mem_limit: 768m
+services:
+  mysql:
+    image: mysql:8.0.39
+    environment: { MYSQL_ROOT_PASSWORD: t4-round2-disposable-only, MYSQL_DATABASE: xiyouji_t4_round2 }
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    volumes: [t4_mysql:/var/lib/mysql]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 24
+  redis:
+    image: redis:7.2.5-alpine3.19
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    volumes: [t4_redis:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+  app-1:
+    <<: *app
+    ports: ["127.0.0.1:18088:8080"]
+    environment: { <<: *environment, INSTANCE_ID: t4-round2-1 }
+  app-2:
+    <<: *app
+    ports: ["127.0.0.1:18089:8080"]
+    environment: { <<: *environment, INSTANCE_ID: t4-round2-2 }
+volumes:
+  t4_mysql:
+  t4_redis:

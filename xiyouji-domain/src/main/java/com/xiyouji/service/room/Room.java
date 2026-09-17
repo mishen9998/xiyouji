@@ -66,6 +66,14 @@ public class Room implements Serializable {
      * 判断 WebSocket 事件是否过期以及重连后的状态对账。
      */
     private long stateVersion = 0L;
+    /** Latest admitted battle, retained after return to map as a stale-message boundary. */
+    private String battleId;
+    private long battleGeneration;
+
+    public String getBattleId() { return battleId; }
+    public void setBattleId(String battleId) { this.battleId = battleId; }
+    public long getBattleGeneration() { return battleGeneration; }
+    public void setBattleGeneration(long battleGeneration) { this.battleGeneration = battleGeneration; }
 
     public Room() {
     }
