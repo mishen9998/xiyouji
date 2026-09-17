@@ -61,7 +61,7 @@
       <section class="result-modal" role="dialog" aria-modal="true" aria-labelledby="battle-result-title">
         <h2 id="battle-result-title" class="result-title">{{ battle.victory ? '降妖功成' : '西行暂歇' }}</h2>
         <p>{{ battle.victory ? '师徒齐心，降妖除魔！' : '这一程的历练，将成为下一次出发的力量。' }}</p>
-        <button class="btn-primary" @click="handleReturn">返回营地</button>
+        <button class="btn-primary" @click="handleReturn">返回主菜单</button>
       </section>
     </div>
     <div v-if="battle?.rewardsPhase && battle.victory" class="rewards-overlay">
@@ -120,6 +120,7 @@ const uiStore = useUiStore()
 const currentUsername = ref<string | null>(null)
 const battle = computed<MultiplayerBattleInfo | null>(() => roomStore.battleInfo)
 const commandPending = ref(false)
+let defeatHandled = false
 const playerAnimation = useBattleAnimation()
 const playerAction = playerAnimation.action
 const playerActionToken = playerAnimation.actionToken
@@ -136,19 +137,31 @@ watch(() => [battle.value?.turnNumber, myPlayer.value?.hp, myPlayer.value?.block
   if (next[0] !== previous[0] && next.slice(1).some((value, index) => value !== undefined && previous[index + 1] !== undefined && value < previous[index + 1]!)) playerAnimation.playHit()
 })
 async function loadBattle(code: string) {
+  if (defeatHandled) return
   try {
     if (roomStore.roomCode !== code) await roomStore.openRoom(code)
+    if (defeatHandled) return
     await roomStore.refreshBattleState()
+    if (defeatHandled) return
     if (!battle.value) { uiStore.showToast('战斗尚未开始'); await router.push('/room') }
-  } catch { uiStore.showToast('房间不存在或已结束'); await router.push('/room') }
+  } catch { if (!defeatHandled) { uiStore.showToast('房间不存在或已结束'); await router.push('/room') } }
 }
 onMounted(() => { currentUsername.value = getCurrentUsername(); void loadBattle(route.params.code as string) })
 watch(() => route.params.code, (code, old) => { if (code && code !== old) { playerAnimation.idle(); void loadBattle(code as string) } })
-watch(() => roomStore.room?.status, (status) => {
+watch(() => [roomStore.room?.code, roomStore.room?.status, battle.value?.roomCode, battle.value?.battleOver, battle.value?.victory] as const, ([code, status, battleCode, over, victory]) => {
+  if (defeatHandled || code !== route.params.code) return
+  if (battleCode === code && over && victory === false) {
+    defeatHandled = true
+    playerAnimation.idle()
+    roomStore.reset()
+    uiStore.showToast('队伍已战败，本局结束，已返回主菜单。')
+    void router.replace('/menu')
+    return
+  }
   if (status === 'IN_MAP') router.push(`/room/${roomStore.roomCode}/map`)
   else if (status === 'FINISHED') router.push(`/room/${roomStore.roomCode}/complete`)
   else if (status === 'WAITING') router.push('/room')
-})
+}, { immediate: true })
 function canPlay(card: MultiplayerCardInfo): boolean {
   return !commandPending.value && !!(battle.value?.playerTurn && !battle.value.battleOver && myPlayer.value?.alive && !myPlayer.value.endedTurn && myPlayer.value.energy >= card.cost)
 }

@@ -51,7 +51,7 @@
         :disabled="continuing || (isVictory && !rewardChosen && selectedRewardIndex < 0)"
         @click="onContinue(false)"
       >
-        {{ continuing ? '处理中...' : '继续前进' }}
+        {{ continuing ? '处理中...' : isVictory ? '继续前进' : '返回主菜单' }}
       </button>
       <button v-if="isVictory && !rewardChosen" class="btn-small" :disabled="continuing" @click="onContinue(true)">跳过奖励</button>
     </div>
@@ -73,6 +73,7 @@ const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
   (e: 'continue'): void
   (e: 'return-to-map'): void
+  (e: 'return-to-menu'): void
   (e: 'next-layer'): void
   (e: 'game-complete'): void
 }>()
@@ -129,6 +130,11 @@ async function onContinue(skip = false) {
   if (isVictory.value && !rewardChosen.value && !skip && selectedRewardIndex.value < 0) return
   continuing.value = true
   try {
+    if (!isVictory.value) {
+      emit('return-to-menu')
+      emit('update:visible', false)
+      return
+    }
     if (isVictory.value && !rewardChosen.value) {
       const data = skip ? await skipReward() : await chooseCardReward(selectedRewardIndex.value)
       if (!data?.success) throw new Error('奖励提交失败，请重试')

@@ -123,6 +123,8 @@ async function loadSlot(savedId: string) {
     }
 
     const player = data.player
+    const defeated = player.hp <= 0
+    if (defeated) gameStore.clearAll()
     const emoji = player.emoji || EMOJI_MAP[player.characterClass] || ''
     const charInfo =
       `${emoji} ${player.displayName}\n` +
@@ -130,13 +132,14 @@ async function loadSlot(savedId: string) {
       `楼层: ${data.currentLayer}/${data.maxLayer}`
 
     uiStore.showConfirm({
-      title: '发现存档',
+      title: defeated ? '本局已战败' : '发现存档',
       message: charInfo,
-      okText: '继续游戏',
+      okText: defeated ? '返回主菜单' : '继续游戏',
       cancelText: '返回',
       showDelete: true,
       deleteText: '删除存档',
       onOk: async () => {
+        if (defeated) { gameStore.clearAll(); return }
         if (data.inBattle) {
           await gameStore.restoreBattleState()
           router.push('/battle')

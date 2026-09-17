@@ -56,7 +56,7 @@
         </div>
       </footer>
       <DeckModal v-model:visible="pilesModalVisible" mode="piles" />
-      <BattleResultModal v-model:visible="resultModalVisible" @return-to-map="onReturnToMap" @next-layer="onNextLayer" @game-complete="onGameComplete" />
+      <BattleResultModal v-model:visible="resultModalVisible" @return-to-map="onReturnToMap" @return-to-menu="onDefeat" @next-layer="onNextLayer" @game-complete="onGameComplete" />
     </template>
   </div>
 </template>
@@ -106,6 +106,7 @@ const playerAnimation = useBattleAnimation()
 const playerAction = playerAnimation.action
 const playerActionToken = playerAnimation.actionToken
 const commandPending = ref(false)
+let defeatHandled = false
 const actionHint = computed(() => commandPending.value ? '正在同步本次操作，请稍候…'
   : bi.value?.battleOver ? '战斗已结束，请领取奖励。'
   : !bi.value?.playerTurn ? '敌人正在行动…'
@@ -178,6 +179,7 @@ async function onEndTurn() {
     : null
   try {
     await endTurn()
+    if (defeatHandled) return
     // 单人结束回合接口会完整执行一次敌人行动；以上一刻的攻击意图为准，
     // 即使伤害被格挡全部吸收，也应给玩家明确的受击反馈。
     if (String(before?.enemy?.intent || '').toUpperCase() === 'ATTACK') {
@@ -206,10 +208,11 @@ async function onEndTurn() {
 // 点击与数字键共用同一提交入口，保留在途请求和弹窗防误触保护。
 useBattleKeyboard(battleInfo, (index) => { if (!pilesModalVisible.value && !resultModalVisible.value) void onPlayCard(index) }, () => { if (!pilesModalVisible.value && !resultModalVisible.value) void onEndTurn() })
 
-// 战斗结束时弹出结果弹窗
+// 胜利进入奖励流程；已确认的战败终止本局，不再返回地图。
 watch(
-  () => bi.value?.battleOver,
-  (over) => {
+  () => [bi.value?.battleOver, bi.value?.victory] as const,
+  ([over, victory]) => {
+    if (over && victory === false) { onDefeat(); return }
     if (over) {
       resultModalVisible.value = true
     }
@@ -218,7 +221,18 @@ watch(
 )
 
 // 结果弹窗事件处理
+function onDefeat() {
+  if (defeatHandled) return
+  defeatHandled = true
+  resultModalVisible.value = false
+  playerAnimation.idle()
+  clearAll()
+  showToast('你被击败了，本局已结束，已返回主菜单。')
+  void router.replace('/menu')
+}
+
 function onReturnToMap() {
+  if (bi.value?.battleOver && bi.value.victory === false) { onDefeat(); return }
   resetBattle()
   refreshState()
   router.push('/map')
@@ -236,10 +250,12 @@ function onGameComplete() {
 }
 
 onMounted(async () => {
+  if (defeatHandled) return
   // 刷新页面后 sessionId 可能丢失，先尝试从 localStorage 恢复
   if (!sessionId.value || !player.value) {
     try {
       const restored = await gameStore.loadSavedSession()
+      if (restored && restored.player.hp <= 0) { onDefeat(); return }
       if (restored && restored.inBattle) {
         await gameStore.restoreBattleState()
         // 恢复成功后 battleInfo 应已被填充，直接渲染
