@@ -6,6 +6,5286 @@
     960
   ],
   "entries": {
+    "/images/artwork-v2/cards/card_boreboluomi-v2.png": {
+      "sourceHash": "b1c92a84078a5d75d9e47f488b942d3c45689fcc653e809a298e2e37f5756045",
+      "sourceBytes": 3139897,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/1b38f9fc8771-320.webp",
+            "bytes": 19098
+          },
+          "avif": {
+            "url": "/illustrations/1b38f9fc8771-320.avif",
+            "bytes": 14658
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/1b38f9fc8771-640.webp",
+            "bytes": 64678
+          },
+          "avif": {
+            "url": "/illustrations/1b38f9fc8771-640.avif",
+            "bytes": 49014
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/1b38f9fc8771-960.webp",
+            "bytes": 128762
+          },
+          "avif": {
+            "url": "/illustrations/1b38f9fc8771-960.avif",
+            "bytes": 95994
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_chaodu-v2.png": {
+      "sourceHash": "801ab71f518514812ecf660c30abcff34ea6e7503df875106bf5455f78d3665d",
+      "sourceBytes": 3020202,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/c85f603c48a9-320.webp",
+            "bytes": 17796
+          },
+          "avif": {
+            "url": "/illustrations/c85f603c48a9-320.avif",
+            "bytes": 13428
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/c85f603c48a9-640.webp",
+            "bytes": 59366
+          },
+          "avif": {
+            "url": "/illustrations/c85f603c48a9-640.avif",
+            "bytes": 42904
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/c85f603c48a9-960.webp",
+            "bytes": 116746
+          },
+          "avif": {
+            "url": "/illustrations/c85f603c48a9-960.avif",
+            "bytes": 82165
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_dachengfofa-v2.png": {
+      "sourceHash": "139d04cb10e4d6bca966acc91472e8031dbffd6bf6939061eeaab0d31d1afff5",
+      "sourceBytes": 3086249,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/5cf77ee646e0-320.webp",
+            "bytes": 18754
+          },
+          "avif": {
+            "url": "/illustrations/5cf77ee646e0-320.avif",
+            "bytes": 14448
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/5cf77ee646e0-640.webp",
+            "bytes": 62930
+          },
+          "avif": {
+            "url": "/illustrations/5cf77ee646e0-640.avif",
+            "bytes": 47920
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/5cf77ee646e0-960.webp",
+            "bytes": 126236
+          },
+          "avif": {
+            "url": "/illustrations/5cf77ee646e0-960.avif",
+            "bytes": 92395
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_danaotiangong-v2.png": {
+      "sourceHash": "9ed27c97fcda0c17ee21d317c02696c8157d063d650606f65af681a3c36c3efd",
+      "sourceBytes": 3214931,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/4a6c4db82620-320.webp",
+            "bytes": 22090
+          },
+          "avif": {
+            "url": "/illustrations/4a6c4db82620-320.avif",
+            "bytes": 18881
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/4a6c4db82620-640.webp",
+            "bytes": 75738
+          },
+          "avif": {
+            "url": "/illustrations/4a6c4db82620-640.avif",
+            "bytes": 62799
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/4a6c4db82620-960.webp",
+            "bytes": 147746
+          },
+          "avif": {
+            "url": "/illustrations/4a6c4db82620-960.avif",
+            "bytes": 120558
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_daodayipao-v2.png": {
+      "sourceHash": "45215cddf39b247b0f032742822df28429f40e59e14236364e081caf8d9261c8",
+      "sourceBytes": 3242939,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/e49e434abe9c-320.webp",
+            "bytes": 20504
+          },
+          "avif": {
+            "url": "/illustrations/e49e434abe9c-320.avif",
+            "bytes": 16454
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/e49e434abe9c-640.webp",
+            "bytes": 66812
+          },
+          "avif": {
+            "url": "/illustrations/e49e434abe9c-640.avif",
+            "bytes": 51326
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/e49e434abe9c-960.webp",
+            "bytes": 130200
+          },
+          "avif": {
+            "url": "/illustrations/e49e434abe9c-960.avif",
+            "bytes": 98025
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_dinghaishenzhen-v2.png": {
+      "sourceHash": "4c2cf477e0db5334ba062720d655591b12fc9899f8e05463d5a1a1960543433c",
+      "sourceBytes": 3377971,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/62e57c8ab184-320.webp",
+            "bytes": 23462
+          },
+          "avif": {
+            "url": "/illustrations/62e57c8ab184-320.avif",
+            "bytes": 18766
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/62e57c8ab184-640.webp",
+            "bytes": 80380
+          },
+          "avif": {
+            "url": "/illustrations/62e57c8ab184-640.avif",
+            "bytes": 64036
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/62e57c8ab184-960.webp",
+            "bytes": 157586
+          },
+          "avif": {
+            "url": "/illustrations/62e57c8ab184-960.avif",
+            "bytes": 124187
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_douzhanshengfo-v2.png": {
+      "sourceHash": "49c30e21b5ccb2db2f431a211721be25bcd4706c32c8017843de1b70fa46db20",
+      "sourceBytes": 3285194,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/aea0d74bf4a4-320.webp",
+            "bytes": 22254
+          },
+          "avif": {
+            "url": "/illustrations/aea0d74bf4a4-320.avif",
+            "bytes": 19593
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/aea0d74bf4a4-640.webp",
+            "bytes": 76714
+          },
+          "avif": {
+            "url": "/illustrations/aea0d74bf4a4-640.avif",
+            "bytes": 62999
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/aea0d74bf4a4-960.webp",
+            "bytes": 152194
+          },
+          "avif": {
+            "url": "/illustrations/aea0d74bf4a4-960.avif",
+            "bytes": 120697
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_dubiao-v2.png": {
+      "sourceHash": "57d60e6cbcadf6ec8a8883ceb21fc9eab8e051fd6f6507fd5e54dcaa3e2d2758",
+      "sourceBytes": 2986658,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/0cabbef6c645-320.webp",
+            "bytes": 17706
+          },
+          "avif": {
+            "url": "/illustrations/0cabbef6c645-320.avif",
+            "bytes": 13963
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/0cabbef6c645-640.webp",
+            "bytes": 57076
+          },
+          "avif": {
+            "url": "/illustrations/0cabbef6c645-640.avif",
+            "bytes": 42271
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/0cabbef6c645-960.webp",
+            "bytes": 108748
+          },
+          "avif": {
+            "url": "/illustrations/0cabbef6c645-960.avif",
+            "bytes": 78845
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_duwumiman-v2.png": {
+      "sourceHash": "c41961a8bce2455b677416f15dd9936a364fe8788d63a3fe3285a63a098e59f9",
+      "sourceBytes": 3212071,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/c186f06c9fae-320.webp",
+            "bytes": 20474
+          },
+          "avif": {
+            "url": "/illustrations/c186f06c9fae-320.avif",
+            "bytes": 16354
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/c186f06c9fae-640.webp",
+            "bytes": 70024
+          },
+          "avif": {
+            "url": "/illustrations/c186f06c9fae-640.avif",
+            "bytes": 54740
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/c186f06c9fae-960.webp",
+            "bytes": 137390
+          },
+          "avif": {
+            "url": "/illustrations/c186f06c9fae-960.avif",
+            "bytes": 106870
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_fatianxiangdi-v2.png": {
+      "sourceHash": "6eecb5131ead7480fbf1372acaed8af6a76901d63a45e50b40503d41522d840b",
+      "sourceBytes": 3443024,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/4dcc44f39939-320.webp",
+            "bytes": 22226
+          },
+          "avif": {
+            "url": "/illustrations/4dcc44f39939-320.avif",
+            "bytes": 18256
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/4dcc44f39939-640.webp",
+            "bytes": 78792
+          },
+          "avif": {
+            "url": "/illustrations/4dcc44f39939-640.avif",
+            "bytes": 61728
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/4dcc44f39939-960.webp",
+            "bytes": 157934
+          },
+          "avif": {
+            "url": "/illustrations/4dcc44f39939-960.avif",
+            "bytes": 123584
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_feibiao-v2.png": {
+      "sourceHash": "88b4e0098e1c3c4577c2bf2a64abfa635f6bbbb2a71d3181bea86f53ea59bbfa",
+      "sourceBytes": 3014414,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/732610490d95-320.webp",
+            "bytes": 20008
+          },
+          "avif": {
+            "url": "/illustrations/732610490d95-320.avif",
+            "bytes": 16535
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/732610490d95-640.webp",
+            "bytes": 65042
+          },
+          "avif": {
+            "url": "/illustrations/732610490d95-640.avif",
+            "bytes": 51377
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/732610490d95-960.webp",
+            "bytes": 124426
+          },
+          "avif": {
+            "url": "/illustrations/732610490d95-960.avif",
+            "bytes": 95332
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_foguangpuhzhao-v2.png": {
+      "sourceHash": "8f3c3bbcf9ecdd1680bbf69e5805e7334534c543a5f55e2ee36c9d1e377154b2",
+      "sourceBytes": 3240691,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/39fbd6a6c2c1-320.webp",
+            "bytes": 21456
+          },
+          "avif": {
+            "url": "/illustrations/39fbd6a6c2c1-320.avif",
+            "bytes": 17268
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/39fbd6a6c2c1-640.webp",
+            "bytes": 73188
+          },
+          "avif": {
+            "url": "/illustrations/39fbd6a6c2c1-640.avif",
+            "bytes": 56553
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/39fbd6a6c2c1-960.webp",
+            "bytes": 142520
+          },
+          "avif": {
+            "url": "/illustrations/39fbd6a6c2c1-960.avif",
+            "bytes": 107470
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_fuzhongqianxing-v2.png": {
+      "sourceHash": "5ae91a3fac17a5d2c36740e32acba385d1b08415a6cefe3cbdc833c182991b92",
+      "sourceBytes": 3398329,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/ca7a2ae5ff34-320.webp",
+            "bytes": 21826
+          },
+          "avif": {
+            "url": "/illustrations/ca7a2ae5ff34-320.avif",
+            "bytes": 16777
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/ca7a2ae5ff34-640.webp",
+            "bytes": 75582
+          },
+          "avif": {
+            "url": "/illustrations/ca7a2ae5ff34-640.avif",
+            "bytes": 57843
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/ca7a2ae5ff34-960.webp",
+            "bytes": 150076
+          },
+          "avif": {
+            "url": "/illustrations/ca7a2ae5ff34-960.avif",
+            "bytes": 115213
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_gedang-v2.png": {
+      "sourceHash": "020deafec99a671cfa73a7386a365d1abee8c384b8857a3c38b78ff7a89927d2",
+      "sourceBytes": 3124515,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/631bb9088052-320.webp",
+            "bytes": 21944
+          },
+          "avif": {
+            "url": "/illustrations/631bb9088052-320.avif",
+            "bytes": 18793
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/631bb9088052-640.webp",
+            "bytes": 70648
+          },
+          "avif": {
+            "url": "/illustrations/631bb9088052-640.avif",
+            "bytes": 56469
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/631bb9088052-960.webp",
+            "bytes": 131250
+          },
+          "avif": {
+            "url": "/illustrations/631bb9088052-960.avif",
+            "bytes": 101697
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_haomaofenshen-v2.png": {
+      "sourceHash": "69bd28870a4fd23d4fccafcc2624612a850d28e5b8710eec7f92d1d0557497e7",
+      "sourceBytes": 3307912,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/e61df99bd7dc-320.webp",
+            "bytes": 22090
+          },
+          "avif": {
+            "url": "/illustrations/e61df99bd7dc-320.avif",
+            "bytes": 19122
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/e61df99bd7dc-640.webp",
+            "bytes": 74058
+          },
+          "avif": {
+            "url": "/illustrations/e61df99bd7dc-640.avif",
+            "bytes": 61398
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/e61df99bd7dc-960.webp",
+            "bytes": 145696
+          },
+          "avif": {
+            "url": "/illustrations/e61df99bd7dc-960.avif",
+            "bytes": 116051
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_hengsaoqianjun-v2.png": {
+      "sourceHash": "992d7e2119e8d9a4536daba11649e492a8e287935961a131a2ca5a02fd5fe6dd",
+      "sourceBytes": 3097031,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/df9b9d238303-320.webp",
+            "bytes": 22756
+          },
+          "avif": {
+            "url": "/illustrations/df9b9d238303-320.avif",
+            "bytes": 19010
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/df9b9d238303-640.webp",
+            "bytes": 72350
+          },
+          "avif": {
+            "url": "/illustrations/df9b9d238303-640.avif",
+            "bytes": 57497
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/df9b9d238303-960.webp",
+            "bytes": 136220
+          },
+          "avif": {
+            "url": "/illustrations/df9b9d238303-960.avif",
+            "bytes": 104379
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_houpi-v2.png": {
+      "sourceHash": "6efd906f8466c394ff0b4863656a5293fd3315bf552f04de1ce8a81ff22472c5",
+      "sourceBytes": 3194650,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/cfc9b8c696a7-320.webp",
+            "bytes": 21204
+          },
+          "avif": {
+            "url": "/illustrations/cfc9b8c696a7-320.avif",
+            "bytes": 16844
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/cfc9b8c696a7-640.webp",
+            "bytes": 69542
+          },
+          "avif": {
+            "url": "/illustrations/cfc9b8c696a7-640.avif",
+            "bytes": 53242
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/cfc9b8c696a7-960.webp",
+            "bytes": 132094
+          },
+          "avif": {
+            "url": "/illustrations/cfc9b8c696a7-960.avif",
+            "bytes": 100783
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_hufenghuanyu-v2.png": {
+      "sourceHash": "986ba4a965a9b7312904e5c4a9c5e47d6389ac80ddebc356d09817f0fc869b3a",
+      "sourceBytes": 3525533,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/b4f889dd46c7-320.webp",
+            "bytes": 19626
+          },
+          "avif": {
+            "url": "/illustrations/b4f889dd46c7-320.avif",
+            "bytes": 14286
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/b4f889dd46c7-640.webp",
+            "bytes": 72812
+          },
+          "avif": {
+            "url": "/illustrations/b4f889dd46c7-640.avif",
+            "bytes": 52480
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/b4f889dd46c7-960.webp",
+            "bytes": 149738
+          },
+          "avif": {
+            "url": "/illustrations/b4f889dd46c7-960.avif",
+            "bytes": 110376
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_huibang-v2.png": {
+      "sourceHash": "04e2add36342aec137d62328ca41bbe753a1e0407f8313216ca1decddab60d34",
+      "sourceBytes": 3175554,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/abde8bc6caa5-320.webp",
+            "bytes": 22640
+          },
+          "avif": {
+            "url": "/illustrations/abde8bc6caa5-320.avif",
+            "bytes": 20275
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/abde8bc6caa5-640.webp",
+            "bytes": 75340
+          },
+          "avif": {
+            "url": "/illustrations/abde8bc6caa5-640.avif",
+            "bytes": 63751
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/abde8bc6caa5-960.webp",
+            "bytes": 143286
+          },
+          "avif": {
+            "url": "/illustrations/abde8bc6caa5-960.avif",
+            "bytes": 118335
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_huichunshu-v2.png": {
+      "sourceHash": "1371c611d2e85788c1f1cbd13dd8d4d58b07327644a130fd308f7d4f55637357",
+      "sourceBytes": 3225531,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/ca26c9273944-320.webp",
+            "bytes": 22392
+          },
+          "avif": {
+            "url": "/illustrations/ca26c9273944-320.avif",
+            "bytes": 19023
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/ca26c9273944-640.webp",
+            "bytes": 73542
+          },
+          "avif": {
+            "url": "/illustrations/ca26c9273944-640.avif",
+            "bytes": 60002
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/ca26c9273944-960.webp",
+            "bytes": 139664
+          },
+          "avif": {
+            "url": "/illustrations/ca26c9273944-960.avif",
+            "bytes": 110875
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_huoyanjinjing-v2.png": {
+      "sourceHash": "a417fb304867a53c38b9354ead80dec31288174c25c3a5eb06b57b2f4d131fce",
+      "sourceBytes": 3264530,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/da50e06583cb-320.webp",
+            "bytes": 21216
+          },
+          "avif": {
+            "url": "/illustrations/da50e06583cb-320.avif",
+            "bytes": 17487
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/da50e06583cb-640.webp",
+            "bytes": 71756
+          },
+          "avif": {
+            "url": "/illustrations/da50e06583cb-640.avif",
+            "bytes": 56270
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/da50e06583cb-960.webp",
+            "bytes": 139782
+          },
+          "avif": {
+            "url": "/illustrations/da50e06583cb-960.avif",
+            "bytes": 108315
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_jiashahuti-v2.png": {
+      "sourceHash": "7e4d4d4096cd7854006479c1ff04ea2b4f22bf155e0d625b6927b5c85a76e4fc",
+      "sourceBytes": 3281523,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/cbc2c7c7849a-320.webp",
+            "bytes": 20532
+          },
+          "avif": {
+            "url": "/illustrations/cbc2c7c7849a-320.avif",
+            "bytes": 15806
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/cbc2c7c7849a-640.webp",
+            "bytes": 73470
+          },
+          "avif": {
+            "url": "/illustrations/cbc2c7c7849a-640.avif",
+            "bytes": 54215
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/cbc2c7c7849a-960.webp",
+            "bytes": 144080
+          },
+          "avif": {
+            "url": "/illustrations/cbc2c7c7849a-960.avif",
+            "bytes": 106461
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_jifengbu-v2.png": {
+      "sourceHash": "76df0c292cbf152172069c1b616285c9ce17d49e5184e9ae7d74f33946c2eeb5",
+      "sourceBytes": 3349490,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/5b215a2e3fed-320.webp",
+            "bytes": 20594
+          },
+          "avif": {
+            "url": "/illustrations/5b215a2e3fed-320.avif",
+            "bytes": 15568
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/5b215a2e3fed-640.webp",
+            "bytes": 71618
+          },
+          "avif": {
+            "url": "/illustrations/5b215a2e3fed-640.avif",
+            "bytes": 52595
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/5b215a2e3fed-960.webp",
+            "bytes": 141892
+          },
+          "avif": {
+            "url": "/illustrations/5b215a2e3fed-960.avif",
+            "bytes": 104542
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_jinchantuoqiao-v2.png": {
+      "sourceHash": "51cabf041b3d92106ce9b21d64f9ee2de5e8dc56212095e31a315bbb8b6859af",
+      "sourceBytes": 3264871,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/c96501af3b1e-320.webp",
+            "bytes": 21466
+          },
+          "avif": {
+            "url": "/illustrations/c96501af3b1e-320.avif",
+            "bytes": 17026
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/c96501af3b1e-640.webp",
+            "bytes": 74262
+          },
+          "avif": {
+            "url": "/illustrations/c96501af3b1e-640.avif",
+            "bytes": 57437
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/c96501af3b1e-960.webp",
+            "bytes": 144470
+          },
+          "avif": {
+            "url": "/illustrations/c96501af3b1e-960.avif",
+            "bytes": 111087
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_jindouyun-v2.png": {
+      "sourceHash": "d7203828d508dc312635827c758d88b82a7a4f128d40b34716ed38c37b91006c",
+      "sourceBytes": 3086110,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/4376c327d5ef-320.webp",
+            "bytes": 18734
+          },
+          "avif": {
+            "url": "/illustrations/4376c327d5ef-320.avif",
+            "bytes": 15237
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/4376c327d5ef-640.webp",
+            "bytes": 63650
+          },
+          "avif": {
+            "url": "/illustrations/4376c327d5ef-640.avif",
+            "bytes": 49753
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/4376c327d5ef-960.webp",
+            "bytes": 128222
+          },
+          "avif": {
+            "url": "/illustrations/4376c327d5ef-960.avif",
+            "bytes": 96682
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_jindouyunfan-v2.png": {
+      "sourceHash": "f513d59200df5db9505f9ce9c6f7f84b4b582655b28032893cb567313599fc80",
+      "sourceBytes": 3039177,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/2e8aaa6c86f7-320.webp",
+            "bytes": 18662
+          },
+          "avif": {
+            "url": "/illustrations/2e8aaa6c86f7-320.avif",
+            "bytes": 15528
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/2e8aaa6c86f7-640.webp",
+            "bytes": 61850
+          },
+          "avif": {
+            "url": "/illustrations/2e8aaa6c86f7-640.avif",
+            "bytes": 47860
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/2e8aaa6c86f7-960.webp",
+            "bytes": 121478
+          },
+          "avif": {
+            "url": "/illustrations/2e8aaa6c86f7-960.avif",
+            "bytes": 90095
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_jingangbuhuai-v2.png": {
+      "sourceHash": "e6ee6b8c2870f25acfa28d33de760aa1b5a10d915086112799a24005fd3b8698",
+      "sourceBytes": 3433260,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/27b044ad9fa1-320.webp",
+            "bytes": 21872
+          },
+          "avif": {
+            "url": "/illustrations/27b044ad9fa1-320.avif",
+            "bytes": 17060
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/27b044ad9fa1-640.webp",
+            "bytes": 77196
+          },
+          "avif": {
+            "url": "/illustrations/27b044ad9fa1-640.avif",
+            "bytes": 59900
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/27b044ad9fa1-960.webp",
+            "bytes": 158090
+          },
+          "avif": {
+            "url": "/illustrations/27b044ad9fa1-960.avif",
+            "bytes": 118895
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_jingangjing-v2.png": {
+      "sourceHash": "bb33c8c2b32440cbfcc6d89df3e7e7f5ee47ea5cdca6cdefa2c4add84c88f738",
+      "sourceBytes": 3193877,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/551bc723c2a9-320.webp",
+            "bytes": 20196
+          },
+          "avif": {
+            "url": "/illustrations/551bc723c2a9-320.avif",
+            "bytes": 16710
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/551bc723c2a9-640.webp",
+            "bytes": 68466
+          },
+          "avif": {
+            "url": "/illustrations/551bc723c2a9-640.avif",
+            "bytes": 53592
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/551bc723c2a9-960.webp",
+            "bytes": 136822
+          },
+          "avif": {
+            "url": "/illustrations/551bc723c2a9-960.avif",
+            "bytes": 104041
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_jingtanshizhe-v2.png": {
+      "sourceHash": "37630df94f757f15e24782f101879ed8741f1d7c0ae501fa0d640fbf50fb23e2",
+      "sourceBytes": 2780300,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/10937f027f47-320.webp",
+            "bytes": 19420
+          },
+          "avif": {
+            "url": "/illustrations/10937f027f47-320.avif",
+            "bytes": 14930
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/10937f027f47-640.webp",
+            "bytes": 61870
+          },
+          "avif": {
+            "url": "/illustrations/10937f027f47-640.avif",
+            "bytes": 45133
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/10937f027f47-960.webp",
+            "bytes": 113258
+          },
+          "avif": {
+            "url": "/illustrations/10937f027f47-960.avif",
+            "bytes": 82408
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_jingubangfa-v2.png": {
+      "sourceHash": "73b6b8d57651bb184c6c7bc6ebef32807fbe6b6e8290e428754365d7be61c603",
+      "sourceBytes": 3215462,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/40a135436be9-320.webp",
+            "bytes": 22990
+          },
+          "avif": {
+            "url": "/illustrations/40a135436be9-320.avif",
+            "bytes": 20118
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/40a135436be9-640.webp",
+            "bytes": 77400
+          },
+          "avif": {
+            "url": "/illustrations/40a135436be9-640.avif",
+            "bytes": 64610
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/40a135436be9-960.webp",
+            "bytes": 149484
+          },
+          "avif": {
+            "url": "/illustrations/40a135436be9-960.avif",
+            "bytes": 119903
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_jinguzhou_jin-v2.png": {
+      "sourceHash": "fa1d1443ff19aa094bcbf67c14cd0d04e1f3a77719c9fc7b6d75bfab45e6a23c",
+      "sourceBytes": 3344203,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/71f98592f266-320.webp",
+            "bytes": 23030
+          },
+          "avif": {
+            "url": "/illustrations/71f98592f266-320.avif",
+            "bytes": 18603
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/71f98592f266-640.webp",
+            "bytes": 81548
+          },
+          "avif": {
+            "url": "/illustrations/71f98592f266-640.avif",
+            "bytes": 64536
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/71f98592f266-960.webp",
+            "bytes": 159808
+          },
+          "avif": {
+            "url": "/illustrations/71f98592f266-960.avif",
+            "bytes": 125504
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_jinguzhounian-v2.png": {
+      "sourceHash": "83ac474c60498a717aa10f7fe6b443a06cd35e5c0b9c8aec05b6b3e5b2786842",
+      "sourceBytes": 3182558,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/cedeb626910b-320.webp",
+            "bytes": 20630
+          },
+          "avif": {
+            "url": "/illustrations/cedeb626910b-320.avif",
+            "bytes": 16093
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/cedeb626910b-640.webp",
+            "bytes": 70600
+          },
+          "avif": {
+            "url": "/illustrations/cedeb626910b-640.avif",
+            "bytes": 53275
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/cedeb626910b-960.webp",
+            "bytes": 136236
+          },
+          "avif": {
+            "url": "/illustrations/cedeb626910b-960.avif",
+            "bytes": 102234
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_jinshenhuti-v2.png": {
+      "sourceHash": "0f7daab462a00a6971c76c8601bbc95f7fac0649d391144bce13cc727197d77b",
+      "sourceBytes": 3185276,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/2350d783c18a-320.webp",
+            "bytes": 19838
+          },
+          "avif": {
+            "url": "/illustrations/2350d783c18a-320.avif",
+            "bytes": 15439
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/2350d783c18a-640.webp",
+            "bytes": 68432
+          },
+          "avif": {
+            "url": "/illustrations/2350d783c18a-640.avif",
+            "bytes": 52356
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/2350d783c18a-960.webp",
+            "bytes": 135252
+          },
+          "avif": {
+            "url": "/illustrations/2350d783c18a-960.avif",
+            "bytes": 101408
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_jinshenluohan-v2.png": {
+      "sourceHash": "f7e434027bef7f5e02d4d2d296c1c7c2928d74f4830ed6a95b012482b8ae5e63",
+      "sourceBytes": 3420572,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/bcc4746f5d55-320.webp",
+            "bytes": 21510
+          },
+          "avif": {
+            "url": "/illustrations/bcc4746f5d55-320.avif",
+            "bytes": 16463
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/bcc4746f5d55-640.webp",
+            "bytes": 75522
+          },
+          "avif": {
+            "url": "/illustrations/bcc4746f5d55-640.avif",
+            "bytes": 56448
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/bcc4746f5d55-960.webp",
+            "bytes": 150920
+          },
+          "avif": {
+            "url": "/illustrations/bcc4746f5d55-960.avif",
+            "bytes": 113967
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_jinzhongzhao-v2.png": {
+      "sourceHash": "6678fb8f8379e8e577a6d8bde977743ac2711f2ab7aa26f41597de47b189aae8",
+      "sourceBytes": 3098096,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/dd020a369cb1-320.webp",
+            "bytes": 19988
+          },
+          "avif": {
+            "url": "/illustrations/dd020a369cb1-320.avif",
+            "bytes": 16492
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/dd020a369cb1-640.webp",
+            "bytes": 66616
+          },
+          "avif": {
+            "url": "/illustrations/dd020a369cb1-640.avif",
+            "bytes": 51214
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/dd020a369cb1-960.webp",
+            "bytes": 129436
+          },
+          "avif": {
+            "url": "/illustrations/dd020a369cb1-960.avif",
+            "bytes": 96812
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_jiuchidingpa-v2.png": {
+      "sourceHash": "e196a854f97071862a064c8f278999c10adb4d98bbfb8429c2ced249484f86a9",
+      "sourceBytes": 3226866,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/35b8fd4c95bd-320.webp",
+            "bytes": 21686
+          },
+          "avif": {
+            "url": "/illustrations/35b8fd4c95bd-320.avif",
+            "bytes": 17486
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/35b8fd4c95bd-640.webp",
+            "bytes": 71578
+          },
+          "avif": {
+            "url": "/illustrations/35b8fd4c95bd-640.avif",
+            "bytes": 56214
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/35b8fd4c95bd-960.webp",
+            "bytes": 138678
+          },
+          "avif": {
+            "url": "/illustrations/35b8fd4c95bd-960.avif",
+            "bytes": 106520
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_jiuchihengsao-v2.png": {
+      "sourceHash": "5ae9f442ac0de9987afac5ac2e6c50f043934a43ddeb5cf555c862947bf4a153",
+      "sourceBytes": 3174868,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/466638f90281-320.webp",
+            "bytes": 22144
+          },
+          "avif": {
+            "url": "/illustrations/466638f90281-320.avif",
+            "bytes": 18160
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/466638f90281-640.webp",
+            "bytes": 73220
+          },
+          "avif": {
+            "url": "/illustrations/466638f90281-640.avif",
+            "bytes": 57688
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/466638f90281-960.webp",
+            "bytes": 139226
+          },
+          "avif": {
+            "url": "/illustrations/466638f90281-960.avif",
+            "bytes": 108708
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_jiuhuanxizhang-v2.png": {
+      "sourceHash": "a85711032df8acf0353aaca5abeb35e1f995a4ee08a8883838f9a678c2a2e48d",
+      "sourceBytes": 3190300,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/d09a4033dfcf-320.webp",
+            "bytes": 21268
+          },
+          "avif": {
+            "url": "/illustrations/d09a4033dfcf-320.avif",
+            "bytes": 17147
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/d09a4033dfcf-640.webp",
+            "bytes": 71218
+          },
+          "avif": {
+            "url": "/illustrations/d09a4033dfcf-640.avif",
+            "bytes": 56147
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/d09a4033dfcf-960.webp",
+            "bytes": 137944
+          },
+          "avif": {
+            "url": "/illustrations/d09a4033dfcf-960.avif",
+            "bytes": 106167
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_kuangbao-v2.png": {
+      "sourceHash": "2e80eb7c7e0e5ddcd8c6738af5caf7882eefb500038d05af9db5d0c2d6ced98d",
+      "sourceBytes": 3248068,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/7039680ceace-320.webp",
+            "bytes": 23634
+          },
+          "avif": {
+            "url": "/illustrations/7039680ceace-320.avif",
+            "bytes": 21022
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/7039680ceace-640.webp",
+            "bytes": 78980
+          },
+          "avif": {
+            "url": "/illustrations/7039680ceace-640.avif",
+            "bytes": 65377
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/7039680ceace-960.webp",
+            "bytes": 150058
+          },
+          "avif": {
+            "url": "/illustrations/7039680ceace-960.avif",
+            "bytes": 120565
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_langtunhuyan-v2.png": {
+      "sourceHash": "e1cd69df69578ed254a2a7ec95179315d9824b4be39f09f8c869c7fdc4d7b02a",
+      "sourceBytes": 3191456,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/4c1caeac8e5c-320.webp",
+            "bytes": 22160
+          },
+          "avif": {
+            "url": "/illustrations/4c1caeac8e5c-320.avif",
+            "bytes": 17209
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/4c1caeac8e5c-640.webp",
+            "bytes": 73968
+          },
+          "avif": {
+            "url": "/illustrations/4c1caeac8e5c-640.avif",
+            "bytes": 55393
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/4c1caeac8e5c-960.webp",
+            "bytes": 138862
+          },
+          "avif": {
+            "url": "/illustrations/4c1caeac8e5c-960.avif",
+            "bytes": 104197
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_lieyanzhang-v2.png": {
+      "sourceHash": "6cb8ff2435d70405b1b4618ad1f7bfdb2dbe1706f12ab20c09dc29868c503a20",
+      "sourceBytes": 3305263,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/be8b0c0ca80b-320.webp",
+            "bytes": 23240
+          },
+          "avif": {
+            "url": "/illustrations/be8b0c0ca80b-320.avif",
+            "bytes": 19869
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/be8b0c0ca80b-640.webp",
+            "bytes": 78510
+          },
+          "avif": {
+            "url": "/illustrations/be8b0c0ca80b-640.avif",
+            "bytes": 64449
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/be8b0c0ca80b-960.webp",
+            "bytes": 153848
+          },
+          "avif": {
+            "url": "/illustrations/be8b0c0ca80b-960.avif",
+            "bytes": 122229
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_liulizhan-v2.png": {
+      "sourceHash": "6a875a5c07046c476628d552b52046847c8136a71768a15cff2da94deb909913",
+      "sourceBytes": 3344579,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/d5a47115077a-320.webp",
+            "bytes": 20046
+          },
+          "avif": {
+            "url": "/illustrations/d5a47115077a-320.avif",
+            "bytes": 15050
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/d5a47115077a-640.webp",
+            "bytes": 68456
+          },
+          "avif": {
+            "url": "/illustrations/d5a47115077a-640.avif",
+            "bytes": 49704
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/d5a47115077a-960.webp",
+            "bytes": 136520
+          },
+          "avif": {
+            "url": "/illustrations/d5a47115077a-960.avif",
+            "bytes": 97890
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_liushahe-v2.png": {
+      "sourceHash": "add8aff4a6c4a77979638254b9e1d7d7abe7153b541ea0f2bb3e4691ed4c3ca8",
+      "sourceBytes": 3723509,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/90a24ace2462-320.webp",
+            "bytes": 23170
+          },
+          "avif": {
+            "url": "/illustrations/90a24ace2462-320.avif",
+            "bytes": 17784
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/90a24ace2462-640.webp",
+            "bytes": 84902
+          },
+          "avif": {
+            "url": "/illustrations/90a24ace2462-640.avif",
+            "bytes": 64185
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/90a24ace2462-960.webp",
+            "bytes": 173162
+          },
+          "avif": {
+            "url": "/illustrations/90a24ace2462-960.avif",
+            "bytes": 133493
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_longjuanfengbao-v2.png": {
+      "sourceHash": "36cc355478bb91e063bfc5da9924b8f65216ba6e24c6aa9027b9e6f25ad660bb",
+      "sourceBytes": 3518253,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/e0b6f1208778-320.webp",
+            "bytes": 21692
+          },
+          "avif": {
+            "url": "/illustrations/e0b6f1208778-320.avif",
+            "bytes": 16574
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/e0b6f1208778-640.webp",
+            "bytes": 76464
+          },
+          "avif": {
+            "url": "/illustrations/e0b6f1208778-640.avif",
+            "bytes": 57313
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/e0b6f1208778-960.webp",
+            "bytes": 154382
+          },
+          "avif": {
+            "url": "/illustrations/e0b6f1208778-960.avif",
+            "bytes": 116020
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_longwei-v2.png": {
+      "sourceHash": "b3306f3b8c845da59bf78979e59078434b83f7c18d71643fc3de516738da868a",
+      "sourceBytes": 3468548,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/0847b3b3a1b2-320.webp",
+            "bytes": 21204
+          },
+          "avif": {
+            "url": "/illustrations/0847b3b3a1b2-320.avif",
+            "bytes": 16504
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/0847b3b3a1b2-640.webp",
+            "bytes": 77048
+          },
+          "avif": {
+            "url": "/illustrations/0847b3b3a1b2-640.avif",
+            "bytes": 58445
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/0847b3b3a1b2-960.webp",
+            "bytes": 155278
+          },
+          "avif": {
+            "url": "/illustrations/0847b3b3a1b2-960.avif",
+            "bytes": 117779
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_longxi-v2.png": {
+      "sourceHash": "caebbba6f71f18ec17abb656ea0dd9ca7974aae4f13dce6d3ca445c9e3a48f58",
+      "sourceBytes": 3303775,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/c73833dbdeee-320.webp",
+            "bytes": 18116
+          },
+          "avif": {
+            "url": "/illustrations/c73833dbdeee-320.avif",
+            "bytes": 13374
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/c73833dbdeee-640.webp",
+            "bytes": 65028
+          },
+          "avif": {
+            "url": "/illustrations/c73833dbdeee-640.avif",
+            "bytes": 46633
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/c73833dbdeee-960.webp",
+            "bytes": 131680
+          },
+          "avif": {
+            "url": "/illustrations/c73833dbdeee-960.avif",
+            "bytes": 96258
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_longyin-v2.png": {
+      "sourceHash": "97a7e72014732feb2a3675870cd8664a90d49e58e1f81be60d2776b11fb2ce34",
+      "sourceBytes": 3396720,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/72bf8fbe7e19-320.webp",
+            "bytes": 20738
+          },
+          "avif": {
+            "url": "/illustrations/72bf8fbe7e19-320.avif",
+            "bytes": 16087
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/72bf8fbe7e19-640.webp",
+            "bytes": 73666
+          },
+          "avif": {
+            "url": "/illustrations/72bf8fbe7e19-640.avif",
+            "bytes": 56155
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/72bf8fbe7e19-960.webp",
+            "bytes": 149904
+          },
+          "avif": {
+            "url": "/illustrations/72bf8fbe7e19-960.avif",
+            "bytes": 113488
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_longzhanyuye-v2.png": {
+      "sourceHash": "32b446fd395a449d4537e31027e5b121b6cc110b8001abce0924b1a54bd4976a",
+      "sourceBytes": 3542685,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/826462fbed56-320.webp",
+            "bytes": 21058
+          },
+          "avif": {
+            "url": "/illustrations/826462fbed56-320.avif",
+            "bytes": 16523
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/826462fbed56-640.webp",
+            "bytes": 76656
+          },
+          "avif": {
+            "url": "/illustrations/826462fbed56-640.avif",
+            "bytes": 58937
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/826462fbed56-960.webp",
+            "bytes": 157638
+          },
+          "avif": {
+            "url": "/illustrations/826462fbed56-960.avif",
+            "bytes": 122054
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_longzhua-v2.png": {
+      "sourceHash": "a12aff1f5966dc1fc3df4d47a1e8e6b69a4f090f7b4c1ed097479aeb674eb193",
+      "sourceBytes": 3201139,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/b530113a987c-320.webp",
+            "bytes": 19400
+          },
+          "avif": {
+            "url": "/illustrations/b530113a987c-320.avif",
+            "bytes": 14290
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/b530113a987c-640.webp",
+            "bytes": 67028
+          },
+          "avif": {
+            "url": "/illustrations/b530113a987c-640.avif",
+            "bytes": 49090
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/b530113a987c-960.webp",
+            "bytes": 131752
+          },
+          "avif": {
+            "url": "/illustrations/b530113a987c-960.avif",
+            "bytes": 97659
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_luohanjinshen-v2.png": {
+      "sourceHash": "ee464ba458ba67855cab03abbfcd0743adcebd449c15df22341e4a8ef5676184",
+      "sourceBytes": 3443699,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/1fba96444f96-320.webp",
+            "bytes": 21342
+          },
+          "avif": {
+            "url": "/illustrations/1fba96444f96-320.avif",
+            "bytes": 16120
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/1fba96444f96-640.webp",
+            "bytes": 75038
+          },
+          "avif": {
+            "url": "/illustrations/1fba96444f96-640.avif",
+            "bytes": 54878
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/1fba96444f96-960.webp",
+            "bytes": 151368
+          },
+          "avif": {
+            "url": "/illustrations/1fba96444f96-960.avif",
+            "bytes": 113671
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_mihunshu-v2.png": {
+      "sourceHash": "f22f52ed0917c08ea40c24b91b83839ccfa310b58e04399c99cfe5a1700e096c",
+      "sourceBytes": 3350905,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/5f6200ae13cd-320.webp",
+            "bytes": 21514
+          },
+          "avif": {
+            "url": "/illustrations/5f6200ae13cd-320.avif",
+            "bytes": 17630
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/5f6200ae13cd-640.webp",
+            "bytes": 75266
+          },
+          "avif": {
+            "url": "/illustrations/5f6200ae13cd-640.avif",
+            "bytes": 58191
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/5f6200ae13cd-960.webp",
+            "bytes": 147890
+          },
+          "avif": {
+            "url": "/illustrations/5f6200ae13cd-960.avif",
+            "bytes": 113152
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_mingxiang-v2.png": {
+      "sourceHash": "87523938df8a32bcce66d92db56b251c6596706f6958bb60c7c2e1a3e42944a3",
+      "sourceBytes": 3199876,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/5cf41e626205-320.webp",
+            "bytes": 20804
+          },
+          "avif": {
+            "url": "/illustrations/5cf41e626205-320.avif",
+            "bytes": 16666
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/5cf41e626205-640.webp",
+            "bytes": 70926
+          },
+          "avif": {
+            "url": "/illustrations/5cf41e626205-640.avif",
+            "bytes": 54689
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/5cf41e626205-960.webp",
+            "bytes": 134282
+          },
+          "avif": {
+            "url": "/illustrations/5cf41e626205-960.avif",
+            "bytes": 103827
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_numujingang-v2.png": {
+      "sourceHash": "12eb032018b12c44f04a4831c36759e82308aad5c7e3d09f5d16ec8826f636ee",
+      "sourceBytes": 3199077,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/6de89b87454e-320.webp",
+            "bytes": 21802
+          },
+          "avif": {
+            "url": "/illustrations/6de89b87454e-320.avif",
+            "bytes": 17849
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/6de89b87454e-640.webp",
+            "bytes": 70418
+          },
+          "avif": {
+            "url": "/illustrations/6de89b87454e-640.avif",
+            "bytes": 55675
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/6de89b87454e-960.webp",
+            "bytes": 135208
+          },
+          "avif": {
+            "url": "/illustrations/6de89b87454e-960.avif",
+            "bytes": 104408
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_pojiaji-v2.png": {
+      "sourceHash": "3eefa97ad4442624ceca875a1d1672eb4349dd2c13afb6e524174f10e6c3b684",
+      "sourceBytes": 3121398,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/e59f4b8c3b59-320.webp",
+            "bytes": 22862
+          },
+          "avif": {
+            "url": "/illustrations/e59f4b8c3b59-320.avif",
+            "bytes": 19818
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/e59f4b8c3b59-640.webp",
+            "bytes": 74392
+          },
+          "avif": {
+            "url": "/illustrations/e59f4b8c3b59-640.avif",
+            "bytes": 61147
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/e59f4b8c3b59-960.webp",
+            "bytes": 139158
+          },
+          "avif": {
+            "url": "/illustrations/e59f4b8c3b59-960.avif",
+            "bytes": 112260
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_puduzhongsheng-v2.png": {
+      "sourceHash": "8c418fe4b1192690a422710ccd8cfbc130fe278b58c541f6ed347c67b99e6958",
+      "sourceBytes": 2969870,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/a9200e44aed1-320.webp",
+            "bytes": 19106
+          },
+          "avif": {
+            "url": "/illustrations/a9200e44aed1-320.avif",
+            "bytes": 14764
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/a9200e44aed1-640.webp",
+            "bytes": 61652
+          },
+          "avif": {
+            "url": "/illustrations/a9200e44aed1-640.avif",
+            "bytes": 45965
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/a9200e44aed1-960.webp",
+            "bytes": 119958
+          },
+          "avif": {
+            "url": "/illustrations/a9200e44aed1-960.avif",
+            "bytes": 85945
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_qishierbian-v2.png": {
+      "sourceHash": "9794a12aed05890d5f6520e2d28df28da6cc71dde0ee666d0ff094a2070fe473",
+      "sourceBytes": 3387735,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/88af8ea5e83a-320.webp",
+            "bytes": 24122
+          },
+          "avif": {
+            "url": "/illustrations/88af8ea5e83a-320.avif",
+            "bytes": 20819
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/88af8ea5e83a-640.webp",
+            "bytes": 81866
+          },
+          "avif": {
+            "url": "/illustrations/88af8ea5e83a-640.avif",
+            "bytes": 68459
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/88af8ea5e83a-960.webp",
+            "bytes": 162644
+          },
+          "avif": {
+            "url": "/illustrations/88af8ea5e83a-960.avif",
+            "bytes": 133006
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_qujingshiyuan-v2.png": {
+      "sourceHash": "84261513c4a0290a4c89ac2ef2328b7164c6dc56b3199bf5a36723c7bcf30f82",
+      "sourceBytes": 3187337,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/213ce681a708-320.webp",
+            "bytes": 20544
+          },
+          "avif": {
+            "url": "/illustrations/213ce681a708-320.avif",
+            "bytes": 16010
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/213ce681a708-640.webp",
+            "bytes": 71032
+          },
+          "avif": {
+            "url": "/illustrations/213ce681a708-640.avif",
+            "bytes": 53901
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/213ce681a708-960.webp",
+            "bytes": 138850
+          },
+          "avif": {
+            "url": "/illustrations/213ce681a708-960.avif",
+            "bytes": 104406
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_sanshiliubian-v2.png": {
+      "sourceHash": "6f7b6f737be013f35a637ecd8af080f36bb574425ac99290f5c1fa6167a22aef",
+      "sourceBytes": 3215036,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/7f5a425303fe-320.webp",
+            "bytes": 19612
+          },
+          "avif": {
+            "url": "/illustrations/7f5a425303fe-320.avif",
+            "bytes": 15056
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/7f5a425303fe-640.webp",
+            "bytes": 65050
+          },
+          "avif": {
+            "url": "/illustrations/7f5a425303fe-640.avif",
+            "bytes": 47765
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/7f5a425303fe-960.webp",
+            "bytes": 127470
+          },
+          "avif": {
+            "url": "/illustrations/7f5a425303fe-960.avif",
+            "bytes": 93990
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_shanbi-v2.png": {
+      "sourceHash": "d25679c61c6b5ff17ee9e74ddbe67f3d958c99ad22afb425619d02a6595e10eb",
+      "sourceBytes": 3105427,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/650203bc77ef-320.webp",
+            "bytes": 20406
+          },
+          "avif": {
+            "url": "/illustrations/650203bc77ef-320.avif",
+            "bytes": 16522
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/650203bc77ef-640.webp",
+            "bytes": 64046
+          },
+          "avif": {
+            "url": "/illustrations/650203bc77ef-640.avif",
+            "bytes": 50267
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/650203bc77ef-960.webp",
+            "bytes": 123816
+          },
+          "avif": {
+            "url": "/illustrations/650203bc77ef-960.avif",
+            "bytes": 92952
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_shenwaishen-v2.png": {
+      "sourceHash": "fe32be76127eeb0142207a363d6d693b10ca5cb61b7ffafcd425ea5140f4749a",
+      "sourceBytes": 3102504,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/4cf61223b337-320.webp",
+            "bytes": 20906
+          },
+          "avif": {
+            "url": "/illustrations/4cf61223b337-320.avif",
+            "bytes": 17693
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/4cf61223b337-640.webp",
+            "bytes": 68552
+          },
+          "avif": {
+            "url": "/illustrations/4cf61223b337-640.avif",
+            "bytes": 56177
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/4cf61223b337-960.webp",
+            "bytes": 132834
+          },
+          "avif": {
+            "url": "/illustrations/4cf61223b337-960.avif",
+            "bytes": 104840
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_shuidun-v2.png": {
+      "sourceHash": "048760539139c2e54f27854acdb8b8097ad041dd49768b4bbf77c41903006a05",
+      "sourceBytes": 3542128,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/fc58d42fd2eb-320.webp",
+            "bytes": 21374
+          },
+          "avif": {
+            "url": "/illustrations/fc58d42fd2eb-320.avif",
+            "bytes": 16265
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/fc58d42fd2eb-640.webp",
+            "bytes": 78022
+          },
+          "avif": {
+            "url": "/illustrations/fc58d42fd2eb-640.avif",
+            "bytes": 59227
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/fc58d42fd2eb-960.webp",
+            "bytes": 158810
+          },
+          "avif": {
+            "url": "/illustrations/fc58d42fd2eb-960.avif",
+            "bytes": 121472
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_tanshi-v2.png": {
+      "sourceHash": "8f13c3e90e9d95d52bee660aede6cbacec5264e38e9eb7e490e9b778c17bc22f",
+      "sourceBytes": 3096253,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/8ac6919a915d-320.webp",
+            "bytes": 20286
+          },
+          "avif": {
+            "url": "/illustrations/8ac6919a915d-320.avif",
+            "bytes": 15950
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/8ac6919a915d-640.webp",
+            "bytes": 64492
+          },
+          "avif": {
+            "url": "/illustrations/8ac6919a915d-640.avif",
+            "bytes": 49340
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/8ac6919a915d-960.webp",
+            "bytes": 124070
+          },
+          "avif": {
+            "url": "/illustrations/8ac6919a915d-960.avif",
+            "bytes": 91908
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_taotiezhikou-v2.png": {
+      "sourceHash": "8b92fde37e039fd81a37a827345a0e51d570d6169c73cc09eda2d4a1c536e8d2",
+      "sourceBytes": 3239371,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/2db031fb1c99-320.webp",
+            "bytes": 21550
+          },
+          "avif": {
+            "url": "/illustrations/2db031fb1c99-320.avif",
+            "bytes": 17378
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/2db031fb1c99-640.webp",
+            "bytes": 72844
+          },
+          "avif": {
+            "url": "/illustrations/2db031fb1c99-640.avif",
+            "bytes": 55937
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/2db031fb1c99-960.webp",
+            "bytes": 139792
+          },
+          "avif": {
+            "url": "/illustrations/2db031fb1c99-960.avif",
+            "bytes": 105352
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_tengyunjiawu-v2.png": {
+      "sourceHash": "8e8cfd71bfc175db19511fd16a3f016abc790a61a5673b8e9eca0bd469e1171e",
+      "sourceBytes": 3076338,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/64467e0b696c-320.webp",
+            "bytes": 17254
+          },
+          "avif": {
+            "url": "/illustrations/64467e0b696c-320.avif",
+            "bytes": 12671
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/64467e0b696c-640.webp",
+            "bytes": 58002
+          },
+          "avif": {
+            "url": "/illustrations/64467e0b696c-640.avif",
+            "bytes": 41414
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/64467e0b696c-960.webp",
+            "bytes": 115424
+          },
+          "avif": {
+            "url": "/illustrations/64467e0b696c-960.avif",
+            "bytes": 81638
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_tiangangzhen-v2.png": {
+      "sourceHash": "345c75f37e08c073a667e8d903dbf98bc486e47c3d3850a1937712d50c660495",
+      "sourceBytes": 3153806,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/69d672e8b2b4-320.webp",
+            "bytes": 20454
+          },
+          "avif": {
+            "url": "/illustrations/69d672e8b2b4-320.avif",
+            "bytes": 16309
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/69d672e8b2b4-640.webp",
+            "bytes": 67846
+          },
+          "avif": {
+            "url": "/illustrations/69d672e8b2b4-640.avif",
+            "bytes": 51651
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/69d672e8b2b4-960.webp",
+            "bytes": 132756
+          },
+          "avif": {
+            "url": "/illustrations/69d672e8b2b4-960.avif",
+            "bytes": 98861
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_tianhedaoguan-v2.png": {
+      "sourceHash": "97ab2986351819d963b1ba005a34e80ffcb097c6427223a0912cd5ed47c203ea",
+      "sourceBytes": 3598454,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/0a039cb64959-320.webp",
+            "bytes": 23880
+          },
+          "avif": {
+            "url": "/illustrations/0a039cb64959-320.avif",
+            "bytes": 19145
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/0a039cb64959-640.webp",
+            "bytes": 86130
+          },
+          "avif": {
+            "url": "/illustrations/0a039cb64959-640.avif",
+            "bytes": 66989
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/0a039cb64959-960.webp",
+            "bytes": 171718
+          },
+          "avif": {
+            "url": "/illustrations/0a039cb64959-960.avif",
+            "bytes": 134277
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_tianheshuijun-v2.png": {
+      "sourceHash": "ee41362799222f4b038afdabda0a03fe1eb6b44d4be7f1d20f6af51689f884c5",
+      "sourceBytes": 3405272,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/b5bec25a82c3-320.webp",
+            "bytes": 23414
+          },
+          "avif": {
+            "url": "/illustrations/b5bec25a82c3-320.avif",
+            "bytes": 19290
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/b5bec25a82c3-640.webp",
+            "bytes": 81608
+          },
+          "avif": {
+            "url": "/illustrations/b5bec25a82c3-640.avif",
+            "bytes": 65343
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/b5bec25a82c3-960.webp",
+            "bytes": 163330
+          },
+          "avif": {
+            "url": "/illustrations/b5bec25a82c3-960.avif",
+            "bytes": 128913
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_tianleipo-v2.png": {
+      "sourceHash": "8146fe774f4362d64dc284ac94849299621770f9c2b3bfbdfc52febf14f404bf",
+      "sourceBytes": 3316818,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/5181f25384b3-320.webp",
+            "bytes": 24090
+          },
+          "avif": {
+            "url": "/illustrations/5181f25384b3-320.avif",
+            "bytes": 20405
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/5181f25384b3-640.webp",
+            "bytes": 82234
+          },
+          "avif": {
+            "url": "/illustrations/5181f25384b3-640.avif",
+            "bytes": 68034
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/5181f25384b3-960.webp",
+            "bytes": 158836
+          },
+          "avif": {
+            "url": "/illustrations/5181f25384b3-960.avif",
+            "bytes": 129065
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_tianpengyuanshuai-v2.png": {
+      "sourceHash": "0346233bb17452c100e8d6265df39adad4a45e25e782aea2204c2405392c6c5f",
+      "sourceBytes": 3245637,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/d96cb7e7fb38-320.webp",
+            "bytes": 20276
+          },
+          "avif": {
+            "url": "/illustrations/d96cb7e7fb38-320.avif",
+            "bytes": 15742
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/d96cb7e7fb38-640.webp",
+            "bytes": 69646
+          },
+          "avif": {
+            "url": "/illustrations/d96cb7e7fb38-640.avif",
+            "bytes": 53048
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/d96cb7e7fb38-960.webp",
+            "bytes": 140198
+          },
+          "avif": {
+            "url": "/illustrations/d96cb7e7fb38-960.avif",
+            "bytes": 105822
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_tianpengzhinu-v2.png": {
+      "sourceHash": "4efcd12e2496c7227ae903909a3dbe215823427e0b50f637a674a3af611cc883",
+      "sourceBytes": 3472847,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/9f2563c904da-320.webp",
+            "bytes": 24044
+          },
+          "avif": {
+            "url": "/illustrations/9f2563c904da-320.avif",
+            "bytes": 19316
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/9f2563c904da-640.webp",
+            "bytes": 82466
+          },
+          "avif": {
+            "url": "/illustrations/9f2563c904da-640.avif",
+            "bytes": 64120
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/9f2563c904da-960.webp",
+            "bytes": 160330
+          },
+          "avif": {
+            "url": "/illustrations/9f2563c904da-960.avif",
+            "bytes": 123692
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_tiebi-v2.png": {
+      "sourceHash": "463d643b52607bddc98d053208b3eaffee85835d067b84082671d9bceeeb4dae",
+      "sourceBytes": 3274067,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/074126fa8bf6-320.webp",
+            "bytes": 22738
+          },
+          "avif": {
+            "url": "/illustrations/074126fa8bf6-320.avif",
+            "bytes": 18988
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/074126fa8bf6-640.webp",
+            "bytes": 76266
+          },
+          "avif": {
+            "url": "/illustrations/074126fa8bf6-640.avif",
+            "bytes": 60882
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/074126fa8bf6-960.webp",
+            "bytes": 149098
+          },
+          "avif": {
+            "url": "/illustrations/074126fa8bf6-960.avif",
+            "bytes": 114165
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_tiebushan-v2.png": {
+      "sourceHash": "344b977dd84764952059b9199bc15caa0acc4278dbd3273944cbf0bdf8c87ed1",
+      "sourceBytes": 3179173,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/9b212fd3c032-320.webp",
+            "bytes": 21496
+          },
+          "avif": {
+            "url": "/illustrations/9b212fd3c032-320.avif",
+            "bytes": 17119
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/9b212fd3c032-640.webp",
+            "bytes": 69910
+          },
+          "avif": {
+            "url": "/illustrations/9b212fd3c032-640.avif",
+            "bytes": 54766
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/9b212fd3c032-960.webp",
+            "bytes": 134192
+          },
+          "avif": {
+            "url": "/illustrations/9b212fd3c032-960.avif",
+            "bytes": 103697
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_tongpitiegu-v2.png": {
+      "sourceHash": "0f5b29c41525435f59941eea7ae758dc37537752604f7ec782b2d09849219737",
+      "sourceBytes": 3377918,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/eadd4b8a2e1d-320.webp",
+            "bytes": 23064
+          },
+          "avif": {
+            "url": "/illustrations/eadd4b8a2e1d-320.avif",
+            "bytes": 19765
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/eadd4b8a2e1d-640.webp",
+            "bytes": 77576
+          },
+          "avif": {
+            "url": "/illustrations/eadd4b8a2e1d-640.avif",
+            "bytes": 63816
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/eadd4b8a2e1d-960.webp",
+            "bytes": 153626
+          },
+          "avif": {
+            "url": "/illustrations/eadd4b8a2e1d-960.avif",
+            "bytes": 121994
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_tuci-v2.png": {
+      "sourceHash": "abb9922f1781fb8380b38143fc7c001af67c990da513d23108ee36345a64cb11",
+      "sourceBytes": 3099842,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/3839e379cd85-320.webp",
+            "bytes": 22324
+          },
+          "avif": {
+            "url": "/illustrations/3839e379cd85-320.avif",
+            "bytes": 18934
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/3839e379cd85-640.webp",
+            "bytes": 73460
+          },
+          "avif": {
+            "url": "/illustrations/3839e379cd85-640.avif",
+            "bytes": 59273
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/3839e379cd85-960.webp",
+            "bytes": 138420
+          },
+          "avif": {
+            "url": "/illustrations/3839e379cd85-960.avif",
+            "bytes": 109564
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_xiandan-v2.png": {
+      "sourceHash": "4c0578c29ccefea60608843d56c05e2de2be121a2d6e82e025334540c29bb87d",
+      "sourceBytes": 3088072,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/641ffd054d44-320.webp",
+            "bytes": 19998
+          },
+          "avif": {
+            "url": "/illustrations/641ffd054d44-320.avif",
+            "bytes": 16748
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/641ffd054d44-640.webp",
+            "bytes": 66028
+          },
+          "avif": {
+            "url": "/illustrations/641ffd054d44-640.avif",
+            "bytes": 51714
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/641ffd054d44-960.webp",
+            "bytes": 126776
+          },
+          "avif": {
+            "url": "/illustrations/641ffd054d44-960.avif",
+            "bytes": 95985
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_xiangmozhen-v2.png": {
+      "sourceHash": "3655225984d9a7b3c5baad1400b0b30646a91bff634ca736e6211d90669a10f9",
+      "sourceBytes": 3466677,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/df86ee75f29d-320.webp",
+            "bytes": 21964
+          },
+          "avif": {
+            "url": "/illustrations/df86ee75f29d-320.avif",
+            "bytes": 16820
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/df86ee75f29d-640.webp",
+            "bytes": 77460
+          },
+          "avif": {
+            "url": "/illustrations/df86ee75f29d-640.avif",
+            "bytes": 58416
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/df86ee75f29d-960.webp",
+            "bytes": 157002
+          },
+          "avif": {
+            "url": "/illustrations/df86ee75f29d-960.avif",
+            "bytes": 118524
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_xiangyaobaozhang-v2.png": {
+      "sourceHash": "ff5c4dac539837734264d47eed69daf8af962f6986674a7899d1e5a7071c0a7d",
+      "sourceBytes": 3389626,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/1f46f72fcb87-320.webp",
+            "bytes": 20568
+          },
+          "avif": {
+            "url": "/illustrations/1f46f72fcb87-320.avif",
+            "bytes": 15964
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/1f46f72fcb87-640.webp",
+            "bytes": 73368
+          },
+          "avif": {
+            "url": "/illustrations/1f46f72fcb87-640.avif",
+            "bytes": 55211
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/1f46f72fcb87-960.webp",
+            "bytes": 147790
+          },
+          "avif": {
+            "url": "/illustrations/1f46f72fcb87-960.avif",
+            "bytes": 110952
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_xiangyaobaozhang_zhen-v2.png": {
+      "sourceHash": "c3da05b3b76c929ea9d22eaa1f0e9e40ccd6a0253cb0a4fd479c911ed15c8ba4",
+      "sourceBytes": 3236748,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/95b541b6b581-320.webp",
+            "bytes": 22324
+          },
+          "avif": {
+            "url": "/illustrations/95b541b6b581-320.avif",
+            "bytes": 17666
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/95b541b6b581-640.webp",
+            "bytes": 72690
+          },
+          "avif": {
+            "url": "/illustrations/95b541b6b581-640.avif",
+            "bytes": 56043
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/95b541b6b581-960.webp",
+            "bytes": 138962
+          },
+          "avif": {
+            "url": "/illustrations/95b541b6b581-960.avif",
+            "bytes": 104663
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_xiangyaoboyu-v2.png": {
+      "sourceHash": "d3592f26075125cce9869c3430c7720e4f67f273f879c7095aae78f380a558b3",
+      "sourceBytes": 3115575,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/d96457ac9df3-320.webp",
+            "bytes": 19898
+          },
+          "avif": {
+            "url": "/illustrations/d96457ac9df3-320.avif",
+            "bytes": 14996
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/d96457ac9df3-640.webp",
+            "bytes": 65100
+          },
+          "avif": {
+            "url": "/illustrations/d96457ac9df3-640.avif",
+            "bytes": 46896
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/d96457ac9df3-960.webp",
+            "bytes": 123514
+          },
+          "avif": {
+            "url": "/illustrations/d96457ac9df3-960.avif",
+            "bytes": 88275
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_xiaotianquan-v2.png": {
+      "sourceHash": "acd1e8e4c1cdd1a2ed64a5e3dc6e96118acd95abacd841e92b4c5eaa971f93a9",
+      "sourceBytes": 3181226,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/e9480dab78ca-320.webp",
+            "bytes": 20858
+          },
+          "avif": {
+            "url": "/illustrations/e9480dab78ca-320.avif",
+            "bytes": 16896
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/e9480dab78ca-640.webp",
+            "bytes": 67950
+          },
+          "avif": {
+            "url": "/illustrations/e9480dab78ca-640.avif",
+            "bytes": 53073
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/e9480dab78ca-960.webp",
+            "bytes": 131476
+          },
+          "avif": {
+            "url": "/illustrations/e9480dab78ca-960.avif",
+            "bytes": 100474
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_xinjing-v2.png": {
+      "sourceHash": "aaffcbaf4883b75a98ed9de870ab437ba513c68500272e01d65dfc85435b44ac",
+      "sourceBytes": 3128858,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/58faa17ad15a-320.webp",
+            "bytes": 19132
+          },
+          "avif": {
+            "url": "/illustrations/58faa17ad15a-320.avif",
+            "bytes": 14614
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/58faa17ad15a-640.webp",
+            "bytes": 64500
+          },
+          "avif": {
+            "url": "/illustrations/58faa17ad15a-640.avif",
+            "bytes": 48323
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/58faa17ad15a-960.webp",
+            "bytes": 126290
+          },
+          "avif": {
+            "url": "/illustrations/58faa17ad15a-960.avif",
+            "bytes": 92561
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_xuanfengzhan-v2.png": {
+      "sourceHash": "7da83e3418127dc12bed95960ca40c7ea38a771f80fa5beb0fb138886ea916fa",
+      "sourceBytes": 3461956,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/5d7e0b15d1e9-320.webp",
+            "bytes": 24446
+          },
+          "avif": {
+            "url": "/illustrations/5d7e0b15d1e9-320.avif",
+            "bytes": 20973
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/5d7e0b15d1e9-640.webp",
+            "bytes": 80944
+          },
+          "avif": {
+            "url": "/illustrations/5d7e0b15d1e9-640.avif",
+            "bytes": 66527
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/5d7e0b15d1e9-960.webp",
+            "bytes": 162170
+          },
+          "avif": {
+            "url": "/illustrations/5d7e0b15d1e9-960.avif",
+            "bytes": 127593
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_xuli-v2.png": {
+      "sourceHash": "3ed340e119d8731b2ce93a220295f11d0e08fdf81319b25eb5a0fbc6d14ef038",
+      "sourceBytes": 3148958,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/fcd430b0f466-320.webp",
+            "bytes": 21982
+          },
+          "avif": {
+            "url": "/illustrations/fcd430b0f466-320.avif",
+            "bytes": 18665
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/fcd430b0f466-640.webp",
+            "bytes": 70798
+          },
+          "avif": {
+            "url": "/illustrations/fcd430b0f466-640.avif",
+            "bytes": 56871
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/fcd430b0f466-960.webp",
+            "bytes": 133742
+          },
+          "avif": {
+            "url": "/illustrations/fcd430b0f466-960.avif",
+            "bytes": 104708
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_xushidaifa-v2.png": {
+      "sourceHash": "06fb0674f5c23dbfe1765d5829bf5e47cdcc50c1639f73e199a72088cd78878c",
+      "sourceBytes": 3112751,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/27c2fa797ae4-320.webp",
+            "bytes": 21902
+          },
+          "avif": {
+            "url": "/illustrations/27c2fa797ae4-320.avif",
+            "bytes": 18468
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/27c2fa797ae4-640.webp",
+            "bytes": 69156
+          },
+          "avif": {
+            "url": "/illustrations/27c2fa797ae4-640.avif",
+            "bytes": 54860
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/27c2fa797ae4-960.webp",
+            "bytes": 128444
+          },
+          "avif": {
+            "url": "/illustrations/27c2fa797ae4-960.avif",
+            "bytes": 99925
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_zhimingyiji-v2.png": {
+      "sourceHash": "778bbbf302937988d403d38b4e1fde0147747d6505498cef925d0eef0ba7cd3c",
+      "sourceBytes": 2783164,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/d1532f89c882-320.webp",
+            "bytes": 19666
+          },
+          "avif": {
+            "url": "/illustrations/d1532f89c882-320.avif",
+            "bytes": 15860
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/d1532f89c882-640.webp",
+            "bytes": 60670
+          },
+          "avif": {
+            "url": "/illustrations/d1532f89c882-640.avif",
+            "bytes": 47624
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/d1532f89c882-960.webp",
+            "bytes": 113450
+          },
+          "avif": {
+            "url": "/illustrations/d1532f89c882-960.avif",
+            "bytes": 84480
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/cards/card_zhongji-v2.png": {
+      "sourceHash": "f699aa5513bba0005b57c920ad794e95a22d211c454ca8790095e8d6a22ff3e3",
+      "sourceBytes": 3180878,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/0ac41a17cd81-320.webp",
+            "bytes": 22656
+          },
+          "avif": {
+            "url": "/illustrations/0ac41a17cd81-320.avif",
+            "bytes": 18937
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/0ac41a17cd81-640.webp",
+            "bytes": 74788
+          },
+          "avif": {
+            "url": "/illustrations/0ac41a17cd81-640.avif",
+            "bytes": 59637
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/0ac41a17cd81-960.webp",
+            "bytes": 140994
+          },
+          "avif": {
+            "url": "/illustrations/0ac41a17cd81-960.avif",
+            "bytes": 111731
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_bagualu-v2.png": {
+      "sourceHash": "9c08d5321d562afee4388b0178617d4d1e946a55eb6d3c8f795c6623c8989c44",
+      "sourceBytes": 2958989,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/5eb1dfb2e8d2-320.webp",
+            "bytes": 15020
+          },
+          "avif": {
+            "url": "/illustrations/5eb1dfb2e8d2-320.avif",
+            "bytes": 11149
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/5eb1dfb2e8d2-640.webp",
+            "bytes": 51810
+          },
+          "avif": {
+            "url": "/illustrations/5eb1dfb2e8d2-640.avif",
+            "bytes": 36418
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/5eb1dfb2e8d2-960.webp",
+            "bytes": 102844
+          },
+          "avif": {
+            "url": "/illustrations/5eb1dfb2e8d2-960.avif",
+            "bytes": 71029
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_bajiaoshan-v2.png": {
+      "sourceHash": "6a0ef7fcaa7e8f7bdca7c846a87f805efc8185fac50ac16768357301ed405615",
+      "sourceBytes": 2758552,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/abea9c8dc7c7-320.webp",
+            "bytes": 11450
+          },
+          "avif": {
+            "url": "/illustrations/abea9c8dc7c7-320.avif",
+            "bytes": 8608
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/abea9c8dc7c7-640.webp",
+            "bytes": 36904
+          },
+          "avif": {
+            "url": "/illustrations/abea9c8dc7c7-640.avif",
+            "bytes": 25225
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/abea9c8dc7c7-960.webp",
+            "bytes": 71652
+          },
+          "avif": {
+            "url": "/illustrations/abea9c8dc7c7-960.avif",
+            "bytes": 47747
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_bishuizhu-v2.png": {
+      "sourceHash": "82ad98f26a6ad646cce415b291c38fc84b226dc955ee6df3de98e773bd945d6b",
+      "sourceBytes": 2938160,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/17b5ee030149-320.webp",
+            "bytes": 10450
+          },
+          "avif": {
+            "url": "/illustrations/17b5ee030149-320.avif",
+            "bytes": 7915
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/17b5ee030149-640.webp",
+            "bytes": 36138
+          },
+          "avif": {
+            "url": "/illustrations/17b5ee030149-640.avif",
+            "bytes": 25100
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/17b5ee030149-960.webp",
+            "bytes": 72724
+          },
+          "avif": {
+            "url": "/illustrations/17b5ee030149-960.avif",
+            "bytes": 51123
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_datatongguanwendie-v2.png": {
+      "sourceHash": "650990d1f48c335abb2b01ea0b0502c24e238ebaf0a16167bbb6c4d00b417bed",
+      "sourceBytes": 2958826,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/695dd35318ef-320.webp",
+            "bytes": 13444
+          },
+          "avif": {
+            "url": "/illustrations/695dd35318ef-320.avif",
+            "bytes": 10339
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/695dd35318ef-640.webp",
+            "bytes": 49350
+          },
+          "avif": {
+            "url": "/illustrations/695dd35318ef-640.avif",
+            "bytes": 35306
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/695dd35318ef-960.webp",
+            "bytes": 100254
+          },
+          "avif": {
+            "url": "/illustrations/695dd35318ef-960.avif",
+            "bytes": 71154
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_dinghaishenzhen-v2.png": {
+      "sourceHash": "1d51eb2bccb8012091f4adb1e9b83ce890591a938268b481983d33188a4ce30c",
+      "sourceBytes": 3101705,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/dfccbd8497ba-320.webp",
+            "bytes": 16774
+          },
+          "avif": {
+            "url": "/illustrations/dfccbd8497ba-320.avif",
+            "bytes": 13161
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/dfccbd8497ba-640.webp",
+            "bytes": 57712
+          },
+          "avif": {
+            "url": "/illustrations/dfccbd8497ba-640.avif",
+            "bytes": 44329
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/dfccbd8497ba-960.webp",
+            "bytes": 113688
+          },
+          "avif": {
+            "url": "/illustrations/dfccbd8497ba-960.avif",
+            "bytes": 85116
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_fenghuolun-v2.png": {
+      "sourceHash": "95e9aff3abe7bd1af09517cb98858bae3ac387df721f1d38fa0a8a2ca8802ae3",
+      "sourceBytes": 3013137,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/435bf25de2ad-320.webp",
+            "bytes": 15306
+          },
+          "avif": {
+            "url": "/illustrations/435bf25de2ad-320.avif",
+            "bytes": 12463
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/435bf25de2ad-640.webp",
+            "bytes": 51284
+          },
+          "avif": {
+            "url": "/illustrations/435bf25de2ad-640.avif",
+            "bytes": 38627
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/435bf25de2ad-960.webp",
+            "bytes": 101848
+          },
+          "avif": {
+            "url": "/illustrations/435bf25de2ad-960.avif",
+            "bytes": 73567
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_ganluping-v2.png": {
+      "sourceHash": "333bc68a9334db1b9f6cc5a1fcca8864598ceedaa84ce23c53b2e2b42fb62964",
+      "sourceBytes": 2911488,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/f39ca6b35054-320.webp",
+            "bytes": 12692
+          },
+          "avif": {
+            "url": "/illustrations/f39ca6b35054-320.avif",
+            "bytes": 9079
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/f39ca6b35054-640.webp",
+            "bytes": 45784
+          },
+          "avif": {
+            "url": "/illustrations/f39ca6b35054-640.avif",
+            "bytes": 31187
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/f39ca6b35054-960.webp",
+            "bytes": 92868
+          },
+          "avif": {
+            "url": "/illustrations/f39ca6b35054-960.avif",
+            "bytes": 62521
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_jiasha-v2.png": {
+      "sourceHash": "ce4e94525822bc2cd96b990a70a187e8d261ab48f2b0d91e5b0c6d959b180536",
+      "sourceBytes": 2896629,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/d22cacd13fd9-320.webp",
+            "bytes": 12452
+          },
+          "avif": {
+            "url": "/illustrations/d22cacd13fd9-320.avif",
+            "bytes": 9152
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/d22cacd13fd9-640.webp",
+            "bytes": 42952
+          },
+          "avif": {
+            "url": "/illustrations/d22cacd13fd9-640.avif",
+            "bytes": 28606
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/d22cacd13fd9-960.webp",
+            "bytes": 86044
+          },
+          "avif": {
+            "url": "/illustrations/d22cacd13fd9-960.avif",
+            "bytes": 56650
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_jingangzhuo-v2.png": {
+      "sourceHash": "cdf218f1996a2aa3efa5f4c10c1336ec7bf3b083b072835a0e5dc335356394f3",
+      "sourceBytes": 3097567,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/4493d6bce4f2-320.webp",
+            "bytes": 14766
+          },
+          "avif": {
+            "url": "/illustrations/4493d6bce4f2-320.avif",
+            "bytes": 11923
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/4493d6bce4f2-640.webp",
+            "bytes": 52158
+          },
+          "avif": {
+            "url": "/illustrations/4493d6bce4f2-640.avif",
+            "bytes": 40059
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/4493d6bce4f2-960.webp",
+            "bytes": 107782
+          },
+          "avif": {
+            "url": "/illustrations/4493d6bce4f2-960.avif",
+            "bytes": 80132
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_jinguzhou-v2.png": {
+      "sourceHash": "3ed732e34c4eac9e718804612eff776e2d97cc5ff5a778fe1c3474795bb7d8d8",
+      "sourceBytes": 2837339,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/7bd58c219aa3-320.webp",
+            "bytes": 12160
+          },
+          "avif": {
+            "url": "/illustrations/7bd58c219aa3-320.avif",
+            "bytes": 9084
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/7bd58c219aa3-640.webp",
+            "bytes": 41096
+          },
+          "avif": {
+            "url": "/illustrations/7bd58c219aa3-640.avif",
+            "bytes": 28570
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/7bd58c219aa3-960.webp",
+            "bytes": 81412
+          },
+          "avif": {
+            "url": "/illustrations/7bd58c219aa3-960.avif",
+            "bytes": 55433
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_jinlanjiasha-v2.png": {
+      "sourceHash": "fd5518aaca5e7ca41992e32547ff54f2e4e3ed7ee5fd56341f6fd9cca13b71d8",
+      "sourceBytes": 3017546,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/d633d9484b3a-320.webp",
+            "bytes": 14714
+          },
+          "avif": {
+            "url": "/illustrations/d633d9484b3a-320.avif",
+            "bytes": 11641
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/d633d9484b3a-640.webp",
+            "bytes": 51306
+          },
+          "avif": {
+            "url": "/illustrations/d633d9484b3a-640.avif",
+            "bytes": 37503
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/d633d9484b3a-960.webp",
+            "bytes": 105178
+          },
+          "avif": {
+            "url": "/illustrations/d633d9484b3a-960.avif",
+            "bytes": 75283
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_jiuchidingpa-v2.png": {
+      "sourceHash": "cdf370cbc1ec91bf909ffac4e8f5785f814c65f6483f52aeab753333e0897957",
+      "sourceBytes": 2800389,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/23a44ed2978c-320.webp",
+            "bytes": 12786
+          },
+          "avif": {
+            "url": "/illustrations/23a44ed2978c-320.avif",
+            "bytes": 9574
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/23a44ed2978c-640.webp",
+            "bytes": 42386
+          },
+          "avif": {
+            "url": "/illustrations/23a44ed2978c-640.avif",
+            "bytes": 29554
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/23a44ed2978c-960.webp",
+            "bytes": 83322
+          },
+          "avif": {
+            "url": "/illustrations/23a44ed2978c-960.avif",
+            "bytes": 58095
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_jiuzhuanjindan-v2.png": {
+      "sourceHash": "344ca8213baa2ac6c13ff5d59525b59346ed53dc33f7d08ab60581b7fb55e470",
+      "sourceBytes": 2829708,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/0465f5cbb84d-320.webp",
+            "bytes": 12660
+          },
+          "avif": {
+            "url": "/illustrations/0465f5cbb84d-320.avif",
+            "bytes": 9376
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/0465f5cbb84d-640.webp",
+            "bytes": 42414
+          },
+          "avif": {
+            "url": "/illustrations/0465f5cbb84d-640.avif",
+            "bytes": 29017
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/0465f5cbb84d-960.webp",
+            "bytes": 83558
+          },
+          "avif": {
+            "url": "/illustrations/0465f5cbb84d-960.avif",
+            "bytes": 56424
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_kunxiansheng-v2.png": {
+      "sourceHash": "0f3b83788d40092206c36d48440b3de9354fff2c0b93705b05c27938382dfc88",
+      "sourceBytes": 2853158,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/9d851243bd92-320.webp",
+            "bytes": 12288
+          },
+          "avif": {
+            "url": "/illustrations/9d851243bd92-320.avif",
+            "bytes": 9592
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/9d851243bd92-640.webp",
+            "bytes": 41668
+          },
+          "avif": {
+            "url": "/illustrations/9d851243bd92-640.avif",
+            "bytes": 30282
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/9d851243bd92-960.webp",
+            "bytes": 82304
+          },
+          "avif": {
+            "url": "/illustrations/9d851243bd92-960.avif",
+            "bytes": 58408
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_liaoyaoohu-v2.png": {
+      "sourceHash": "918c61f925e612dbf484a803cb0d6ecd6975c9fc2be839fa6c95af6dffd05c9d",
+      "sourceBytes": 2976196,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/e362cad123b4-320.webp",
+            "bytes": 13234
+          },
+          "avif": {
+            "url": "/illustrations/e362cad123b4-320.avif",
+            "bytes": 10209
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/e362cad123b4-640.webp",
+            "bytes": 46036
+          },
+          "avif": {
+            "url": "/illustrations/e362cad123b4-640.avif",
+            "bytes": 34035
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/e362cad123b4-960.webp",
+            "bytes": 94610
+          },
+          "avif": {
+            "url": "/illustrations/e362cad123b4-960.avif",
+            "bytes": 67895
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_lishiminyujian-v2.png": {
+      "sourceHash": "e6b4702d7edfb9b51f9cf7b5772a43a80600b6d1f0fff140a1587fc86563d26c",
+      "sourceBytes": 2855109,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/1b7769822abc-320.webp",
+            "bytes": 13074
+          },
+          "avif": {
+            "url": "/illustrations/1b7769822abc-320.avif",
+            "bytes": 9932
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/1b7769822abc-640.webp",
+            "bytes": 44946
+          },
+          "avif": {
+            "url": "/illustrations/1b7769822abc-640.avif",
+            "bytes": 32728
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/1b7769822abc-960.webp",
+            "bytes": 91864
+          },
+          "avif": {
+            "url": "/illustrations/1b7769822abc-960.avif",
+            "bytes": 64326
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_longlinjia-v2.png": {
+      "sourceHash": "82d23e0d55d1d52a598d09ea0131dc8923bdba456f4865034eb4673811f84c1d",
+      "sourceBytes": 2985432,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/84a8cf7b5dba-320.webp",
+            "bytes": 14332
+          },
+          "avif": {
+            "url": "/illustrations/84a8cf7b5dba-320.avif",
+            "bytes": 11537
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/84a8cf7b5dba-640.webp",
+            "bytes": 47860
+          },
+          "avif": {
+            "url": "/illustrations/84a8cf7b5dba-640.avif",
+            "bytes": 35424
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/84a8cf7b5dba-960.webp",
+            "bytes": 95202
+          },
+          "avif": {
+            "url": "/illustrations/84a8cf7b5dba-960.avif",
+            "bytes": 68607
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_pantao-v2.png": {
+      "sourceHash": "6a3e29f41385e6ba00d894f970bf6e7587366db7d64433360a8f55c715cf2b41",
+      "sourceBytes": 2678707,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/b16e62dcca7e-320.webp",
+            "bytes": 10810
+          },
+          "avif": {
+            "url": "/illustrations/b16e62dcca7e-320.avif",
+            "bytes": 7818
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/b16e62dcca7e-640.webp",
+            "bytes": 35524
+          },
+          "avif": {
+            "url": "/illustrations/b16e62dcca7e-640.avif",
+            "bytes": 23518
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/b16e62dcca7e-960.webp",
+            "bytes": 69624
+          },
+          "avif": {
+            "url": "/illustrations/b16e62dcca7e-960.avif",
+            "bytes": 44977
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_qixingjian-v2.png": {
+      "sourceHash": "6da086fb300af4605072cd240c08b8a59dd4c4791e0600c9e58cdca79153a6be",
+      "sourceBytes": 2870785,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/8d4d73bebf06-320.webp",
+            "bytes": 11104
+          },
+          "avif": {
+            "url": "/illustrations/8d4d73bebf06-320.avif",
+            "bytes": 7758
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/8d4d73bebf06-640.webp",
+            "bytes": 37000
+          },
+          "avif": {
+            "url": "/illustrations/8d4d73bebf06-640.avif",
+            "bytes": 24378
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/8d4d73bebf06-960.webp",
+            "bytes": 73680
+          },
+          "avif": {
+            "url": "/illustrations/8d4d73bebf06-960.avif",
+            "bytes": 47462
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_renshenguo-v2.png": {
+      "sourceHash": "65c55ded21f704ef6f4b13b8a20139c3468a059c0338a91028ac5c8c648150ae",
+      "sourceBytes": 2896109,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/40701c8aa403-320.webp",
+            "bytes": 13846
+          },
+          "avif": {
+            "url": "/illustrations/40701c8aa403-320.avif",
+            "bytes": 10837
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/40701c8aa403-640.webp",
+            "bytes": 46486
+          },
+          "avif": {
+            "url": "/illustrations/40701c8aa403-640.avif",
+            "bytes": 34617
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/40701c8aa403-960.webp",
+            "bytes": 92744
+          },
+          "avif": {
+            "url": "/illustrations/40701c8aa403-960.avif",
+            "bytes": 65842
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_shengsibu-v2.png": {
+      "sourceHash": "95fbfb183420323aa7516ff57b46751860a17528d66ad037f9daad087b4db99d",
+      "sourceBytes": 2955665,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/e3d1e0857506-320.webp",
+            "bytes": 11754
+          },
+          "avif": {
+            "url": "/illustrations/e3d1e0857506-320.avif",
+            "bytes": 8552
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/e3d1e0857506-640.webp",
+            "bytes": 41252
+          },
+          "avif": {
+            "url": "/illustrations/e3d1e0857506-640.avif",
+            "bytes": 27109
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/e3d1e0857506-960.webp",
+            "bytes": 83448
+          },
+          "avif": {
+            "url": "/illustrations/e3d1e0857506-960.avif",
+            "bytes": 54708
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_taizongyuxi-v2.png": {
+      "sourceHash": "2c052efeb3c2210d283293dc220d960c36d9fa8f882c745002aabe485353490a",
+      "sourceBytes": 2804007,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/1b9b17016eca-320.webp",
+            "bytes": 12110
+          },
+          "avif": {
+            "url": "/illustrations/1b9b17016eca-320.avif",
+            "bytes": 8851
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/1b9b17016eca-640.webp",
+            "bytes": 41452
+          },
+          "avif": {
+            "url": "/illustrations/1b9b17016eca-640.avif",
+            "bytes": 28198
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/1b9b17016eca-960.webp",
+            "bytes": 81758
+          },
+          "avif": {
+            "url": "/illustrations/1b9b17016eca-960.avif",
+            "bytes": 55164
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_tongguanwendie-v2.png": {
+      "sourceHash": "0b7119ac25fa9345cf5aa4d13f87c50f4139502ae28551e21e58c40a2114f40f",
+      "sourceBytes": 2802172,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/2a12b91b4354-320.webp",
+            "bytes": 10588
+          },
+          "avif": {
+            "url": "/illustrations/2a12b91b4354-320.avif",
+            "bytes": 7712
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/2a12b91b4354-640.webp",
+            "bytes": 34850
+          },
+          "avif": {
+            "url": "/illustrations/2a12b91b4354-640.avif",
+            "bytes": 23448
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/2a12b91b4354-960.webp",
+            "bytes": 69820
+          },
+          "avif": {
+            "url": "/illustrations/2a12b91b4354-960.avif",
+            "bytes": 44994
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_xiangyabaozhang-v2.png": {
+      "sourceHash": "b5317c9027b00c6bb495513284e9235cc0b4f7f892f0cddc51e4598bb2f094fa",
+      "sourceBytes": 2855166,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/2693b4d16035-320.webp",
+            "bytes": 9880
+          },
+          "avif": {
+            "url": "/illustrations/2693b4d16035-320.avif",
+            "bytes": 7001
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/2693b4d16035-640.webp",
+            "bytes": 34304
+          },
+          "avif": {
+            "url": "/illustrations/2693b4d16035-640.avif",
+            "bytes": 22321
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/2693b4d16035-960.webp",
+            "bytes": 71790
+          },
+          "avif": {
+            "url": "/illustrations/2693b4d16035-960.avif",
+            "bytes": 44011
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_xuanzangjiuhuanxizhang-v2.png": {
+      "sourceHash": "2e862839631039f893bee26dce9ad4541ddd8c0156c69b5c3a6c8042d574770a",
+      "sourceBytes": 2832822,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/22ede22ae012-320.webp",
+            "bytes": 11940
+          },
+          "avif": {
+            "url": "/illustrations/22ede22ae012-320.avif",
+            "bytes": 8807
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/22ede22ae012-640.webp",
+            "bytes": 42452
+          },
+          "avif": {
+            "url": "/illustrations/22ede22ae012-640.avif",
+            "bytes": 30011
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/22ede22ae012-960.webp",
+            "bytes": 85680
+          },
+          "avif": {
+            "url": "/illustrations/22ede22ae012-960.avif",
+            "bytes": 59033
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_yucijinbo-v2.png": {
+      "sourceHash": "01e1361049c885d394e085f1cf8ae6e0435f09c0e43b858300e1ce974ebaaa32",
+      "sourceBytes": 3086448,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/ef78d699481d-320.webp",
+            "bytes": 14532
+          },
+          "avif": {
+            "url": "/illustrations/ef78d699481d-320.avif",
+            "bytes": 11278
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/ef78d699481d-640.webp",
+            "bytes": 54054
+          },
+          "avif": {
+            "url": "/illustrations/ef78d699481d-640.avif",
+            "bytes": 39382
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/ef78d699481d-960.webp",
+            "bytes": 112866
+          },
+          "avif": {
+            "url": "/illustrations/ef78d699481d-960.avif",
+            "bytes": 80536
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_yuciliulizhan-v2.png": {
+      "sourceHash": "50df1add187cfd91868d0645637812e7b39a307f9ff6f8f7554df5df9c9e9441",
+      "sourceBytes": 3002003,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/00fa2bd06882-320.webp",
+            "bytes": 12212
+          },
+          "avif": {
+            "url": "/illustrations/00fa2bd06882-320.avif",
+            "bytes": 9971
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/00fa2bd06882-640.webp",
+            "bytes": 43910
+          },
+          "avif": {
+            "url": "/illustrations/00fa2bd06882-640.avif",
+            "bytes": 32738
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/00fa2bd06882-960.webp",
+            "bytes": 90014
+          },
+          "avif": {
+            "url": "/illustrations/00fa2bd06882-960.avif",
+            "bytes": 66153
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_yujingping-v2.png": {
+      "sourceHash": "6e4ff2e8fcd53ab3e824e6fb89ef87eabc933b872f63fa9a2fca743f91eb3e86",
+      "sourceBytes": 2784138,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/fbf6d384be47-320.webp",
+            "bytes": 11038
+          },
+          "avif": {
+            "url": "/illustrations/fbf6d384be47-320.avif",
+            "bytes": 8101
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/fbf6d384be47-640.webp",
+            "bytes": 38216
+          },
+          "avif": {
+            "url": "/illustrations/fbf6d384be47-640.avif",
+            "bytes": 25881
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/fbf6d384be47-960.webp",
+            "bytes": 75978
+          },
+          "avif": {
+            "url": "/illustrations/fbf6d384be47-960.avif",
+            "bytes": 50899
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_yulinjunhufu-v2.png": {
+      "sourceHash": "ed40a5852296550e8a12a0b4a4a1132837d57b0431d413eb747dfc87eed6cc2b",
+      "sourceBytes": 3207509,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/b2b05edbed7d-320.webp",
+            "bytes": 14410
+          },
+          "avif": {
+            "url": "/illustrations/b2b05edbed7d-320.avif",
+            "bytes": 11204
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/b2b05edbed7d-640.webp",
+            "bytes": 51312
+          },
+          "avif": {
+            "url": "/illustrations/b2b05edbed7d-640.avif",
+            "bytes": 36731
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/b2b05edbed7d-960.webp",
+            "bytes": 108316
+          },
+          "avif": {
+            "url": "/illustrations/b2b05edbed7d-960.avif",
+            "bytes": 78362
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_zhenyaota-v2.png": {
+      "sourceHash": "73eea12e1738cdb261bdbf1127936302829ea34971e83f986ed5ebad9444a8a7",
+      "sourceBytes": 2782516,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/a4b1457859ee-320.webp",
+            "bytes": 10022
+          },
+          "avif": {
+            "url": "/illustrations/a4b1457859ee-320.avif",
+            "bytes": 7090
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/a4b1457859ee-640.webp",
+            "bytes": 34378
+          },
+          "avif": {
+            "url": "/illustrations/a4b1457859ee-640.avif",
+            "bytes": 23752
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/a4b1457859ee-960.webp",
+            "bytes": 71644
+          },
+          "avif": {
+            "url": "/illustrations/a4b1457859ee-960.avif",
+            "bytes": 48478
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_zhoyaojing-v2.png": {
+      "sourceHash": "b19692ca5b36ca4b7529d0009d0070f45abd5f94f91d9444c9ffb5f796e1f219",
+      "sourceBytes": 3141778,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/0d183b8f2aab-320.webp",
+            "bytes": 15378
+          },
+          "avif": {
+            "url": "/illustrations/0d183b8f2aab-320.avif",
+            "bytes": 11833
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/0d183b8f2aab-640.webp",
+            "bytes": 54852
+          },
+          "avif": {
+            "url": "/illustrations/0d183b8f2aab-640.avif",
+            "bytes": 40924
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/0d183b8f2aab-960.webp",
+            "bytes": 114326
+          },
+          "avif": {
+            "url": "/illustrations/0d183b8f2aab-960.avif",
+            "bytes": 83803
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_zijinHonghulu-v2.png": {
+      "sourceHash": "6775a17f09761c61012474489841838bad41334b06ace0793e52505e7f7b0897",
+      "sourceBytes": 2846691,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/476e05507f2c-320.webp",
+            "bytes": 11600
+          },
+          "avif": {
+            "url": "/illustrations/476e05507f2c-320.avif",
+            "bytes": 8507
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/476e05507f2c-640.webp",
+            "bytes": 39900
+          },
+          "avif": {
+            "url": "/illustrations/476e05507f2c-640.avif",
+            "bytes": 27125
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/476e05507f2c-960.webp",
+            "bytes": 79796
+          },
+          "avif": {
+            "url": "/illustrations/476e05507f2c-960.avif",
+            "bytes": 53805
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_zijinboyu-v2.png": {
+      "sourceHash": "961fe3202e69b435816f0871d293dc1d0ffd27040f6d96725eb01a7be924c3c7",
+      "sourceBytes": 2898965,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/9652e73c37b0-320.webp",
+            "bytes": 11790
+          },
+          "avif": {
+            "url": "/illustrations/9652e73c37b0-320.avif",
+            "bytes": 8399
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/9652e73c37b0-640.webp",
+            "bytes": 42442
+          },
+          "avif": {
+            "url": "/illustrations/9652e73c37b0-640.avif",
+            "bytes": 29044
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/9652e73c37b0-960.webp",
+            "bytes": 88554
+          },
+          "avif": {
+            "url": "/illustrations/9652e73c37b0-960.avif",
+            "bytes": 59094
+          }
+        }
+      ]
+    },
+    "/images/artwork-v2/relics/relic_zijinling-v2.png": {
+      "sourceHash": "f5db1203e690f26aa7d55150751328d9817641c6d97659cd609451361636e36e",
+      "sourceBytes": 3011077,
+      "width": 1536,
+      "height": 1024,
+      "variants": [
+        {
+          "width": 320,
+          "height": 213,
+          "webp": {
+            "url": "/illustrations/c435b7b3068d-320.webp",
+            "bytes": 14398
+          },
+          "avif": {
+            "url": "/illustrations/c435b7b3068d-320.avif",
+            "bytes": 11240
+          }
+        },
+        {
+          "width": 640,
+          "height": 427,
+          "webp": {
+            "url": "/illustrations/c435b7b3068d-640.webp",
+            "bytes": 51580
+          },
+          "avif": {
+            "url": "/illustrations/c435b7b3068d-640.avif",
+            "bytes": 38998
+          }
+        },
+        {
+          "width": 960,
+          "height": 640,
+          "webp": {
+            "url": "/illustrations/c435b7b3068d-960.webp",
+            "bytes": 104322
+          },
+          "avif": {
+            "url": "/illustrations/c435b7b3068d-960.avif",
+            "bytes": 77673
+          }
+        }
+      ]
+    },
     "/images/唐三藏/卡牌/card_boreboluomi.jpg": {
       "sourceHash": "1c7d7097ed2a6b512cf2a27ff564036d388cfb7497bcddc455d344bdbda8a983",
       "sourceBytes": 119413,

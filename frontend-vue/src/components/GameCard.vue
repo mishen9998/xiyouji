@@ -1,6 +1,7 @@
 <template>
   <button type="button" class="game-card" :class="{ 'can-play': canPlay, 'cannot-play': !canPlay }"
     :style="{ borderTopColor: typeColor }"
+    :title="artworkLore('card', card.name)"
     :aria-label="`${card.name}，${card.cost} 法力，${card.description}${!canPlay ? '，当前不可出牌' : ''}`"
     :disabled="!canPlay" @click="handleClick">
     <span class="cost-circle" :aria-label="`${card.cost} 法力`">{{ card.cost }}</span>
@@ -16,6 +17,7 @@
 import { computed } from 'vue'
 import type { Card } from '@/types'
 import { cardImgUrl, TYPE_LABELS } from '@/constants/images'
+import { artworkLore } from '@/constants/artwork'
 import ResponsiveImage from '@/components/ResponsiveImage.vue'
 const props = defineProps<{ card: Card; canPlay: boolean; index?: number }>()
 const emit = defineEmits<{ play: [index?: number] }>()

@@ -16,7 +16,7 @@
     @keydown.space.prevent="handleClick"
   >
     <!-- 卡牌图片 -->
-    <ResponsiveImage class="card-mini-art" :src="cardImgUrl(card.name, card.upgraded)" :alt="card.name" :emoji="card.emoji || '📜'" sizes="140px" object-fit="cover" />
+    <ResponsiveImage class="card-mini-art" :src="cardImgUrl(card.name, card.upgraded)" :alt="card.name" :emoji="card.emoji || '📜'" sizes="(max-width:600px) 150px, 220px" object-fit="cover" />
 
     <!-- 卡牌名 -->
     <div class="card-name">
@@ -35,6 +35,7 @@
       <span v-if="card.block > 0" class="attr attr-block">格挡 {{ card.block }}</span>
       <span v-if="card.drawCards > 0" class="attr attr-draw">抽牌 {{ card.drawCards }}</span>
     </div>
+    <ArtifactDescription kind="card" :name="card.name" :effect="card.description" compact />
   </div>
 </template>
 
@@ -43,6 +44,7 @@ import { computed } from 'vue'
 import type { Card } from '@/types'
 import { cardImgUrl, TYPE_LABELS } from '@/constants/images'
 import ResponsiveImage from './ResponsiveImage.vue'
+import ArtifactDescription from './ArtifactDescription.vue'
 
 const props = withDefaults(defineProps<{
   card: Card
@@ -79,6 +81,25 @@ function handleClick() {
 </script>
 
 <style scoped>
+.card-mini {
+  --text-primary: #382d22;
+  --text-secondary: #655342;
+  --gold: #806021;
+  --line: #c9b892;
+  --red: #993f31;
+  --blue: #305d72;
+  --green: #336449;
+  --purple: #6f477e;
+  width: 176px; max-width: 100%; padding: 9px;
+  background: linear-gradient(145deg, #fff8e9, #eee0c6);
+  border: 1px solid #ad8950; border-radius: 10px;
+  box-shadow: inset 0 0 0 3px #fff6e866, 0 4px 12px #160f1920;
+  transition: transform 120ms, box-shadow 120ms;
+}
+.card-mini .card-mini-art { height: auto; aspect-ratio: 3 / 2 !important; border-radius: 5px; border: 1px solid #c6af80; }
+.card-mini:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+@media(max-width:600px) { .card-mini { width: 144px; padding: 7px; } }
+@media(prefers-reduced-motion:reduce) { .card-mini { transition: none; } }
 .card-name {
   font-weight: bold;
   color: var(--text-primary);

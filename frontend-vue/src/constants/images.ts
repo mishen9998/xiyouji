@@ -256,6 +256,8 @@ export const BUFF_ICONS: Record<string, string> = {
 export function cardImgUrl(name: string, _upgraded?: boolean): string | null {
   const f = CARD_IMG[name]
   if (!f) return null
+  const refreshed = `/images/artwork-v2/cards/${f}-v2.png`
+  if (entries[refreshed]) return imageUrl(refreshed)
   const characterDir = CARD_CHARACTER_DIR[name]
   return imageUrl(characterDir
     ? `/images/${characterDir}/卡牌/${f}.jpg`
@@ -293,6 +295,8 @@ export function enemyImgUrl(name: string): string | null {
 export function relicImgUrl(name: string): string | null {
   const f = RELIC_IMG[name]
   if (!f) return null
+  const refreshed = `/images/artwork-v2/relics/${f}-v2.png`
+  if (entries[refreshed]) return imageUrl(refreshed)
   return imageUrl(`/images/宝物/遗物/${f}.jpg`)
 }
 

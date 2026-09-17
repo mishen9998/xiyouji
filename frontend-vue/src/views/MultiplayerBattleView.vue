@@ -77,7 +77,7 @@
             <span v-else class="card-emoji">{{ card.emoji || '📜' }}</span>
             <strong class="card-name">{{ card.name }}</strong>
             <span class="card-effects"><span v-if="card.damage">伤害 {{ card.damage }}</span><span v-if="card.block">格挡 {{ card.block }}</span></span>
-            <span class="card-desc">{{ card.description }}</span>
+            <ArtifactDescription kind="card" :name="card.name" :effect="card.description" compact />
           </button>
         </div>
         <div v-if="!hasClaimed && currentUsername && battle.rewards?.[currentUsername]" class="reward-actions">
@@ -109,6 +109,7 @@ import { intentTargets, statusNames } from '@/components/enemyIntent'
 import EnemyIntent from '@/components/EnemyIntent.vue'
 import ResponsiveImage from '@/components/ResponsiveImage.vue'
 import GameCard from '@/components/GameCard.vue'
+import ArtifactDescription from '@/components/ArtifactDescription.vue'
 import HpBar from '@/components/HpBar.vue'
 const BattleCharacter3D = defineAsyncComponent(() => import('@/components/BattleCharacter3D.vue'))
 import type { MultiplayerBattleInfo, MultiplayerPlayerInfo, MultiplayerCardInfo, CharacterClass, Card } from '@/types'

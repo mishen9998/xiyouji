@@ -44,6 +44,7 @@
         />
         <span class="relic-emoji" v-else>🎁</span>
         <span class="relic-text">🎁 获得宝物: {{ relicReward.name }}</span>
+        <ArtifactDescription kind="relic" :name="relicReward.name" :effect="relicReward.description" compact />
       </div>
 
       <button
@@ -67,6 +68,7 @@ import { relicImgUrl } from '@/constants/images'
 import type { Card } from '@/types'
 import MiniCard from '@/components/MiniCard.vue'
 import ResponsiveImage from '@/components/ResponsiveImage.vue'
+import ArtifactDescription from '@/components/ArtifactDescription.vue'
 
 const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits<{
@@ -282,6 +284,7 @@ async function onContinue(skip = false) {
 /* ====== 放大宝物获得展示 ====== */
 .reward-relic {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 14px;
@@ -291,6 +294,7 @@ async function onContinue(skip = false) {
   padding: 18px 24px;
   margin-bottom: 22px;
 }
+.reward-relic .artifact-copy { flex-basis: 100%; }
 
 .relic-img {
   width: 72px;

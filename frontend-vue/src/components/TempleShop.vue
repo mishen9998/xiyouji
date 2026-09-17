@@ -16,7 +16,7 @@
       <button class="back-link" type="button" @click="selectedCard = null">← 返回商店</button>
       <div class="detail-layout">
         <div class="detail-art">
-          <ResponsiveImage :src="cardImgUrl(selectedCard.card.name, selectedCard.card.upgraded)" :alt="selectedCard.card.name" sizes="(max-width:720px) 68vw, 360px" object-fit="cover" />
+          <ResponsiveImage :src="cardImgUrl(selectedCard.card.name, selectedCard.card.upgraded)" :alt="selectedCard.card.name" sizes="(max-width:720px) 68vw, 360px" object-fit="contain" />
           <span class="detail-cost">{{ selectedCard.card.cost }}</span>
           <span class="detail-name">{{ selectedCard.card.name }}</span>
         </div>
@@ -29,7 +29,7 @@
             <span v-if="selectedCard.card.block > 0">格挡 <b>{{ selectedCard.card.block }}</b></span>
             <span v-if="selectedCard.card.drawCards > 0">抽牌 <b>{{ selectedCard.card.drawCards }}</b></span>
           </div>
-          <p class="detail-description">{{ selectedCard.card.description }}</p>
+          <ArtifactDescription kind="card" :name="selectedCard.card.name" :effect="selectedCard.card.description" />
           <button
             class="purchase-button"
             type="button"
@@ -94,6 +94,7 @@ import { ref } from 'vue'
 import { cardImgUrl, TYPE_LABELS } from '@/constants/images'
 import type { Card } from '@/types'
 import ResponsiveImage from './ResponsiveImage.vue'
+import ArtifactDescription from './ArtifactDescription.vue'
 
 const props = withDefaults(defineProps<{
   cards: Card[]
@@ -142,7 +143,7 @@ function purchaseSelected() {
 .shop-card-body{padding:12px}.shop-card-title{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center}.shop-card-title h3{font-size:1rem}.shop-card-title>span{font-size:.75rem;color:var(--text-secondary)}.shop-card-stats,.stat-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.shop-card-stats span,.stat-row span{font-size:.75rem;padding:3px 6px;background:var(--bg-panel);border-radius:5px}.shop-card-body p{font-size:.8rem;color:var(--text-secondary);line-height:1.65;margin-bottom:12px}.shop-price{color:var(--gold)}
 .temple-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:24px;padding-top:16px;border-top:1px solid var(--line)}.temple-footer p{font-size:.85rem;color:var(--text-secondary)}
 .forward-button,.purchase-button{min-height:48px;padding:12px 20px;border:0;border-radius:9px;background:var(--green);color:white;font-weight:700}.purchase-button:disabled{opacity:.55}.back-link{padding:8px 16px;border:1px solid var(--line);border-radius:8px;background:var(--bg-card)}
-.detail-layout{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:32px;align-items:center;max-width:800px;margin:24px auto}.detail-art{position:relative;aspect-ratio:3/4;border:2px solid var(--gold);border-radius:16px;overflow:hidden}.detail-name{position:absolute;left:8px;right:8px;bottom:8px;background:#fffaf0ed;border-radius:8px;padding:8px;text-align:center;font-weight:700}.detail-copy h3{font:700 1.75rem var(--font-display);margin:8px 0}.detail-description{line-height:1.8;color:var(--text-secondary);margin:20px 0}.empty-shop{text-align:center;padding:64px 0;color:var(--text-secondary)}
+.detail-layout{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:32px;align-items:center;max-width:800px;margin:24px auto}.detail-art{position:relative;aspect-ratio:3/2;border:2px solid var(--gold);border-radius:16px;overflow:hidden;background:#f8eedc}.detail-name{position:absolute;left:8px;right:8px;bottom:8px;background:#fffaf0ed;color:#382d22;border-radius:8px;padding:8px;text-align:center;font-weight:700}.detail-copy h3{font:700 1.75rem var(--font-display);margin:8px 0}.detail-description{line-height:1.8;color:var(--text-secondary);margin:20px 0}.empty-shop{text-align:center;padding:64px 0;color:var(--text-secondary)}
 @media(max-width:1000px){.shop-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:720px){.temple-shop{width:100%;max-height:94dvh;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}.temple-header{flex-wrap:wrap}.shop-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.detail-layout{grid-template-columns:minmax(0,1fr);gap:20px}.detail-art{width:min(68vw,280px);margin:auto}.temple-footer{position:sticky;bottom:-16px;background:var(--bg-panel);padding:12px 0}.forward-button{width:100%}.shop-card-body{padding:10px}}
 </style>

@@ -13,6 +13,25 @@ const widths = [320, 640, 960]
 const maxBytes = 200 * 1024
 sharp.concurrency(2)
 await fs.mkdir(output, { recursive: true })
+const manifestPath = path.join(frontend, 'src', 'constants', 'image-manifest.json')
+let previous = {}
+if (!process.argv.includes('--force')) {
+  try {
+    const cached = JSON.parse(await fs.readFile(manifestPath, 'utf8'))
+    if (cached.version === 1 && JSON.stringify(cached.widths) === JSON.stringify(widths)) previous = cached.entries
+  } catch { /* A clean checkout can build without an existing manifest. */ }
+}
+async function reusable(entry, sourceHash) {
+  if (!entry || entry.sourceHash !== sourceHash || !entry.variants?.length) return false
+  for (const variant of entry.variants) for (const format of ['webp', 'avif']) {
+    const file = variant[format]
+    if (!file?.url?.startsWith('/illustrations/') || file.bytes > maxBytes) return false
+    const target = path.resolve(frontend, 'public', file.url.slice(1))
+    if (!target.startsWith(output + path.sep)) return false
+    try { if ((await fs.stat(target)).size !== file.bytes) return false } catch { return false }
+  }
+  return true
+}
 async function discover(directory) {
   const entries = await fs.readdir(directory, { withFileTypes: true })
   const nested = await Promise.all(entries.map(entry => entry.isDirectory()
@@ -25,6 +44,11 @@ for (const source of await discover(root)) {
   const relative = path.relative(root, source).split(path.sep).join('/')
   const original = await fs.readFile(source)
   const sourceHash = createHash('sha256').update(original).digest('hex')
+  const sourceUrl = `/images/${relative}`
+  if (await reusable(previous[sourceUrl], sourceHash)) {
+    entries[sourceUrl] = previous[sourceUrl]
+    continue
+  }
   const key = createHash('sha256').update(relative).digest('hex').slice(0, 12)
   const metadata = await sharp(original).metadata()
   const variants = []
@@ -53,7 +77,7 @@ for (const source of await discover(root)) {
   if (Object.keys(entries).length % 25 === 0) console.log(`Derived ${Object.keys(entries).length} source images`)
 }
 const manifest = { version: 1, widths, entries }
-await fs.writeFile(path.join(frontend, 'src', 'constants', 'image-manifest.json'), JSON.stringify(manifest))
+await fs.writeFile(manifestPath, JSON.stringify(manifest))
 await fs.writeFile(path.join(output, 'manifest.json'), JSON.stringify(manifest, null, 2))
 const all = Object.values(entries)
 console.log(JSON.stringify({ sources: all.length, sourceBytes: all.reduce((sum, entry) => sum + entry.sourceBytes, 0),

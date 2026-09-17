@@ -11,6 +11,20 @@ import {
 } from '../src/constants/images'
 
 describe('game asset references', () => {
+  it('ships distinct versioned artwork for every card and relic without changing old source paths', () => {
+    const frontend = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+    const manifest = JSON.parse(readFileSync(resolve(frontend, 'src/constants/image-manifest.json'), 'utf8'))
+    const newHashes = new Set()
+    for (const [kind, mapping] of [['cards', CARD_IMG], ['relics', RELIC_IMG]]) {
+      for (const id of new Set(Object.values(mapping))) {
+        const entry = manifest.entries[`/images/artwork-v2/${kind}/${id}-v2.png`]
+        expect(entry, id).toBeDefined()
+        newHashes.add(entry.sourceHash)
+        expect(entry.variants[0].avif.bytes).toBeLessThanOrEqual(60 * 1024)
+      }
+    }
+    expect(newHashes.size).toBe(120)
+  })
   it('resolves every dynamically mapped image to a repository asset', () => {
     const urls = [
       ...Object.keys(CARD_IMG).map(name => cardImgUrl(name)),

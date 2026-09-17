@@ -53,11 +53,11 @@
               :src="emperorRelicImgUrl(relic.name)"
               :alt="relic.name"
               :emoji="relic.emoji || '💎'"
-              sizes="96px"
-              object-fit="cover"
+              sizes="190px"
+              object-fit="contain"
             />
             <div class="emperor-relic-name">{{ relic.name }}</div>
-            <div class="emperor-relic-desc">{{ relic.description }}</div>
+            <ArtifactDescription kind="relic" :name="relic.name" :effect="relic.description" compact />
           </button>
         </div>
       </div>
@@ -69,11 +69,11 @@
           :src="relicImgUrl(treasureRelic.name)"
           :alt="treasureRelic.name"
           :emoji="treasureRelic.emoji || '🎁'"
-          sizes="120px"
-          object-fit="cover"
+          sizes="(max-width:600px) 60vw, 320px"
+          object-fit="contain"
         />
         <div class="treasure-relic-name">{{ treasureRelic.name }}</div>
-        <div class="treasure-relic-desc">{{ treasureRelic.description }}</div>
+        <ArtifactDescription kind="relic" :name="treasureRelic.name" :effect="treasureRelic.description" />
       </div>
 
       <!-- 主按钮 -->
@@ -94,6 +94,7 @@ import MiniCard from './MiniCard.vue'
 import TempleShop from './TempleShop.vue'
 import BranchEventChoices from './BranchEventChoices.vue'
 import ResponsiveImage from './ResponsiveImage.vue'
+import ArtifactDescription from './ArtifactDescription.vue'
 import type { Card, Relic, EventPreview } from '@/types'
 
 const props = defineProps<{ visible: boolean; eventType: string }>()
@@ -385,8 +386,9 @@ async function chooseBranch(optionId: string) {
 }
 
 .emperor-relic-img {
-  width: 96px;
-  height: 96px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2 !important;
   border-radius: 10px;
   object-fit: cover;
   margin-bottom: 12px;
@@ -419,7 +421,7 @@ async function chooseBranch(optionId: string) {
   align-items: center;
   padding: 24px;
   margin: 0 auto 22px;
-  width: fit-content;
+  width: min(100%, 400px);
   background: rgba(242, 169, 0, 0.08);
   border: 1px solid rgba(242, 169, 0, 0.25);
   border-radius: 14px;
@@ -433,8 +435,9 @@ async function chooseBranch(optionId: string) {
 }
 
 .treasure-relic-img {
-  width: 120px;
-  height: 120px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2 !important;
   border-radius: 12px;
   object-fit: cover;
   margin-bottom: 14px;
@@ -478,8 +481,8 @@ async function chooseBranch(optionId: string) {
     padding: 12px 8px;
   }
   .emperor-relic-img {
-    width: 72px;
-    height: 72px;
+    width: 100%;
+    height: auto;
   }
   .emperor-relic-emoji {
     font-size: 3rem;
@@ -491,8 +494,8 @@ async function chooseBranch(optionId: string) {
     font-size: 0.6875rem;
   }
   .treasure-relic-img {
-    width: 88px;
-    height: 88px;
+    width: 100%;
+    height: auto;
   }
   .treasure-relic-emoji {
     font-size: 3.75rem;

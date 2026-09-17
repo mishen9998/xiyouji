@@ -101,6 +101,11 @@
       <div v-else class="modal-box">
         <h3>{{ eventTitle }}</h3>
         <p v-if="eventMessage" v-html="eventMessage"></p>
+        <div v-if="currentEventType === 'treasure' && treasureRelic" class="treasure-artifact">
+          <ResponsiveImage :src="relicImgUrl(treasureRelic.name)" :alt="treasureRelic.name" sizes="280px" object-fit="contain" />
+          <h4>{{ treasureRelic.name }}</h4>
+          <ArtifactDescription kind="relic" :name="treasureRelic.name" :effect="treasureRelic.description" />
+        </div>
         <BranchEventChoices v-if="currentEventType === 'random' && branchEvent" :event="branchEvent" :busy="eventSubmitting" :can-choose="isHost" @choose="chooseBranch" />
         <button v-if="currentEventType === 'random' && !branchEvent && isHost" class="btn-primary" :disabled="eventSubmitting" @click="chooseBranch('leave')">离开</button>
 
@@ -109,18 +114,15 @@
           <p v-if="bonfireUpgradesLeft > 0">🔥 剩余升级次数: {{ bonfireUpgradesLeft }} 张</p>
           <p v-else>🔥 升级次数已用完</p>
           <div class="card-grid" v-if="myDeck.length">
-            <button
-              type="button"
+            <MiniCard
               v-for="(card, i) in myDeck"
               :key="i"
-              class="mini-card"
+              :card="card"
+              clickable
               :disabled="bonfireUpgradesLeft <= 0 || eventSubmitting"
-              :aria-pressed="selectedUpgrade === i"
-              :class="{ disabled: bonfireUpgradesLeft <= 0 || eventSubmitting, selected: selectedUpgrade === i }"
+              :selected="selectedUpgrade === i"
               @click="doUpgrade(i)"
-            >
-              <span>{{ card.emoji || '' }} {{ card.name }}</span>
-            </button>
+            />
           </div>
         </div>
 
@@ -141,11 +143,14 @@ import { useRouter, useRoute } from 'vue-router'
 import { useRoomStore } from '@/stores/room'
 import { useUiStore } from '@/stores/ui'
 import { getCurrentUsername } from '@/api/room'
-import { EMOJI_MAP, sceneImageUrl, preloadScene } from '@/constants/images'
-import type { MapNode, Card, EventPreview } from '@/types'
+import { EMOJI_MAP, sceneImageUrl, preloadScene, relicImgUrl } from '@/constants/images'
+import type { MapNode, Card, Relic, EventPreview } from '@/types'
 import MapNodeComponent from '@/components/MapNodeComponent.vue'
 import TempleShop from '@/components/TempleShop.vue'
 import BranchEventChoices from '@/components/BranchEventChoices.vue'
+import ArtifactDescription from '@/components/ArtifactDescription.vue'
+import ResponsiveImage from '@/components/ResponsiveImage.vue'
+import MiniCard from '@/components/MiniCard.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -162,6 +167,7 @@ const eventModalVisible = ref(false)
 const currentEventType = ref('')
 const eventTitle = ref('')
 const eventMessage = ref('')
+const treasureRelic = ref<Relic | null>(null)
 const continueText = ref('继续')
 const shopCards = ref<Card[]>([])
 const boughtIndices = ref<Set<number>>(new Set())
@@ -233,6 +239,7 @@ async function handleEvent(et: string) {
   boughtIndices.value = new Set()
   shopCards.value = []
   eventMessage.value = ''
+  treasureRelic.value = null
 
   switch (et) {
     case 'rest':
@@ -245,7 +252,8 @@ async function handleEvent(et: string) {
         const result = await roomStore.handleEvent('open')
         if (result?.message) eventMessage.value = result.message
         if (result?.relic) {
-          eventMessage.value = `获得遗物: ${result.relic.name}<br><small>${result.relic.description}</small>`
+          treasureRelic.value = result.relic
+          eventMessage.value = '获得宝物'
         }
       } catch (error: any) { eventMessage.value = error?.message || '宝箱读取失败'; ui.showToast(eventMessage.value) }
       continueText.value = '继续'
@@ -397,6 +405,8 @@ watch(() => room.value?.status, status => {
 </script>
 
 <style scoped>
+.treasure-artifact { width: min(100%, 320px); margin: 16px auto; padding: 12px; border: 1px solid var(--gold); border-radius: 12px; }
+.treasure-artifact h4 { margin: 12px 0; color: var(--gold); }
 .mini-card.selected { outline: 3px solid #f2a900; }
 .map-screen {
   display: flex;

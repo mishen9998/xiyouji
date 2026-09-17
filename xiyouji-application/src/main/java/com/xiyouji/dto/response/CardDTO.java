@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * 卡牌数据传输对象
- * 使用 NON_NULL 策略：未设置的字段（如 id/description/rarity）不序列化，
- * 保证玩家摘要场景下 JSON 结构与历史 Map 输出一致，避免破坏前端契约。
+ * 使用 NON_NULL 策略：未设置的字段（如 id/rarity）不序列化。
+ * 玩家摘要在保留既有字段的基础上返回 description，供牌组与奖励展示完整效果。
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CardDTO {

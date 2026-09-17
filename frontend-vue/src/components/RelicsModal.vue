@@ -5,9 +5,9 @@
       <h3>💎 你的宝物</h3>
       <div class="relic-list" v-if="relics.length">
         <div v-for="(relic, i) in relics" :key="i" class="relic-item">
-          <ResponsiveImage class="relic-img" :src="relicImgUrl(relic.name)" :alt="relic.name" :emoji="relic.emoji || '💎'" sizes="160px" object-fit="cover" />
+          <ResponsiveImage class="relic-img" :src="relicImgUrl(relic.name)" :alt="relic.name" :emoji="relic.emoji || '💎'" sizes="(max-width:600px) 100vw, 260px" object-fit="contain" />
           <div class="relic-name">{{ relic.name }}</div>
-          <div class="relic-desc">{{ relic.description }}</div>
+          <ArtifactDescription kind="relic" :name="relic.name" :effect="relic.description" />
         </div>
       </div>
       <p v-else>暂无宝物</p>
@@ -21,6 +21,7 @@ import { computed } from 'vue'
 import { useGameStore } from '@/stores/game'
 import { relicImgUrl } from '@/constants/images'
 import ResponsiveImage from './ResponsiveImage.vue'
+import ArtifactDescription from './ArtifactDescription.vue'
 
 const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits<{ 'update:visible': [val: boolean] }>()
@@ -46,7 +47,9 @@ function close() {
   background: var(--bg-card);
   border-radius: 10px;
   padding: 14px;
-  width: 160px;
+  width: 260px;
+  max-width: 100%;
+  border: 1px solid var(--gold);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -54,7 +57,8 @@ function close() {
 
 .relic-img {
   width: 100%;
-  height: 80px;
+  height: auto;
+  aspect-ratio: 3 / 2 !important;
   margin-bottom: 6px;
   border-radius: 8px;
   background-size: cover;
@@ -72,7 +76,7 @@ function close() {
 .relic-name {
   font-weight: bold;
   color: var(--gold);
-  font-size: 0.8125rem;
+  font-size: 1rem;
 }
 
 .relic-desc {

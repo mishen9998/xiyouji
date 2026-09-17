@@ -48,6 +48,8 @@ try {
   created = await response.json()
   assert.ok(created.success && created.sessionId)
   assert.equal(created.player.characterClass, 'ZHU_BAJIE')
+  assert.ok(created.player.deck.length > 0)
+  assert.ok(created.player.deck.every(card => typeof card.description === 'string' && card.description.trim()), 'Deck forwards real effect descriptions')
   const state = await request(`/api/game/state/${created.sessionId}`, { headers })
   assert.equal(state.status, 200)
   assert.equal((await state.json()).sessionId, created.sessionId)

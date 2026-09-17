@@ -1,0 +1,1206 @@
+{
+  "mode": "built-in image_gen",
+  "version": "2026-09-17",
+  "jobs": [
+    {
+      "kind": "cards",
+      "name": "挥棒",
+      "id": "card_huibang",
+      "prompt": "Use case: stylized-concept. Asset type: one game card illustration, landscape 3:2. Generate a NEW illustration for 挥棒 (staff strike). Input image 1 is the STYLE AND CHARACTER reference only; do NOT edit it and do not reproduce its typography. Subject: Sun Wukong, the same handsome expressive monkey hero with golden brown fur, elaborate aged-gold armor, red silk scarf from the reference, executing one powerful diagonal golden staff swing. Dynamic close medium action framing, face and weapon highly readable at small card size; centered subject kept within middle 75%. Warm ivory rice-paper backdrop with restrained charcoal ink mountain washes, curling ivory clouds, thin warm gold accents. Exquisite illustrated Chinese fantasy, confident fine ink contours, painterly gouache silk textures, natural warm lighting. One continuous finished artwork, no collage, no panels, no frame, no text, no calligraphy, no seal, no numbers, no logo, no watermark. Match the reference's elegant adult heroic proportions, not photorealistic, not 3D render, not generic dark neon fantasy.",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_huibang-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "格挡",
+      "id": "card_gedang",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 格挡。近景：旅行者双手架起包金木杖，挡住飞来的锋刃，金色火星与云纹护罩。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_gedang-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "蓄力",
+      "id": "card_xuli",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 蓄力。握紧长棍的武者沉肩蓄势，金色气流沿棍身汇聚，低垂的红绸。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_xuli-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "闪避",
+      "id": "card_shanbi",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 闪避。轻装旅人侧身闪过一道刀光，衣袂与足下流云形成清晰动线。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_shanbi-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "重击",
+      "id": "card_zhongji",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 重击。金甲武者双手抡起沉重长兵，砸裂岩石，强烈下劈构图，碎石与金墨。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_zhongji-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "铁壁",
+      "id": "card_tiebi",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 铁壁。持盾护法半身近景，古铜圆盾与厚重石墙般的金色护罩，青绿衣带。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_tiebi-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "突刺",
+      "id": "card_tuci",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 突刺。一柄鎏金长枪向前疾刺，枪尖明亮，握枪手与红缨清晰，山雾退向两侧。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_tuci-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "冥想",
+      "id": "card_mingxiang",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 冥想。青衣行者盘膝坐在山间石台，掌心柔光，松枝与远山留白，宁静构图。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_mingxiang-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "金钟罩",
+      "id": "card_jinzhongzhao",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 金钟罩。护法立于半透明金钟之中，手结印，钟面只有抽象云纹，无文字。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_jinzhongzhao-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "天雷破",
+      "id": "card_tianleipo",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 天雷破。一道灿金天雷劈开乌云，落向山巅，青白电芒与墨色飞石。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_tianleipo-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "致命一击",
+      "id": "card_zhimingyiji",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 致命一击。武者眼神与短刃的极近特写，兵刃一道金光切过暗色雾影，无血腥。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_zhimingyiji-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "仙丹",
+      "id": "card_xiandan",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 仙丹。暖金仙丹悬于打开的朱红小匣上，乳白药雾盘旋，淡青草叶。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_xiandan-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "毒镖",
+      "id": "card_dubiao",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 毒镖。一枚古铜飞镖破空，刃缘青绿毒雾形成细长尾迹，宣纸山影。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_dubiao-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "横扫千军",
+      "id": "card_hengsaoqianjun",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 横扫千军。长柄兵器横向扫出宽阔金色弧光，衣袂飞扬的武者居中，远处墨影退散。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_hengsaoqianjun-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "金箍棒法",
+      "id": "card_jingubangfa",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 金箍棒法。悟空旋身舞棒，金箍棒形成两道清晰旋转弧线，猴王面容与金甲可辨。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_jingubangfa-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "七十二变",
+      "id": "card_qishierbian",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 七十二变。悟空捻指施法，身旁浮现小雀、松叶和金色猴影，变化如墨在宣纸上散开。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_qishierbian-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "筋斗云",
+      "id": "card_jindouyun",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 筋斗云。悟空站在一朵金边祥云上疾驰，红披风舒展，远山与天光大面积留白。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_jindouyun-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "火眼金睛",
+      "id": "card_huoyanjinjing",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 火眼金睛。悟空金色眼眸特写，火光映在金冠与猴毛上，前方墨雾被视线分开。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_huoyanjinjing-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "大闹天宫",
+      "id": "card_danaotiangong",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 大闹天宫。悟空提棒飞跃云中天宫门阙，鎏金甲与红绸，大开大合的英雄动作。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_danaotiangong-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "毫毛分身",
+      "id": "card_haomaofenshen",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 毫毛分身。悟空吹动掌心金色毫毛，三道小猴战士幻影从白云中跃出，主角清晰居中。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_haomaofenshen-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "九齿钉耙",
+      "id": "card_jiuchidingpa",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 九齿钉耙。猪八戒单手挥动九齿钉耙，黑铁耙齿鎏金柄，憨厚而勇武，红褐金甲。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/猪八戒/建模/full_zhubajie.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_jiuchidingpa-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "狼吞虎咽",
+      "id": "card_langtunhuyan",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 狼吞虎咽。猪八戒坐在路旁大口吃热腾腾的馒头，脸颊鼓起，暖色蒸汽，金甲细节。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/猪八戒/建模/full_zhubajie.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_langtunhuyan-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "厚皮",
+      "id": "card_houpi",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 厚皮。猪八戒挺起圆肚与厚重护甲抵住飞石，神态自信幽默，金色护光。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/猪八戒/建模/full_zhubajie.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_houpi-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "天河水军",
+      "id": "card_tianheshuijun",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 天河水军。猪八戒挥耙指挥，身后青蓝天河与披甲水军的抽象剪影，军旗不带文字。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/猪八戒/建模/full_zhubajie.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_tianheshuijun-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "贪食",
+      "id": "card_tanshi",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 贪食。猪八戒捧着一碗香气缭绕的斋饭，眼神满足，暖金食物与宣纸背景。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/猪八戒/建模/full_zhubajie.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_tanshi-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "天蓬之怒",
+      "id": "card_tianpengzhinu",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 天蓬之怒。猪八戒怒目奋起，钉耙从头顶砸下，金甲红绸与墨色浪涛，英勇有力。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/猪八戒/建模/full_zhubajie.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_tianpengzhinu-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "降妖宝杖",
+      "id": "card_xiangyaobaozhang",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 降妖宝杖。沙僧双手持月牙宝杖横挡身前，深绿战袍、棕金甲、浓黑胡须，沉稳威严。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/沙僧/建模/full_shaseng.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_xiangyaobaozhang-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "金刚不坏",
+      "id": "card_jingangbuhuai",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 金刚不坏。沙僧以双臂护身，身后巨大金色佛门护轮，绿衣与金甲，沉稳防御姿态。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/沙僧/建模/full_shaseng.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_jingangbuhuai-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "流沙河",
+      "id": "card_liushahe",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 流沙河。沙僧立于青绿流沙河波浪之间，水沙绕宝杖回旋，厚重远山墨色。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/沙僧/建模/full_shaseng.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_liushahe-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "负重前行",
+      "id": "card_fuzhongqianxing",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 负重前行。沙僧肩挑两担经箱行李走过石阶，另一手持宝杖，风吹绿披风，坚定面容。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/沙僧/建模/full_shaseng.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_fuzhongqianxing-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "罗汉金身",
+      "id": "card_luohanjinshen",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 罗汉金身。沙僧闭目结印，鎏金护体光与温润佛轮映照铠甲，山云环绕。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/沙僧/建模/full_shaseng.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_luohanjinshen-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "天河倒灌",
+      "id": "card_tianhedaoguan",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 天河倒灌。沙僧举月牙杖，引青金天河自高处倾泻，人物居中，水势强劲不淹没主体。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/沙僧/建模/full_shaseng.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_tianhedaoguan-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "龙吟",
+      "id": "card_longyin",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 龙吟。白龙昂首长吟，银白鳞片描金，张口吐出淡金声波，云海青墨。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/白龙马/头像/bailongma.png"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_longyin-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "腾云驾雾",
+      "id": "card_tengyunjiawu",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 腾云驾雾。白发龙太子踏祥云腾起，白金长袍飘扬，身后纤长白龙与远山。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/白龙马/头像/bailongma.png"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_tengyunjiawu-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "疾风步",
+      "id": "card_jifengbu",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 疾风步。白发龙太子轻点水面疾行，白金衣摆与青色风痕，足下水花清晰。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/白龙马/头像/bailongma.png"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_jifengbu-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "龙爪",
+      "id": "card_longzhua",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 龙爪。白龙前爪的近景，修长金色爪尖撕开青墨云雾，银白鳞片精细。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/白龙马/头像/bailongma.png"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_longzhua-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "呼风唤雨",
+      "id": "card_hufenghuanyu",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 呼风唤雨。白龙盘旋云端，龙太子抬手唤来柔青雨幕与回旋云带，宣纸留白。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/白龙马/头像/bailongma.png"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_hufenghuanyu-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "龙威",
+      "id": "card_longwei",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 龙威。白发龙太子与巨大白龙头并列近景，金冠、白鳞、威严眼神，金色云轮。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/白龙马/头像/bailongma.png"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_longwei-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "紧箍咒念",
+      "id": "card_jinguzhounian",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 紧箍咒念。唐三藏合掌低诵，红金袈裟，前方悬浮一圈小金箍与柔光声波，无文字。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_jinguzhounian-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "大乘佛法",
+      "id": "card_dachengfofa",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 大乘佛法。唐三藏双手托起暖金莲灯，红金袈裟与紫色里衬，柔和护光。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_dachengfofa-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "金蝉脱壳",
+      "id": "card_jinchantuoqiao",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 金蝉脱壳。金色蝉翼从僧袍虚影中展开，唐三藏侧身离开墨色困局，空灵明亮。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_jinchantuoqiao-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "普渡众生",
+      "id": "card_puduzhongsheng",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 普渡众生。唐三藏展手洒下柔和金色莲光，山路与远行人的淡墨剪影，温暖救护氛围。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_puduzhongsheng-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "心经",
+      "id": "card_xinjing",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 心经。唐三藏端坐，掌中无字经卷与念珠，薄金光环，米白宣纸和淡墨松影。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_xinjing-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "取经誓愿",
+      "id": "card_qujingshiyuan",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 取经誓愿。唐三藏手执九环锡杖望向金色西方远山，袈裟飘起，坚毅侧脸。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_qujingshiyuan-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "旋风斩",
+      "id": "card_xuanfengzhan",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 旋风斩。青衣武者旋转长刃，锋芒与衣带形成风涡，金色弧线和墨色飞叶。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_xuanfengzhan-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "铁布衫",
+      "id": "card_tiebushan",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 铁布衫。行者握拳站稳，青褐布衣浮现细密古铜护纹，来袭刃光被弹开。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_tiebushan-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "飞镖",
+      "id": "card_feibiao",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 飞镖。三枚小巧古铜飞镖从旅行者袖间飞出，青绿尾迹，浅色山雾。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_feibiao-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "回春术",
+      "id": "card_huichunshu",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 回春术。双手捧起嫩绿新芽与清亮水珠，金色暖光环绕，宣纸上淡墨枯枝复苏。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_huichunshu-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "狂暴",
+      "id": "card_kuangbao",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 狂暴。旅人紧握兵刃仰身怒吼，朱红气焰与金光从胸前迸出，无伤口无血腥。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_kuangbao-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "天罡阵",
+      "id": "card_tiangangzhen",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 天罡阵。七枚金色星光围住持杖行者，地上几何护阵只有线条无符字，青墨夜云。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_tiangangzhen-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "定海神针",
+      "id": "card_dinghaishenzhen",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 定海神针。悟空奋力竖下巨大的金箍棒，海浪被分向两侧，红金人物与青绿水流。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_dinghaishenzhen-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "身外身",
+      "id": "card_shenwaishen",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 身外身。悟空主身居中，两个半透明金色分身从肩后错位展开，同样金甲红绸。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_shenwaishen-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "三十六变",
+      "id": "card_sanshiliubian",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 三十六变。猪八戒捻指变化，金色云雾围绕身体，前景野猪与小鸟的柔光幻影。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/猪八戒/建模/full_zhubajie.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_sanshiliubian-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "净坛使者",
+      "id": "card_jingtanshizhe",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 净坛使者。猪八戒端坐于古庙供桌旁，双掌结印，金光照亮憨厚笑脸与红金甲。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/猪八戒/建模/full_zhubajie.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_jingtanshizhe-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "降魔阵",
+      "id": "card_xiangmozhen",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 降魔阵。沙僧将月牙宝杖立在金色圆阵中心，青绿衣袍与三道护符状光片，无文字符咒。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/沙僧/建模/full_shaseng.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_xiangmozhen-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "琉璃盏",
+      "id": "card_liulizhan",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 琉璃盏。沙僧低头捧起青绿琉璃灯盏，温金灯光照脸与深绿铠甲，安静而坚定。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/沙僧/建模/full_shaseng.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_liulizhan-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "龙息",
+      "id": "card_longxi",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 龙息。白龙向侧前方吐出青白雾息，金须、白鳞与弯曲龙颈，淡金轮廓。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/白龙马/头像/bailongma.png"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_longxi-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "水遁",
+      "id": "card_shuidun",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 水遁。白发龙太子半身化成透明青水流，白金衣袍浮在云水之间，宁静灵动。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/白龙马/头像/bailongma.png"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_shuidun-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "九环锡杖",
+      "id": "card_jiuhuanxizhang",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 九环锡杖。唐三藏持九环锡杖向前一振，金环发出清晰弧形光波，红袈裟扬起。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_jiuhuanxizhang-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "袈裟护体",
+      "id": "card_jiashahuti",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 袈裟护体。唐三藏展开红金锦襕袈裟形成保护弧面，金丝细节与柔光，正面中景。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_jiashahuti-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "超度",
+      "id": "card_chaodu",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 超度。唐三藏合掌面对轻盈金色莲灯，墨色迷雾升起化成白云，慈悲宁静。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_chaodu-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "金身护体",
+      "id": "card_jinshenhuti",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 金身护体。唐三藏站在金色透明护身轮内，袈裟与念珠精致，护光温润不刺眼。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_jinshenhuti-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "怒目金刚",
+      "id": "card_numujingang",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 怒目金刚。东方金甲护法怒目俯视，握紧拳头，朱红飘带和古铜面甲，半身近景。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_numujingang-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "金刚经",
+      "id": "card_jingangjing",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 金刚经。无字经卷缓缓展开，念珠与金色莲纹护罩，淡墨山峰，安静金纸色。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_jingangjing-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "迷魂术",
+      "id": "card_mihunshu",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 迷魂术。青紫轻烟化成重叠的狐狸影与眼眸轮廓，施法手指在前景，克制的梦幻感。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_mihunshu-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "破甲击",
+      "id": "card_pojiaji",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 破甲击。古铜护甲被一记金色兵刃击出裂隙，碎甲飞散，无血腥，斜线冲击构图。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_pojiaji-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "法天象地",
+      "id": "card_fatianxiangdi",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 法天象地。巨大悟空金甲法相从墨色群山间站起，渺小云海衬托尺度，红绸如霞。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_fatianxiangdi-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "哮天犬",
+      "id": "card_xiaotianquan",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 哮天犬。矫健黑色神犬跃过山石，眼神明亮，金色项圈，悟空远处的红金轮廓。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_xiaotianquan-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "倒打一耙",
+      "id": "card_daodayipao",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 倒打一耙。猪八戒背身回头突然挥出九齿耙，狡黠笑容，红披风与清晰反向动作。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/猪八戒/建模/full_zhubajie.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_daodayipao-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "饕餮之口",
+      "id": "card_taotiezhikou",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 饕餮之口。猪八戒张口豪迈大笑，背后金色饕餮纹化为吸纳云气的大口幻象，不恐怖不血腥。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/猪八戒/建模/full_zhubajie.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_taotiezhikou-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "降妖宝杖·真",
+      "id": "card_xiangyaobaozhang_zhen",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 降妖宝杖·真。沙僧双手紧握发出金光的月牙杖，宝杖细节占前景，绿袍与刚毅面容。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/沙僧/建模/full_shaseng.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_xiangyaobaozhang_zhen-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "龙战于野",
+      "id": "card_longzhanyuye",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 龙战于野。白龙太子执长兵跃向旷野，身后白龙盘旋，银金鳞甲、青绿山河。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/白龙马/头像/bailongma.png"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_longzhanyuye-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "佛光普照",
+      "id": "card_foguangpuhzhao",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 佛光普照。唐三藏身后盛放巨大金色莲轮，双手展开，柔光照过青墨山川。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_foguangpuhzhao-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "紧箍咒·禁",
+      "id": "card_jinguzhou_jin",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 紧箍咒·禁。唐三藏结印，数圈纤细金环围住一团墨色妖雾，红金袈裟，清晰约束意象。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_jinguzhou_jin-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "烈焰掌",
+      "id": "card_lieyanzhang",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 烈焰掌。行者向前推出一掌，掌心金红火焰如莲花绽开，袖口精致，宣纸留白。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_lieyanzhang-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "铜皮铁骨",
+      "id": "card_tongpitiegu",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 铜皮铁骨。行者握拳，古铜金属般护光覆盖前臂与肩甲，细腻肌理，青绿衣衫。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_tongpitiegu-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "毒雾弥漫",
+      "id": "card_duwumiman",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 毒雾弥漫。玉绿色毒雾绕过岩石与古铜香炉，迷离青紫深处，主体清晰不阴暗。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_duwumiman-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "蓄势待发",
+      "id": "card_xushidaifa",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 蓄势待发。行者一手收在腰间蓄气，细金光汇聚掌心，风中竹叶静止，平稳张力。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_xushidaifa-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "筋斗云翻",
+      "id": "card_jindouyunfan",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 筋斗云翻。悟空在金边祥云上倒翻腾跃，红色长绸画出圆弧，动作轻巧面容可辨。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_jindouyunfan-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "斗战胜佛",
+      "id": "card_douzhanshengfo",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 斗战胜佛。悟空金甲立于莲台云海，右手持棒，温金佛轮，坚定面容和朱红披风。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/孙悟空/建模/full_sunwukong.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_douzhanshengfo-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "九齿横扫",
+      "id": "card_jiuchihengsao",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 九齿横扫。猪八戒双手横扫九齿钉耙，九道清晰短金弧光贴近地面，动势豪迈。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/猪八戒/建模/full_zhubajie.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_jiuchihengsao-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "天蓬元帅",
+      "id": "card_tianpengyuanshuai",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 天蓬元帅。猪八戒威严站立，华丽金甲与红战袍，钉耙竖于身侧，天河云浪背景。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/猪八戒/建模/full_zhubajie.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_tianpengyuanshuai-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "降妖钵盂",
+      "id": "card_xiangyaoboyu",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 降妖钵盂。沙僧举起古铜金钵，青黑妖雾向钵中收拢，绿袍、金甲、稳重面容。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/沙僧/建模/full_shaseng.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_xiangyaoboyu-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "金身罗汉",
+      "id": "card_jinshenluohan",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 金身罗汉。沙僧如山站立，双臂环抱宝杖，金色佛轮与肩后青绿长带，庄严沉稳。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/沙僧/建模/full_shaseng.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_jinshenluohan-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "龙卷风暴",
+      "id": "card_longjuanfengbao",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 龙卷风暴。银白长龙环绕青金旋风，龙首清晰居中，云水旋转但保持明亮宣纸背景。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/白龙马/头像/bailongma.png"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_longjuanfengbao-v2.png"
+    },
+    {
+      "kind": "cards",
+      "name": "般若波罗蜜",
+      "id": "card_boreboluomi",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 card art, dynamic medium framing, key subject centered inside middle 75%, face and action readable; no mandatory full body. Subject: 般若波罗蜜。唐三藏立于金色莲花中央，双手合十，袈裟飘动，金纸云海与远山。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/cards/card_boreboluomi-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "紧箍咒",
+      "id": "relic_jinguzhou",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 紧箍咒。一只纤细金箍，两端如意云卷造型，暗红丝绳，平置暖白云气上。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_jinguzhou-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "龙鳞甲",
+      "id": "relic_longlinjia",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 龙鳞甲。青白龙鳞层叠的胸甲，金色包边与龙纹肩饰，器物独立陈列。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_longlinjia-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "蟠桃",
+      "id": "relic_pantao",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 蟠桃。一枚粉嫩蟠桃，翠绿叶片与金色露珠，白玉小碟。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_pantao-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "八卦炉",
+      "id": "relic_bagualu",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 八卦炉。八面古铜炼丹炉，金色包边，炉盖微开，暖橙火光与白烟。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_bagualu-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "紫金铃",
+      "id": "relic_zijinling",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 紫金铃。紫金双铃，细密金色云纹、朱红系绳，悬浮薄云上。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_zijinling-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "袈裟",
+      "id": "relic_jiasha",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 袈裟。朴素赭红僧袍袈裟叠放在石台，金线薄边，暖光。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_jiasha-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "通关文牒",
+      "id": "relic_tongguanwendie",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 通关文牒。旅行用的淡黄折叠文牒，朱红系带与素印，不出现可读文字，朴素磨旧边角。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_tongguanwendie-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "人参果",
+      "id": "relic_renshenguo",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 人参果。玉白人形仙果，温和抽象婴孩轮廓，翠绿叶片，枝头金露，无恐怖感。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_renshenguo-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "避水珠",
+      "id": "relic_bishuizhu",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 避水珠。透明青蓝宝珠，中心卷曲水纹，白银莲托与金边，水滴悬浮。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_bishuizhu-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "风火轮",
+      "id": "relic_fenghuolun",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 风火轮。两只相伴的古铜轮，金色轮辐，一轮青白风带一轮朱红火焰。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_fenghuolun-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "照妖镜",
+      "id": "relic_zhoyaojing",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 照妖镜。圆形青铜照妖镜，背面金龙纹，镜面清亮映一缕墨色妖影。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_zhoyaojing-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "甘露瓶",
+      "id": "relic_ganluping",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 甘露瓶。小巧青瓷长颈瓶，一滴晶莹甘露落向嫩芽，淡金装饰。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_ganluping-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "九齿钉耙",
+      "id": "relic_jiuchidingpa",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 九齿钉耙。独立陈列的九齿钉耙，九枚黑铁耙齿清晰，鎏金长柄斜放，红绸。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_jiuchidingpa-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "降妖宝杖",
+      "id": "relic_xiangyabaozhang",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 降妖宝杖。古铜月牙降妖宝杖斜置，金色纹饰和青绿穗带，完整月牙头。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_xiangyabaozhang-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "定海神针",
+      "id": "relic_dinghaishenzhen",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 定海神针。一根如意金箍棒斜置，乌金棍身两端鎏金，身后青墨海浪，器物特写。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_dinghaishenzhen-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "锦襕袈裟",
+      "id": "relic_jinlanjiasha",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 锦襕袈裟。华贵红金锦襕袈裟舒展，金丝山水暗纹和小宝珠扣，紫色内衬。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_jinlanjiasha-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "芭蕉扇",
+      "id": "relic_bajiaoshan",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 芭蕉扇。巨大翠绿芭蕉叶扇，金玉扇柄，细叶脉，飘动青绿色清风。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_bajiaoshan-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "九转金丹",
+      "id": "relic_jiuzhuanjindan",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 九转金丹。一枚光泽浓金仙丹，九缕细金云纹环绕，深红漆盒，药雾。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_jiuzhuanjindan-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "七星剑",
+      "id": "relic_qixingjian",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 七星剑。一柄古铜金色长剑，剑脊七点星光，青玉柄，斜向陈列。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_qixingjian-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "紫金红葫芦",
+      "id": "relic_zijinHonghulu",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 紫金红葫芦。饱满紫红葫芦，金色口箍和红丝结，壶口一道白金灵气。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_zijinHonghulu-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "玉净瓶",
+      "id": "relic_yujingping",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 玉净瓶。洁白玉净瓶，细长颈，插一枝青绿柳枝，淡金底座。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_yujingping-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "生死簿",
+      "id": "relic_shengsibu",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 生死簿。深靛蓝古旧线装册，暖金包角与朱红书签，闭合无可读文字。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_shengsibu-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "金刚琢",
+      "id": "relic_jingangzhuo",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 金刚琢。厚实银白金刚圆环，素净金边，几缕墨色兵刃幻影被吸向中心。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_jingangzhuo-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "炼妖壶",
+      "id": "relic_liaoyaoohu",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 炼妖壶。古铜青绿炼妖壶，龙首壶嘴，金色提梁，壶腹阴刻抽象云纹。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_liaoyaoohu-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "镇妖塔",
+      "id": "relic_zhenyaota",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 镇妖塔。小型九层金铜宝塔，细致飞檐与悬铃，底部薄墨云气。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_zhenyaota-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "捆仙绳",
+      "id": "relic_kunxiansheng",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 捆仙绳。一条盘绕的金色编绳，朱红绳穗，灵动闭环形，纤维清晰。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_kunxiansheng-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "御赐金钵",
+      "id": "relic_yucijinbo",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 御赐金钵。庄重金钵，唐式莲瓣纹，红绸衬底，器型圆润，皇家金色。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_yucijinbo-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "紫金钵盂",
+      "id": "relic_zijinboyu",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 紫金钵盂。紫铜钵盂，金色钵沿，淡紫釉光与细密莲纹。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_zijinboyu-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "大唐通关文牒",
+      "id": "relic_datatongguanwendie",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 大唐通关文牒。皇家卷轴文牒，描金端轴、红绶带、玉印，卷面无可读文字，仪式感。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_datatongguanwendie-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "李世民御剑",
+      "id": "relic_lishiminyujian",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 李世民御剑。华丽唐式直剑，金龙护手与赤玉剑首，锦缎剑鞘，浅墨长安城影。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_lishiminyujian-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "玄奘九环锡杖",
+      "id": "relic_xuanzangjiuhuanxizhang",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 玄奘九环锡杖。完整九环金色锡杖斜向陈列，佛塔形杖头和悬挂圆环，朱红系带。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_xuanzangjiuhuanxizhang-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "御林军虎符",
+      "id": "relic_yulinjunhufu",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 御林军虎符。卧虎形青铜兵符，金色棱线，厚重磨旧金属，底衬深红丝绸，无文字。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_yulinjunhufu-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "御赐琉璃盏",
+      "id": "relic_yuciliulizhan",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 御赐琉璃盏。皇家青绿琉璃高足杯，金色莲纹杯座，杯中暖金光，通透精致。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_yuciliulizhan-v2.png"
+    },
+    {
+      "kind": "relics",
+      "name": "太宗玉玺",
+      "id": "relic_taizongyuxi",
+      "prompt": "Use case: stylized-concept. Generate ONE NEW finished game illustration, NOT an edit of the supplied reference. Reference images are STYLE and CHARACTER references ONLY. Match their elegant illustrated Chinese fantasy, fine confident ink contours, hand-painted gouache, warm ivory rice paper, charcoal ink mountains, detailed aged gold ornament, restrained cinnabar red and jade green. Natural warm lighting, luxurious but clearly readable at small size. Maintain reference character identity and adult heroic proportions when a character is requested. No text, no calligraphy, no seals, no letters, no numbers, no UI, no card borders, no logos, no watermarks, no panels or collage. Not photorealistic, not a 3D render, not dark neon fantasy. Landscape 3:2 relic art, one central isolated artifact, complete silhouette within middle 80%, ivory paper with faint ink/cloud backdrop, exquisite close-up craftsmanship, no people. Subject: 太宗玉玺。白玉皇家印玺，盘龙纽与金色底沿，红绸衬底，不展示印文。",
+      "referenced_image_paths": [
+        "C:/Users/91miking/Desktop/xiyouji/assets/images/唐三藏/头像/avatar_tangsanzang.jpg"
+      ],
+      "destination": "C:/Users/91miking/Desktop/xiyouji/assets/images/artwork-v2/relics/relic_taizongyuxi-v2.png"
+    }
+  ]
+}

@@ -47,6 +47,7 @@ public class PlayerSummaryAssembler {
         for (Card c : deck) {
             CardDTO cd = new CardDTO();
             cd.setName(c.getName());
+            cd.setDescription(c.getDescription());
             cd.setType(c.getType().name());
             cd.setCost(c.getCost());
             cd.setEmoji(c.getEmoji());
