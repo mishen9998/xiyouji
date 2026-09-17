@@ -33,7 +33,8 @@ COPY --from=frontend-build /workspace/frontend-vue/dist/ frontend-vue/dist/
 # Tests run in CI before the image is built. Skip test compilation here as
 # well, keeping the production image build fast and independent of test-only
 # dependencies.
-RUN mvn -B -Dmaven.test.skip=true package
+RUN --mount=type=cache,id=xiyouji-maven,target=/root/.m2,sharing=locked \
+    mvn -B -Dmaven.test.skip=true package
 
 # Stage 3: small runtime image. Only the executable bootstrap jar is shipped.
 ARG BASE_REGISTRY=docker.io/library/

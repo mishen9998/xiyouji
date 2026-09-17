@@ -270,11 +270,16 @@ export function fullImgUrl(charClass: string): string | null {
   return imageUrl(`/images/${characterDir}/建模/${f}.jpg`)
 }
 
-export function characterAvatarUrl(charClass: string): string | null {
+export function characterAvatarUrl(charClass: string, width = 320): string | null {
   const characterDir = CHARACTER_DIR[charClass]
   const filename = CHARACTER_AVATAR[charClass]
   if (!characterDir || !filename) return null
-  return imageUrl(`/images/${characterDir}/${filename}`)
+  return imageUrl(`/images/${characterDir}/${filename}`, width)
+}
+
+/** Original cinematic cover, separate from the new chapter artwork. */
+export function coverImageUrl(): string | null {
+  return imageUrl('/images/宝物/场景/login_screen.jpg', 960)
 }
 
 export function enemyImgUrl(name: string): string | null {

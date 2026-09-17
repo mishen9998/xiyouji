@@ -49,6 +49,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
+            .exceptionHandling(errors -> errors.authenticationEntryPoint((request, response, error) -> {
+                response.setStatus(401);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"error\":\"UNAUTHORIZED\",\"message\":\"登录已失效，请重新选择登录或游客模式\"}");
+            }))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // 始终放行的公共路径（认证接口、静态资源、Swagger、实例信息等）。
@@ -64,10 +69,13 @@ public class SecurityConfig {
             "/css/**",
             "/js/**",
             "/images/**",
+            "/illustrations/**",
             "/index.html",
             "/",
             // Vue Router SPA 路由
             "/char-select",
+            "/menu",
+            "/complete",
             "/map",
             "/battle",
             "/room",
@@ -99,6 +107,7 @@ public class SecurityConfig {
         if (enforceJwt) {
             // 生产模式：游戏API需要认证，不再是 permitAll
             http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/session").authenticated()
                 .requestMatchers(publicPaths).permitAll()
                 // /api/game/** 落入 anyRequest().authenticated() 强制要求JWT
                 .anyRequest().authenticated()
@@ -106,6 +115,7 @@ public class SecurityConfig {
         } else {
             // 开发模式：保持现有行为，游戏API放行（认证可选）
             http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/session").authenticated()
                 .requestMatchers(publicPaths).permitAll()
                 // 游戏API暂时放行（保持前端兼容性，认证可选）
                 .requestMatchers(

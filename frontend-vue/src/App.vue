@@ -20,9 +20,16 @@ import { reconcileUnknownCommands, acknowledgeUnknownCommands, hasUnknownCommand
 import { useRoomStore } from '@/stores/room'
 import { useGameStore } from '@/stores/game'
 import { useRouter } from 'vue-router'
+import { useUiStore } from '@/stores/ui'
 const router = useRouter()
 const game = useGameStore()
 const room = useRoomStore()
+const onAuthExpired = () => {
+  useUiStore().showToast('登录已失效，请重新登录或选择游客模式；已有存档记录不会被删除')
+  void router.replace({ name: 'auth', query: { expired: '1' } })
+}
+onMounted(() => window.addEventListener('xiyouji-auth-expired', onAuthExpired))
+onUnmounted(() => window.removeEventListener('xiyouji-auth-expired', onAuthExpired))
 // Only the active journey owns the narrative queue. Completion has its own
 // fresh, authoritative story; changing journeys discards the old local queue.
 const storyContext = computed(() => {

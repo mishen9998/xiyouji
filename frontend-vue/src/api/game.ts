@@ -117,10 +117,16 @@ function clearActiveAuth(purgeRememberedGuest = false) {
 }
 
 function isAuthFailure(status: number): boolean {
-  // Spring Security may return 403 when a cached JWT cannot be parsed or has
-  // been signed with a previous deployment secret. Treat it like 401 once so
-  // the browser can obtain a fresh guest token instead of getting stuck.
+  // Invalid/missing JWTs are 401. A real 403 is a permission denial and must
+  // never log out a valid user or silently replace their guest identity.
   return status === 401
+}
+
+function expireAuth(requestToken: string | null) {
+  // A late response from the previous identity must not log out a new login.
+  if (!requestToken || getToken() !== requestToken) return
+  clearActiveAuth(true)
+  window.dispatchEvent(new Event('xiyouji-auth-expired'))
 }
 
 /** 获取用户主动选择登录/注册/游客模式后保存的 Token。 */
@@ -235,7 +241,7 @@ async function sendPostJson(url: string, body?: unknown, options: CommandOptions
 
   // 登录已过期时返回认证错误，让界面回到登录页；不再静默创建新游客。
   if (isAuthFailure(res.status)) {
-    clearActiveAuth(true)
+    expireAuth(headers.get('Authorization')?.slice(7) ?? null)
     return parseFailure(res)
   }
 
@@ -246,18 +252,18 @@ async function sendPostJson(url: string, body?: unknown, options: CommandOptions
 }
 
 export async function getJson(url: string): Promise<any> {
-  const headers = await authHeaders()
+  const headers = new Headers(await authHeaders())
   const res = await fetch(url, { headers })
 
   if (isAuthFailure(res.status)) {
-    clearActiveAuth(true)
+    expireAuth(headers.get('Authorization')?.slice(7) ?? null)
     return parseFailure(res)
   }
 
   if (!res.ok) {
     return parseFailure(res)
   }
-  return res.json()
+  return res.status === 204 ? undefined : res.json()
 }
 
 async function deleteJson(url: string, options: CommandOptions = {}): Promise<any> {
@@ -267,16 +273,34 @@ async function deleteJson(url: string, options: CommandOptions = {}): Promise<an
 // ====== 认证 API ======
 export const authApi = {
   async guestLogin(): Promise<AuthResult> {
+    let remembered: AuthResult | null = null
     try {
       const savedToken = localStorage.getItem(GUEST_TOKEN_KEY)
       const savedProfileRaw = localStorage.getItem(GUEST_PROFILE_KEY)
       if (savedToken && savedProfileRaw) {
         const savedProfile = JSON.parse(savedProfileRaw) as AuthProfile
-        const result: AuthResult = { ...savedProfile, token: savedToken }
-        setAuth(result, true)
-        return result
+        remembered = { ...savedProfile, token: savedToken }
       }
     } catch {}
+    if (remembered) {
+      const check = await fetch(`${AUTH_API}/session`, {
+        headers: { Authorization: `Bearer ${remembered.token}` },
+      })
+      if (check.ok) {
+        setAuth(remembered, true)
+        return remembered
+      }
+      // Only confirmed invalid authentication permits a fresh guest after
+      // the player explicitly clicks guest mode. Network/5xx errors do not.
+      if (check.status !== 401) return parseFailure(check)
+      try {
+        if (localStorage.getItem(GUEST_TOKEN_KEY) === remembered.token) {
+          localStorage.removeItem(GUEST_TOKEN_KEY)
+          localStorage.removeItem(GUEST_PROFILE_KEY)
+        }
+      } catch {}
+      expireAuth(remembered.token)
+    }
     const res = await fetch(`${AUTH_API}/guest`, {
       method: 'POST', headers: { 'X-Idempotency-Key': createIdempotencyKey() }
     })
@@ -324,6 +348,7 @@ export const authApi = {
 
   getToken,
   getProfile,
+  validateSession: () => getJson(`${AUTH_API}/session`),
   // Switching identity keeps the remembered guest identity so its three save
   // slots remain reachable. Authentication failures purge an invalid guest.
   logout: () => clearActiveAuth(false),

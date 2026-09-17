@@ -10,6 +10,7 @@ import com.xiyouji.service.CommandGuard;
 import com.xiyouji.service.CommandIdempotencyService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -50,6 +51,12 @@ public class AuthController {
         } catch (RuntimeException error) {
             throw CommandGuard.failure(error);
         }
+    }
+
+    /** Read-only validation before reusing a browser's remembered identity. */
+    @GetMapping("/session")
+    public ResponseEntity<Void> session(Authentication authentication) {
+        return ResponseEntity.noContent().build();
     }
 
     /**
