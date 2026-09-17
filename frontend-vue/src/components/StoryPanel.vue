@@ -8,18 +8,16 @@
 </template>
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useGameStore } from '@/stores/game'
-import { useRoomStore } from '@/stores/room'
 import type { StoryEvent } from '@/types'
-const game = useGameStore()
-const room = useRoomStore()
+const props = defineProps<{ stories: Array<StoryEvent | undefined> }>()
 const queue = ref<StoryEvent['scenes']>([])
 const seen = new Set<string>()
 try { for (const id of JSON.parse(sessionStorage.getItem('xiyouji-story-seen') || '[]')) seen.add(id) } catch { /* local presentation only */ }
 const current = computed(() => queue.value[0])
-watch(() => [game.storyEvent, game.battleInfo?.storyEvent, room.room?.storyEvent, room.battleInfo?.storyEvent], values => {
+watch(() => props.stories, values => {
   for (const story of values) for (const scene of story?.scenes || []) {
-    if (!seen.has(scene.id) && !queue.value.some(queued => queued.id === scene.id)) queue.value.push(scene)
+    // A completed snapshot is not a fresh confirmation of the active route.
+    if (scene.trigger !== 'COMPLETE' && !seen.has(scene.id) && !queue.value.some(queued => queued.id === scene.id)) queue.value.push(scene)
   }
 }, { immediate: true, deep: true })
 function remember() {

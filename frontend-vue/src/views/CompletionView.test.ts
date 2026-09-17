@@ -6,6 +6,7 @@ import ResponsiveImage from '@/components/ResponsiveImage.vue'
 import { useGameStore } from '@/stores/game'
 import { useRoomStore } from '@/stores/room'
 import { roomApi } from '@/api/room'
+import { gameApi } from '@/api/game'
 import type { GameState, RoomDTO, StoryEvent } from '@/types'
 
 const { route, push } = vi.hoisted(() => ({
@@ -57,19 +58,14 @@ function button(wrapper: VueWrapper, label: string) {
 function mockCompletedSolo() {
   const game = useGameStore()
   game.sessionId = 'saved-journey'
-  return vi.spyOn(game, 'loadSavedSession').mockImplementation(async () => {
-    game.storyEvent = completedStory
-    return savedState(completedStory)
-  })
+  return vi.spyOn(gameApi, 'getState').mockResolvedValue(savedState(completedStory))
 }
 
 function mockFinishedRoom() {
   route.params = { code: 'TEAM42' }
   const room = useRoomStore()
-  const open = vi.spyOn(room, 'openRoom').mockImplementation(async () => {
-    room.room = roomState()
-    return room.room
-  })
+  room.room = roomState()
+  const open = vi.spyOn(roomApi, 'getRoom').mockResolvedValue(roomState())
   return { room, open }
 }
 
@@ -79,7 +75,7 @@ beforeEach(() => {
   route.params = {}
   push.mockClear()
   setActivePinia(createPinia())
-  // Any unexpected transport operation fails; confirmation reads are mocked at the store boundary.
+  // Only fresh read-only APIs are mocked; unexpected transport/writes must fail.
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Unexpected network request in completion view')))
 })
 
@@ -93,8 +89,8 @@ describe('CompletionView authoritative completion and safe navigation', () => {
     const game = useGameStore()
     game.sessionId = 'saved-journey'
     game.storyEvent = completedStory // Cached local data alone is not confirmation.
-    const read = deferred<GameState | null>()
-    const load = vi.spyOn(game, 'loadSavedSession').mockReturnValue(read.promise)
+    const read = deferred<GameState>()
+    const load = vi.spyOn(gameApi, 'getState').mockReturnValue(read.promise)
     const wrapper = render()
 
     expect(load).toHaveBeenCalledExactlyOnceWith('saved-journey')
@@ -118,11 +114,13 @@ describe('CompletionView authoritative completion and safe navigation', () => {
   ])('does not invent a solo victory for $label', async ({ state }) => {
     const game = useGameStore()
     game.storyEvent = completedStory // A stale ending in the store must not override the response.
-    const load = vi.spyOn(game, 'loadSavedSession').mockResolvedValue(state)
+    if (state) game.sessionId = 'saved-journey'
+    const load = vi.spyOn(gameApi, 'getState').mockResolvedValue(state as GameState)
     const wrapper = render()
     await flushPromises()
 
-    expect(load).toHaveBeenCalledExactlyOnceWith(undefined)
+    if (state) expect(load).toHaveBeenCalledExactlyOnceWith('saved-journey')
+    else expect(load).not.toHaveBeenCalled()
     expect(wrapper.get('[role="status"]').text()).toContain('未找到本局通关记录')
     expect(wrapper.find('#completion-title').exists()).toBe(false)
     expect(wrapper.findComponent(ResponsiveImage).exists()).toBe(false)
@@ -134,12 +132,8 @@ describe('CompletionView authoritative completion and safe navigation', () => {
     const room = useRoomStore()
     room.room = { ...roomState(), code: 'OLD-ROOM' }
     const read = deferred<RoomDTO>()
-    const open = vi.spyOn(room, 'openRoom').mockImplementation(async () => {
-      const result = await read.promise
-      room.room = result
-      return result
-    })
-    const load = vi.spyOn(useGameStore(), 'loadSavedSession')
+    const open = vi.spyOn(roomApi, 'getRoom').mockReturnValue(read.promise)
+    const load = vi.spyOn(gameApi, 'getState')
     const wrapper = render()
 
     expect(open).toHaveBeenCalledExactlyOnceWith('TEAM42')
@@ -157,10 +151,7 @@ describe('CompletionView authoritative completion and safe navigation', () => {
   it('does not treat an unfinished multiplayer room as completed even when its cached story has an ending', async () => {
     route.params = { code: 'TEAM42' }
     const room = useRoomStore()
-    vi.spyOn(room, 'openRoom').mockImplementation(async () => {
-      room.room = roomState('IN_MAP')
-      return room.room
-    })
+    vi.spyOn(roomApi, 'getRoom').mockResolvedValue(roomState('IN_MAP'))
     const wrapper = render()
     await flushPromises()
 
@@ -173,7 +164,7 @@ describe('CompletionView authoritative completion and safe navigation', () => {
     route.params = { code: 'TEAM42' }
     const room = useRoomStore()
     room.room = roomState()
-    vi.spyOn(room, 'openRoom').mockRejectedValue(new Error('Network unavailable'))
+    vi.spyOn(roomApi, 'getRoom').mockRejectedValue(new Error('Network unavailable'))
     const errorHandler = vi.fn()
     const unhandled = vi.fn()
     window.addEventListener('unhandledrejection', unhandled)
@@ -197,7 +188,7 @@ describe('CompletionView authoritative completion and safe navigation', () => {
     const game = useGameStore()
     game.sessionId = 'saved-journey'
     game.storyEvent = completedStory
-    vi.spyOn(game, 'loadSavedSession').mockResolvedValue(null)
+    vi.spyOn(gameApi, 'getState').mockRejectedValue(new Error('Network unavailable'))
     const wrapper = render()
     await flushPromises()
 
@@ -244,7 +235,7 @@ describe('CompletionView authoritative completion and safe navigation', () => {
   it.each(['solo', 'multiplayer', 'unconfirmed'] as const)('returns to camp from the %s screen without changing the server room', async mode => {
     if (mode === 'multiplayer') mockFinishedRoom()
     else if (mode === 'solo') mockCompletedSolo()
-    else vi.spyOn(useGameStore(), 'loadSavedSession').mockResolvedValue(null)
+    else vi.spyOn(gameApi, 'getState').mockRejectedValue(new Error('Network unavailable'))
     const room = useRoomStore()
     const reset = vi.spyOn(room, 'reset')
     const leave = vi.spyOn(room, 'leaveRoom')
