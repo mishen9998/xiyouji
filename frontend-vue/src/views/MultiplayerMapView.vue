@@ -391,8 +391,8 @@ watch(() => room.value?.storyEvent?.event, event => {
 }, { immediate: true })
 
 watch(() => room.value?.status, status => {
-  if (status === 'FINISHED') void router.replace(`/room/${roomStore.roomCode}/complete`)
-  else if (status === 'IN_BATTLE') void router.replace(`/room/${roomStore.roomCode}/battle`)
+  const code = room.value?.code
+  if (status === 'FINISHED' && code && route.params.code === code) void router.replace(`/room/${code}/complete`)
 }, { immediate: true })
 </script>
 
