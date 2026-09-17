@@ -172,6 +172,8 @@ export interface RoomPlayer {
 }
 
 export interface RoomDTO {
+  battleId?: string | null
+  battleGeneration?: number
   storyEvent?: StoryEvent
   eventId?: string
   code: string
@@ -238,6 +240,9 @@ export interface MultiplayerEnemyInfo {
 }
 
 export interface MultiplayerBattleInfo {
+  battleId?: string | null
+  battleGeneration?: number
+  encounterId?: string | null
   storyEvent?: StoryEvent
   eventId?: string
   roomCode: string

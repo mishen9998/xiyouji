@@ -27,9 +27,34 @@ export const useRoomStore = defineStore('room', () => {
   let socketPromise: Promise<void> | null = null
   const roomReads = new Map<string, Promise<RoomDTO>>()
   const battleReads = new Map<string, Promise<MultiplayerBattleInfo>>()
-  function readRoom(code: string) {
-    if (!roomReads.has(code)) roomReads.set(code, roomApi.getRoom(code).finally(() => roomReads.delete(code)))
-    return roomReads.get(code)!
+  type BattleIdentity = { battleId: string; battleGeneration: number }
+  // Retained even when a map update clears the display, so late frames cannot resurrect an old battle.
+  let battleBoundary: BattleIdentity | null = null
+  function identity(value: { battleId?: string | null; battleGeneration?: number }): BattleIdentity | null {
+    return value.battleId && Number.isSafeInteger(value.battleGeneration) && value.battleGeneration! >= 0
+      ? { battleId: value.battleId, battleGeneration: value.battleGeneration! } : null
+  }
+  function acceptIdentity(next: BattleIdentity) {
+    if (battleBoundary && (next.battleGeneration < battleBoundary.battleGeneration ||
+      next.battleGeneration === battleBoundary.battleGeneration && next.battleId !== battleBoundary.battleId)) return false
+    if (!battleBoundary || next.battleId !== battleBoundary.battleId) {
+      battleBoundary = next
+      battleInfo.value = null
+    }
+    return true
+  }
+  function battleContext() {
+    return `${navigationGeneration}:${room.value?.code}:${room.value?.currentNode?.id}:${room.value?.battleId ?? ''}`
+  }
+  function readRoom(code: string, navigation: number) {
+    const key = `${navigation}:${code}`
+    if (!roomReads.has(key)) {
+      const request = roomApi.getRoom(code).finally(() => {
+        if (roomReads.get(key) === request) roomReads.delete(key)
+      })
+      roomReads.set(key, request)
+    }
+    return roomReads.get(key)!
   }
 
   function rememberRoom() {
@@ -82,16 +107,40 @@ export const useRoomStore = defineStore('room', () => {
 
   function applyRoom(next: RoomDTO) {
     if (room.value && room.value.code !== next.code) return
+    if (room.value && next.stateVersion < room.value.stateVersion) return
+    // A battle can arrive before its room frame. The start room version is also a room high-water mark.
+    if (battleBoundary && next.stateVersion < battleBoundary.battleGeneration) return
+    const nextIdentity = identity(next)
+    if (nextIdentity && !acceptIdentity(nextIdentity)) return
     if (next.eventId && seenEventIds.has(next.eventId)) return
     if (next.eventId) {
       seenEventIds.add(next.eventId)
       if (seenEventIds.size > 200) seenEventIds.delete(seenEventIds.values().next().value as string)
     }
-    if (!room.value || next.stateVersion >= room.value.stateVersion) room.value = next
+    room.value = next
+    if (next.status !== 'IN_BATTLE') battleInfo.value = null
   }
 
-  function applyBattle(next: MultiplayerBattleInfo) {
+  function applyBattle(next: MultiplayerBattleInfo, requestContext?: string) {
     if (!room.value || room.value.code !== next.roomCode) return
+    let nextIdentity = identity(next)
+    if (!nextIdentity) {
+      // An old wire response has no ordering identity. Never trust it as a push/command response:
+      // reconcile via a REST read bound to the unchanged room/node/navigation context instead.
+      if (!requestContext) { void refreshBattleState(); return }
+      if (requestContext !== battleContext() || room.value.status !== 'IN_BATTLE' ||
+        room.value.battleId || battleBoundary && battleBoundary.battleGeneration > 0) return
+      nextIdentity = { battleId: `legacy-wire:${requestContext}`, battleGeneration: 0 }
+      next = { ...next, ...nextIdentity }
+    }
+    const announced = identity(room.value)
+    if (announced && (nextIdentity.battleGeneration < announced.battleGeneration ||
+      nextIdentity.battleGeneration === announced.battleGeneration && nextIdentity.battleId !== announced.battleId)) return
+    if (room.value.stateVersion >= nextIdentity.battleGeneration) {
+      if (room.value.status !== 'IN_BATTLE') return
+      if (next.encounterId && room.value.currentNode?.id && next.encounterId !== room.value.currentNode.id) return
+    }
+    if (!acceptIdentity(nextIdentity)) return
     if (next.eventId && seenEventIds.has(next.eventId)) return
     if (next.eventId) {
       seenEventIds.add(next.eventId)
@@ -174,13 +223,17 @@ export const useRoomStore = defineStore('room', () => {
   /** 进入下一层（房主） */
   async function nextLayer() {
     if (!room.value) return
+    const code = room.value.code
+    const navigation = navigationGeneration
     try {
-      const result = await roomApi.nextLayer(room.value.code, room.value.stateVersion)
+      const result = await roomApi.nextLayer(code, room.value.stateVersion)
+      if (navigation !== navigationGeneration || room.value?.code !== code) return result
       // 刷新房间状态
-      const dto = await roomApi.getRoom(room.value.code)
-      applyRoom(dto)
+      const dto = await readRoom(code, navigation)
+      if (navigation === navigationGeneration && room.value?.code === code) applyRoom(dto)
       return result
     } catch (e: any) {
+      if (navigation !== navigationGeneration || room.value?.code !== code) return
       uiStore.showToast(e?.message || '进入下一层失败')
       return recoverFromConflict(e)
     }
@@ -190,11 +243,13 @@ export const useRoomStore = defineStore('room', () => {
   async function refreshRoomState(throwOnError = false) {
     const code = room.value?.code
     if (!code) return
+    const navigation = navigationGeneration
     try {
-      const dto = await readRoom(code)
-      if (room.value?.code === code) applyRoom(dto)
+      const dto = await readRoom(code, navigation)
+      if (navigation === navigationGeneration && room.value?.code === code) applyRoom(dto)
     } catch (error: any) {
-      if ((error?.status === 403 || error?.status === 404) && room.value?.code === code) {
+      if (navigation !== navigationGeneration || room.value?.code !== code) return
+      if (error?.status === 403 || error?.status === 404) {
         reset()
         uiStore.showToast('房间已结束，请重新创建或加入')
       }
@@ -218,10 +273,15 @@ export const useRoomStore = defineStore('room', () => {
     if (room.value?.code === code && socketCode === code) return room.value
     reset()
     const generation = navigationGeneration
-    const dto = await readRoom(code)
+    let dto: RoomDTO
+    try { dto = await readRoom(code, generation) }
+    catch (error) {
+      if (generation !== navigationGeneration) return
+      throw error
+    }
     if (generation !== navigationGeneration) return
     if (!dto.players.some(player => player.userId === getCurrentUsername())) throw new Error('你不是该房间成员')
-    room.value = dto
+    applyRoom(dto)
     void connectWs(code).catch(() => { /* periodic REST remains active */ })
     return dto
   }
@@ -269,12 +329,14 @@ export const useRoomStore = defineStore('room', () => {
   async function leaveRoom() {
     if (!room.value) return
     const code = room.value.code
+    const navigation = navigationGeneration
     try {
       await refreshRoomState(true)
-      if (!room.value) return
+      if (navigation !== navigationGeneration || room.value?.code !== code) return
       await retryCommand(`leave:${code}`, key => roomApi.leaveRoom(code, room.value!.stateVersion, key))
-      reset()
+      if (navigation === navigationGeneration && room.value?.code === code) reset()
     } catch (error: any) {
+      if (navigation !== navigationGeneration || room.value?.code !== code) return
       uiStore.showToast(error?.message || '退出失败，请重试')
       throw error
     }
@@ -355,10 +417,13 @@ export const useRoomStore = defineStore('room', () => {
   async function refreshBattleState() {
     const code = room.value?.code
     if (!code) return
+    const navigation = navigationGeneration
+    const context = battleContext()
+    const readKey = `${context}:${battleBoundary?.battleId ?? ''}`
     try {
-      if (!battleReads.has(code)) battleReads.set(code, multiplayerBattleApi.getBattleState(code).finally(() => battleReads.delete(code)))
-      const info = await battleReads.get(code)!
-      if (room.value?.code === code) applyBattle(info)
+      if (!battleReads.has(readKey)) battleReads.set(readKey, multiplayerBattleApi.getBattleState(code).finally(() => battleReads.delete(readKey)))
+      const info = await battleReads.get(readKey)!
+      if (navigation === navigationGeneration && room.value?.code === code) applyBattle(info, context)
     } catch { /* Reconcile again on the next connection or polling cycle. */ }
   }
 
@@ -404,14 +469,15 @@ export const useRoomStore = defineStore('room', () => {
   async function connectWs(code: string) {
     if (socketCode === code && socketPromise) return socketPromise
     socketCode = code
+    const navigation = navigationGeneration
     rememberRoom()
     startRoomSync(code)
     socketPromise = stomp.connect(
       code,
-      (dto) => { if (socketCode === code) applyRoom(dto) },
-      (info) => { if (socketCode === code) applyBattle(info) },
+      (dto) => { if (socketCode === code && navigation === navigationGeneration) applyRoom(dto) },
+      (info) => { if (socketCode === code && navigation === navigationGeneration) applyBattle(info) },
       (msg) => {                                  // 系统消息
-        if (socketCode !== code) return
+        if (socketCode !== code || navigation !== navigationGeneration) return
         systemMessages.value.push(msg)
         if (systemMessages.value.length > 20) {
           systemMessages.value.shift()
@@ -420,11 +486,11 @@ export const useRoomStore = defineStore('room', () => {
       async () => {
         // Pub/Sub is transient; reconcile authoritative state after every
         // initial connection and reconnect.
-        if (socketCode !== code) return
+        if (socketCode !== code || navigation !== navigationGeneration) return
         await refreshRoomState()
-        if (room.value?.status === 'IN_BATTLE') await refreshBattleState()
+        if (navigation === navigationGeneration && room.value?.code === code && room.value.status === 'IN_BATTLE') await refreshBattleState()
       },
-      (value) => { if (room.value?.code === code) connected.value = value },
+      (value) => { if (navigation === navigationGeneration && room.value?.code === code) connected.value = value },
     )
     return socketPromise
   }
@@ -441,12 +507,14 @@ export const useRoomStore = defineStore('room', () => {
   /** 重置状态 */
   function reset() {
     navigationGeneration++
+    roomReads.clear()
     const user = getCurrentUsername()
     if (user) sessionStorage.removeItem(`xiyouji_room:${user}`)
     seenEventIds.clear()
     disconnect()
     room.value = null
     battleInfo.value = null
+    battleBoundary = null
     systemMessages.value = []
   }
 

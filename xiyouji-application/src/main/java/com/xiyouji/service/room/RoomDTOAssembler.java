@@ -23,6 +23,8 @@ public class RoomDTOAssembler {
         dto.setCurrentNode(room.getCurrentNode());
         dto.setBonfireUpgradesLeft(room.getBonfireUpgradesLeft());
         dto.setStateVersion(room.getStateVersion());
+        dto.setBattleId(room.getBattleId());
+        dto.setBattleGeneration(room.getBattleGeneration());
         if (room.getStatus() != RoomStatus.WAITING) dto.setStoryEvent(com.xiyouji.service.event.StoryCatalog.map(
             room.getCode(),room.getFloor(),room.getCurrentNode(),room.getStatus() == RoomStatus.FINISHED,
             room.getPlayers().stream().filter(p -> p.getHp() > 0).map(com.xiyouji.service.event.EventActor::room).toList()));

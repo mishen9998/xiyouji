@@ -25,6 +25,12 @@ public class RoomDTO {
     private MapNode currentNode;
     private int bonfireUpgradesLeft;
     private long stateVersion;
+    private String battleId;
+    private long battleGeneration;
+    public String getBattleId() { return battleId; }
+    public void setBattleId(String battleId) { this.battleId = battleId; }
+    public long getBattleGeneration() { return battleGeneration; }
+    public void setBattleGeneration(long battleGeneration) { this.battleGeneration = battleGeneration; }
     private com.xiyouji.dto.response.StoryEvent storyEvent;
     public com.xiyouji.dto.response.StoryEvent getStoryEvent() { return storyEvent; }
     public void setStoryEvent(com.xiyouji.dto.response.StoryEvent value) { storyEvent = value; }

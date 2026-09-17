@@ -121,11 +121,18 @@ public class RoomService {
 
     /** 将房间状态切换为战斗中（供战斗系统调用） */
     public void markInBattle(String code) {
-        access.withRoomLock(code, () -> {
+        markInBattle(code, java.util.UUID.randomUUID().toString());
+    }
+
+    public long markInBattle(String code, String battleId) {
+        return access.withRoomLock(code, () -> {
             Room room = access.getRoomOrThrow(code);
             room.setStatus(RoomStatus.IN_BATTLE);
+            room.setBattleId(battleId);
+            room.setBattleGeneration(room.getStateVersion() + 1);
             room.getPlayers().forEach(p -> p.setNextBattleBlock(0));
             access.save(room);
+            return room.getBattleGeneration();
         });
     }
 

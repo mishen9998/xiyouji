@@ -120,7 +120,7 @@ class MultiplayerBattleServiceTest {
         }
         lenient().when(roomService.getRoomEntity(anyString())).thenReturn(room);
         lenient().when(roomService.canStart(anyString())).thenReturn(true);
-        lenient().doNothing().when(roomService).markInBattle(anyString());
+        lenient().when(roomService.markInBattle(anyString(), anyString())).thenReturn(1L);
     }
 
     private void setupCharacterAndEnemyMocks() {
@@ -182,7 +182,8 @@ class MultiplayerBattleServiceTest {
         }
         // 敌人HP应被缩放（5人 → 3倍）
         assertEquals(150, state.getEnemy().getMaxHp());
-        verify(roomService).markInBattle(ROOM_CODE);
+        verify(roomService).markInBattle(ROOM_CODE, state.getBattleId());
+        assertEquals(1L, state.getBattleGeneration());
     }
 
     @Test
