@@ -35,3 +35,28 @@
 验证范围：前端生产构建、动态图片映射、Maven 完整验证与 MySQL/Redis 集成测试、Docker 演示构建/健康检查、浏览器关键路径和静态资源 HTTP 回读。历史 HTML 的本地依赖链接也进行存在性检查。
 
 本地验收通过：9 个前端单元测试、79 个 Maven 测试、4 个 Playwright 场景、203 张图片 HTTP 回读、4 份历史 HTML 依赖和当前文档链接检查。MySQL/Redis 容器集成测试与五模块 JaCoCo 门禁均通过。
+
+---
+
+## 2026-09-18 目录结构与本地工作区规范化
+
+整理日期：2026-09-18。整理前功能基线：`194da98`（v1.2.0）。
+
+本轮整理只移动文档与本地工作区文件，不改动任何源码与构建逻辑；整理前后各执行一次回归（后端 Maven verify、前端类型检查/生产构建/单元测试、Compose 配置校验），结果一致。
+
+### 目录归位
+
+- 根目录的交付评估报告移入 `docs/项目部署交付评估与IDEA学习指南.txt`（git mv，保留历史）。
+- 根目录 8 个 2026-09-06 发布会话遗留的 `tmp-*.log` 归档至 `tmp/archive/2026-09-06-release-logs/`（Git 忽略，确认不需要后可整目录删除）。
+- 误初始化且与项目无关的流水线工作区 `pipeline-workspace/` 移入 `tmp/deprecated/pipeline-workspace/`（Git 忽略；确认不需要后可整目录删除）。
+
+### 忽略规则规范化
+
+- `.gitignore`：四个本地多 Agent 流水线目录（`multi-agent-doc-workflow/`、`pipeline-expedition-v2/`、`pipeline-game-polish/`、`pipeline-workspace/`）整体纳入忽略，替代原先仅忽略 `pipeline-game-polish/worktrees/` 的条目；`git status` 不再被本地工作区污染。
+- `.dockerignore`：补充上述四个目录与 `.trae/`，避免约 2.1 GiB 的本地流水线证据与 IDE 文件进入 Docker 构建上下文。
+
+### 保留说明
+
+- `pipeline-expedition-v2/`（远征 V2 需求批次，状态阻塞等待授权）与 `pipeline-game-polish/`（上一批打磨会话；其 `final-acceptance.md` 记录了 t4 阻断缺陷 F1）保留在原地，供流水线续跑与缺陷追溯。
+- `frontend-vue/e2e/T5-PERFORMANCE.md` 引用的 `pipeline-game-polish/tasks/t5` 性能证据路径保持有效。
+- `output/release-20260906-rc1/`（466 MiB 发布候选包）与 `backups/` 演练产物继续由既有忽略规则覆盖，不属于版本库内容。

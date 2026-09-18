@@ -85,5 +85,9 @@ docs/code-review-learning.md
 # TRAE IDE 本地工作目录（计划文档等）
 .trae/
 
-# Local implementation pipeline worktrees
-pipeline-game-polish/worktrees/
+# 本地多 Agent 流水线工作区（会话状态、任务证据与 worktree；
+# 体积大、可再生且不属于交付物，详见 docs/repository-cleanup.md）
+/multi-agent-doc-workflow/
+/pipeline-expedition-v2/
+/pipeline-game-polish/
+/pipeline-workspace/

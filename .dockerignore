@@ -11,7 +11,12 @@ output
 tmp
 data
 backups
+.trae
 .trae-html-share-packages
+multi-agent-doc-workflow
+pipeline-expedition-v2
+pipeline-game-polish
+pipeline-workspace
 *.log
 *.zip
 *.tar.gz

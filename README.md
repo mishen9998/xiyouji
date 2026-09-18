@@ -134,6 +134,8 @@ xiyouji/
 └── 停止演示.bat             # 停止演示并保留数据卷
 ```
 
+根目录的 `multi-agent-doc-workflow/` 与 `pipeline-*/` 是本地多 Agent 流水线工作区（会话状态与验收证据），体积大且可再生，不纳入版本控制，说明见 [仓库整理记录](docs/repository-cleanup.md)。
+
 ```text
 xiyouji-parent
 ├── xiyouji-common
