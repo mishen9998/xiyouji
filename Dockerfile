@@ -1,5 +1,5 @@
 # 基础镜像仓库可参数化：本地网络受限时用国内镜像站构建示例
-#   docker build --build-arg BASE_REGISTRY=docker.m.daocloud.io/library/ -t xiyouji:1.1.0-k8s .
+#   docker build --build-arg BASE_REGISTRY=docker.m.daocloud.io/library/ -t xiyouji:local .
 ARG BASE_REGISTRY=docker.io/library/
 
 # Stage 1: compile the Vue application in a reproducible Node image.
@@ -47,7 +47,8 @@ RUN apk add --no-cache tzdata curl \
     && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
     && echo Asia/Shanghai > /etc/timezone
 
-COPY --from=backend-build /workspace/xiyouji-bootstrap/target/xiyouji-bootstrap-1.0.0.jar app.jar
+# 跟随 pom 版本号，避免每次发版手工同步这里的文件名（构建阶段仅产生一个 jar）。
+COPY --from=backend-build /workspace/xiyouji-bootstrap/target/xiyouji-bootstrap-*.jar app.jar
 
 EXPOSE 8080
 HEALTHCHECK --interval=15s --timeout=5s --start-period=180s --retries=5 \

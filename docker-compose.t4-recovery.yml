@@ -2,7 +2,7 @@
 x-app: &app
   image: eclipse-temurin:17.0.13_11-jre-alpine
   command: ["java", "-Xms128m", "-Xmx512m", "-jar", "/app/app.jar"]
-  volumes: ["./xiyouji-bootstrap/target/xiyouji-bootstrap-1.0.0.jar:/app/app.jar:ro"]
+  volumes: ["./xiyouji-bootstrap/target/${XIYOUJI_JAR:-xiyouji-bootstrap-1.2.1.jar}:/app/app.jar:ro"]
   depends_on:
     mysql: { condition: service_healthy }
     redis: { condition: service_healthy }
