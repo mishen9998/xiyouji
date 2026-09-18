@@ -249,7 +249,7 @@ Standalone 模式使用 H2、内存状态存储和 JVM 本地锁，不需要 MyS
 npm ci --prefix frontend-vue
 npm run build --prefix frontend-vue
 .\mvnw.cmd -B -pl xiyouji-bootstrap -am package -DskipTests
-java -jar xiyouji-bootstrap/target/xiyouji-bootstrap-1.0.0.jar --spring.profiles.active=standalone
+java -jar xiyouji-bootstrap/target/xiyouji-bootstrap-1.2.1.jar --spring.profiles.active=standalone
 ```
 
 Linux/macOS 将 `.\mvnw.cmd` 替换为 `./mvnw`。
