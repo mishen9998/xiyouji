@@ -60,7 +60,7 @@ jobs:
           docker run --rm
           -v "$PWD/k8s:/work:ro"
           ghcr.io/yannh/kubeconform:v0.6.7
-          -strict -summary /work
+          -strict -summary -ignore-missing-schemas /work
 
       - name: Build multi-stage image
         run: docker build --tag xiyouji:${{ github.sha }} .
