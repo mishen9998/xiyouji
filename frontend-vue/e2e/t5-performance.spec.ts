@@ -177,6 +177,7 @@ for (const mode of [
 ]) {
   test(`performance: ${mode.name} steady battle and visual input`, async ({ browser, browserName, baseURL }, info) => {
     test.skip(browserName !== 'chromium', 'This benchmark requires Chromium CDP')
+    test.skip(!!process.env.CI, 'Steady frame budgets are calibrated for an idle local machine; CI runners share capacity with the Compose E2E stack and cannot measure a 33ms frame p95 meaningfully. Run this benchmark locally (docs/verification/local-game-polish.md).')
     test.setTimeout(90_000)
     const context = await browser.newContext({ viewport: mode.viewport, deviceScaleFactor: 1, isMobile: mode.mobile,
       hasTouch: mode.mobile, serviceWorkers: 'block', baseURL })
