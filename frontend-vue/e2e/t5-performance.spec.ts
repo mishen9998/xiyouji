@@ -143,29 +143,30 @@ async function feedbackSamples(page: Page) {
     await card.scrollIntoViewIfNeeded()
     await page.evaluate(selectedIndex => {
       const card = document.querySelectorAll<HTMLElement>('.hand-zone .game-card')[selectedIndex]
+      const dock = document.querySelector<HTMLElement>('.battle-dock')!
       ;(window as any).__t5Feedback = new Promise(resolve => {
         let start = 0
-        const timeout = window.setTimeout(() => { observer.disconnect(); card.removeEventListener('pointerdown', begin, true); resolve({ error: 'No visible selection feedback in 2 seconds' }) }, 2000)
+        const timeout = window.setTimeout(() => { observer.disconnect(); card.removeEventListener('pointerdown', begin, true); resolve({ error: 'No play-command feedback in 2 seconds' }) }, 2000)
         const begin = () => { start = performance.now() }
         card.addEventListener('pointerdown', begin, { capture: true, once: true })
         const observer = new MutationObserver(() => {
-          if (!start || card.getAttribute('aria-pressed') !== 'true') return
+          if (!start || dock.getAttribute('aria-busy') !== 'true') return
           observer.disconnect()
+          card.removeEventListener('pointerdown', begin, true)
+          const busy = dock.getAttribute('aria-busy') === 'true'
           const domCommitted = performance.now()
           requestAnimationFrame(() => requestAnimationFrame(() => {
             clearTimeout(timeout)
             resolve({ pointerDown: start, domCommitted, paintOpportunity: performance.now(),
-              latencyMs: performance.now() - start, domLatencyMs: domCommitted - start,
-              selected: card.classList.contains('selected'), outlineStyle: getComputedStyle(card).outlineStyle,
-              previewText: document.querySelector('.selection-preview')?.textContent?.trim() })
+              latencyMs: performance.now() - start, domLatencyMs: domCommitted - start, busy })
           }))
         })
-        observer.observe(card, { attributes: true, attributeFilter: ['aria-pressed', 'class'] })
+        observer.observe(dock, { attributes: true, attributeFilter: ['aria-busy'] })
       })
     }, cardIndex)
     await card.click()
     samples.push(await page.evaluate(() => (window as any).__t5Feedback))
-    await expect(card).toHaveAttribute('aria-pressed', 'true')
+    await expect(card).toBeEnabled()
   }
   return samples
 }
@@ -200,7 +201,7 @@ for (const mode of [
         renderingMode: 'Default lightweight illustration; 3D is opt-in and is not silently enabled by this benchmark.',
         network: 'Unthrottled local preview for this steady-state test; cold-start network is tested separately.',
         definition: { frame: 'Consecutive requestAnimationFrame timestamp intervals (scheduling/paint cadence proxy, not GPU instrumented render cost).',
-          feedback: 'Real Playwright click: DOM pointerdown to selected aria state / class and two requestAnimationFrame callbacks, allowing one intervening paint. Not physical display or backend latency.' },
+          feedback: 'Real Playwright click: DOM pointerdown to dock aria-busy (command accepted) and two requestAnimationFrame callbacks, allowing one intervening paint. Not physical display or backend latency.' },
         budgets: { frameP95Ms: mode.budget, feedbackMaxMs: 100 }, loadingExcluded: loading,
         steady: { ...frames, p50Ms: percentile(frames.intervals, 0.5), p95Ms: p95, maxMs: Math.max(...frames.intervals) }, feedback }
       await save(info, `steady-${mode.name}`, report)
@@ -210,9 +211,8 @@ for (const mode of [
       expect(feedback).toHaveLength(6)
       for (const sample of feedback) {
         expect(sample.error).toBeUndefined()
-        expect(sample.selected).toBe(true)
-        expect(sample.outlineStyle).not.toBe('none')
-        expect(sample.latencyMs, 'Pointerdown → visible selection paint opportunity').toBeLessThanOrEqual(100)
+        expect(sample.busy).toBe(true)
+        expect(sample.latencyMs, 'Pointerdown → visible command-accepted paint opportunity').toBeLessThanOrEqual(100)
       }
     } finally { await context.close() }
   })

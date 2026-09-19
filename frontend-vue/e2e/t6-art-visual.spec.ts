@@ -57,9 +57,10 @@ for (const [width, height, scale = 100] of widths) test(`final art ${width}x${he
     expect(await portrait.evaluate(img => getComputedStyle(img).objectFit)).toBe('contain')
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true)
     await expect(page.locator('.intent-damage li')).toHaveCount(5)
-    const confirm = page.getByRole('button', { name: '打出此牌', exact: true })
-    await confirm.scrollIntoViewIfNeeded()
-    await expect(confirm).toBeInViewport({ ratio: 1 })
+    // Cards play on single click now; the always-critical control on entry is end turn.
+    const endTurn = page.getByRole('button', { name: '结束回合', exact: true })
+    await endTurn.scrollIntoViewIfNeeded()
+    await expect(endTurn).toBeInViewport({ ratio: 1 })
     await page.screenshot({ path: info.outputPath(`${multiplayer ? 'coop' : 'solo'}-${scenes[layer - 1]}.png`), fullPage: true })
   }
   state.complete = true

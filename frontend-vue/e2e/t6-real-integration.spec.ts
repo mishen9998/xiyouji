@@ -32,6 +32,19 @@ function compose(args: string[], input?: string) {
     cwd: ROOT, encoding: 'utf8', input, maxBuffer: 8 * 1024 * 1024,
   }).trim()
 }
+/** These journeys drive the disposable local T6 stack (docker-compose.t6.yml,
+ * ports 18086/18087) and seed its Redis/MySQL; the Compose E2E environment used
+ * by CI intentionally does not include it. Skip with an explicit reason instead
+ * of failing where the stack cannot exist. */
+function t6StackRunning() {
+  try {
+    const services = execFileSync('docker', ['compose', '-p', PROJECT, '-f', 'docker-compose.t6.yml', 'ps', '--services', '--filter', 'status=running'], {
+      cwd: ROOT, encoding: 'utf8', maxBuffer: 1024 * 1024,
+    }).split('\n').filter(Boolean)
+    return services.length >= 3
+  } catch { return false }
+}
+test.skip(!t6StackRunning(), `Requires the disposable T6 stack: docker compose -p ${PROJECT} -f docker-compose.t6.yml up -d (see docs/verification/local-game-polish.md). CI does not provide this stack, so these real-service journeys run locally only.`)
 function list(value: any): any[] {
   return Array.isArray(value) && typeof value[0] === 'string' && Array.isArray(value[1]) ? value[1] : value
 }
@@ -205,8 +218,8 @@ async function fight(actors: Actor[], id: string, multiplayer: boolean, info: Te
     if (index < 0) {
       for (const a of actors) await a.page.getByRole('button', { name: '结束回合', exact: true }).click()
     } else {
+      // Single click plays the card immediately; no separate confirm step.
       await page.locator(multiplayer ? '.hand-cards .game-card' : '.hand-zone .game-card').nth(index).click()
-      await page.getByRole('button', { name: '打出此牌', exact: true }).click()
     }
     await expect.poll(async () => (await battleState(host, id, multiplayer)).stateVersion).toBeGreaterThan(battle.stateVersion)
     battle = await battleState(host, id, multiplayer)
